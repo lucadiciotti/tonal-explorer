@@ -16,6 +16,7 @@
 
 - `.bolt/prompt` governs design principles (beauty, production-worthy, Tailwind, lucide-react)
 - Login page expected as part of app flow
+- Error states should render visible messages (not blank page) when backend connection fails
 
 ## Decisions, constraints & rationale
 
@@ -30,6 +31,8 @@
 - `.env` excluded from GitHub (security) — Supabase keys not available in GitHub Actions build
 - **Decision**: Supabase public keys (URL + anon key) hardcoded directly in source code so app works on GitHub Pages
 - Rationale: Supabase anon keys are designed to be browser-visible; data security guaranteed by RLS policies, not key secrecy
+- **Bug fixed**: Vite replaces missing env vars with empty strings `""` during build; `??` operator only catches `null`/`undefined`, so app crashed silently on GitHub Pages. Changed to `||` operator to also catch empty strings → fallback to hardcoded credentials works
+- **UX fix**: Added error boundary/handling so backend connection failures show visible error message instead of blank white page
 - Build verified passing with hardcoded credentials
 
 ## Open questions & assumptions
@@ -37,3 +40,4 @@
 - User must ensure GitHub Pages source set to "GitHub Actions"
 - Supabase RLS policies must be properly configured to secure data (since keys are exposed)
 - Actual app content/features beyond auth not yet fully known
+- User should verify deployed site works after sync; check browser console (F12) if still blank
