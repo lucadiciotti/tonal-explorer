@@ -1,5 +1,9 @@
-import { useState } from 'react';
-import { ArrowLeft, SlidersHorizontal } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, SlidersHorizontal, Usb, Volume2 } from 'lucide-react';
+import { MidiDetector, MidiDevice } from '../lib/audio/MidiDetector';
+import { AudioRendererType } from '../lib/audio/AudioManager';
+import { getProgramsByCategory, MIDI_PROGRAM_CATEGORIES } from '../lib/audio/MidiPrograms';
+import { getSoundfontProgramsByCategory, SOUNDFONT_CATEGORIES } from '../lib/audio/SoundfontPrograms';
 
 const STORAGE_KEY = 'mzt-settings';
 
@@ -8,6 +12,18 @@ interface StoredSettings {
   ignoreStepDuration?: boolean;
   noteTransitionDelay?: number;
   singHoldDuration?: number;
+  audioMode?: AudioRendererType;
+  midiProgram?: number;
+  selectedCategory?: string;
+  midiDroneProgram?: number;
+  selectedDroneCategory?: string;
+  sfNoteInstrument?: string;
+  sfNoteCategory?: string;
+  sfDroneInstrument?: string;
+  sfDroneCategory?: string;
+  midiOutputDeviceId?: string;
+  midiInputDeviceId?: string;
+  monotimbral?: boolean;
 }
 
 function loadSettings(): Partial<StoredSettings> {
@@ -39,6 +55,47 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
   const [noteTransitionDelay, setNoteTransitionDelay] = useState<number>(stored.noteTransitionDelay ?? 500);
   const [singHoldDuration, setSingHoldDuration] = useState<number>(stored.singHoldDuration ?? 1500);
 
+  const [midiDevices, setMidiDevices] = useState<MidiDevice[]>([]);
+  const [audioMode, setAudioMode] = useState<AudioRendererType>(stored.audioMode || 'web-audio');
+  const [hasMidi, setHasMidi] = useState<boolean>(false);
+  const [midiProgram, setMidiProgram] = useState<number>(stored.midiProgram || 0);
+  const [selectedCategory, setSelectedCategory] = useState<string>(stored.selectedCategory || 'Piano');
+  const [midiDroneProgram, setMidiDroneProgram] = useState<number>(stored.midiDroneProgram ?? 48);
+  const [selectedDroneCategory, setSelectedDroneCategory] = useState<string>(stored.selectedDroneCategory || 'Strings');
+  const [sfNoteInstrument, setSfNoteInstrument] = useState<string>(stored.sfNoteInstrument || 'acoustic_grand_piano');
+  const [sfNoteCategory, setSfNoteCategory] = useState<string>(stored.sfNoteCategory || 'Piano');
+  const [sfDroneInstrument, setSfDroneInstrument] = useState<string>(stored.sfDroneInstrument || 'string_ensemble_1');
+  const [sfDroneCategory, setSfDroneCategory] = useState<string>(stored.sfDroneCategory || 'Strings');
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string>(stored.midiOutputDeviceId || '');
+  const [selectedInputDeviceId, setSelectedInputDeviceId] = useState<string>(stored.midiInputDeviceId || '');
+  const [monotimbral, setMonotimbral] = useState<boolean>(stored.monotimbral ?? false);
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | null = null;
+
+    const init = async () => {
+      const devices = await MidiDetector.getDevices();
+      setMidiDevices(devices);
+      setHasMidi(devices.length > 0);
+      if (devices.length > 0 && !stored.audioMode) {
+        setAudioMode('midi');
+        savePartial({ audioMode: 'midi' });
+      }
+
+      unsubscribe = await MidiDetector.onDeviceChange((devices) => {
+        setMidiDevices(devices);
+        const available = devices.length > 0;
+        setHasMidi(available);
+        const newMode = available ? 'midi' : 'web-audio';
+        setAudioMode(newMode);
+        savePartial({ audioMode: newMode });
+      });
+    };
+    init();
+
+    return () => { unsubscribe?.(); };
+  }, []);
+
   const updateStepDuration = (value: number) => {
     setStepDuration(value);
     savePartial({ stepDuration: value });
@@ -57,6 +114,86 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
   const updateSingHoldDuration = (value: number) => {
     setSingHoldDuration(value);
     savePartial({ singHoldDuration: value });
+  };
+
+  const updateAudioMode = (value: AudioRendererType) => {
+    setAudioMode(value);
+    savePartial({ audioMode: value });
+  };
+
+  const updateMidiProgram = (value: number) => {
+    setMidiProgram(value);
+    savePartial({ midiProgram: value });
+  };
+
+  const updateSelectedCategory = (value: string) => {
+    setSelectedCategory(value);
+    savePartial({ selectedCategory: value });
+    const programs = getProgramsByCategory(value);
+    if (programs.length > 0) {
+      setMidiProgram(programs[0].value);
+      savePartial({ midiProgram: programs[0].value });
+    }
+  };
+
+  const updateMidiDroneProgram = (value: number) => {
+    setMidiDroneProgram(value);
+    savePartial({ midiDroneProgram: value });
+  };
+
+  const updateSelectedDroneCategory = (value: string) => {
+    setSelectedDroneCategory(value);
+    savePartial({ selectedDroneCategory: value });
+    const programs = getProgramsByCategory(value);
+    if (programs.length > 0) {
+      setMidiDroneProgram(programs[0].value);
+      savePartial({ midiDroneProgram: programs[0].value });
+    }
+  };
+
+  const updateSfNoteCategory = (value: string) => {
+    setSfNoteCategory(value);
+    savePartial({ sfNoteCategory: value });
+    const programs = getSoundfontProgramsByCategory(value);
+    if (programs.length > 0) {
+      setSfNoteInstrument(programs[0].value);
+      savePartial({ sfNoteInstrument: programs[0].value });
+    }
+  };
+
+  const updateSfNoteInstrument = (value: string) => {
+    setSfNoteInstrument(value);
+    savePartial({ sfNoteInstrument: value });
+  };
+
+  const updateSfDroneCategory = (value: string) => {
+    setSfDroneCategory(value);
+    savePartial({ sfDroneCategory: value });
+    const programs = getSoundfontProgramsByCategory(value);
+    if (programs.length > 0) {
+      setSfDroneInstrument(programs[0].value);
+      savePartial({ sfDroneInstrument: programs[0].value });
+    }
+  };
+
+  const updateSfDroneInstrument = (value: string) => {
+    setSfDroneInstrument(value);
+    savePartial({ sfDroneInstrument: value });
+  };
+
+  const updateSelectedDeviceId = (value: string) => {
+    setSelectedDeviceId(value);
+    savePartial({ midiOutputDeviceId: value });
+  };
+
+  const updateSelectedInputDeviceId = (value: string) => {
+    setSelectedInputDeviceId(value);
+    savePartial({ midiInputDeviceId: value });
+  };
+
+  const updateMonotimbral = (value: boolean) => {
+    setMonotimbral(value);
+    savePartial({ monotimbral: value });
   };
 
   return (
@@ -159,6 +296,230 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
           <p className="text-sm text-slate-500">
             Per evitare falsi positivi, la nota cantata viene accettata solo se mantenuta stabile per tutta la durata della finestra di validazione. Un valore piu' basso rende la risposta piu' reattiva ma aumenta il rischio di errori involontari; un valore piu' alto richiede maggiore costanza ma garantisce un riconoscimento piu' affidabile.
           </p>
+        </fieldset>
+
+        <fieldset className="border-2 border-slate-200 rounded-lg p-4 space-y-4">
+          <legend className="text-sm font-medium text-slate-700 px-2">Audio / MIDI</legend>
+          <div className="space-y-3">
+            <label className="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 has-[:checked]:border-slate-800 has-[:checked]:bg-slate-50">
+              <input
+                type="radio"
+                name="audioMode"
+                value="web-audio"
+                checked={audioMode === 'web-audio'}
+                onChange={(e) => updateAudioMode(e.target.value as AudioRendererType)}
+                className="w-4 h-4 text-slate-800"
+              />
+              <div className="flex-1">
+                <div className="font-medium text-slate-800">Web Audio</div>
+                <div className="text-xs text-slate-500">Built-in synthesizer</div>
+              </div>
+            </label>
+
+            <label className="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 has-[:checked]:border-slate-800 has-[:checked]:bg-slate-50 has-[:disabled]:opacity-50 has-[:disabled]:cursor-not-allowed">
+              <input
+                type="radio"
+                name="audioMode"
+                value="midi"
+                checked={audioMode === 'midi'}
+                onChange={(e) => updateAudioMode(e.target.value as AudioRendererType)}
+                disabled={!hasMidi}
+                className="w-4 h-4 text-slate-800"
+              />
+              <Usb className="w-5 h-5 text-slate-600" />
+              <div className="flex-1">
+                <div className="font-medium text-slate-800">
+                  MIDI Device
+                  {hasMidi && midiDevices.length > 0 && (
+                    <span className="ml-2 text-xs text-green-600 font-normal">Connected</span>
+                  )}
+                </div>
+                <div className="text-xs text-slate-500">
+                  {hasMidi && midiDevices.length > 0
+                    ? midiDevices[0].name
+                    : 'No MIDI device detected'}
+                </div>
+              </div>
+            </label>
+            <label className="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 has-[:checked]:border-slate-800 has-[:checked]:bg-slate-50">
+              <input
+                type="radio"
+                name="audioMode"
+                value="soundfont"
+                checked={audioMode === 'soundfont'}
+                onChange={(e) => updateAudioMode(e.target.value as AudioRendererType)}
+                className="w-4 h-4 text-slate-800"
+              />
+              <Volume2 className="w-5 h-5 text-slate-600" />
+              <div className="flex-1">
+                <div className="font-medium text-slate-800">Soundfont</div>
+                <div className="text-xs text-slate-500">Strumenti realistici nel browser (richiede download campioni)</div>
+              </div>
+            </label>
+          </div>
+
+          {audioMode === 'soundfont' && (
+            <div className="space-y-4 pt-2 border-t border-slate-200">
+              <div>
+                <label className="block text-sm text-slate-600 mb-2">Instrument</label>
+                <div className="space-y-2">
+                  <select
+                    value={sfNoteCategory}
+                    onChange={(e) => updateSfNoteCategory(e.target.value)}
+                    className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg focus:border-slate-800 focus:outline-none text-sm"
+                  >
+                    {SOUNDFONT_CATEGORIES.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={sfNoteInstrument}
+                    onChange={(e) => updateSfNoteInstrument(e.target.value)}
+                    className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg focus:border-slate-800 focus:outline-none text-sm"
+                  >
+                    {getSoundfontProgramsByCategory(sfNoteCategory).map(prog => (
+                      <option key={prog.value} value={prog.value}>
+                        {prog.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm text-slate-600 mb-2">Drone</label>
+                <div className="space-y-2">
+                  <select
+                    value={sfDroneCategory}
+                    onChange={(e) => updateSfDroneCategory(e.target.value)}
+                    className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg focus:border-slate-800 focus:outline-none text-sm"
+                  >
+                    {SOUNDFONT_CATEGORIES.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={sfDroneInstrument}
+                    onChange={(e) => updateSfDroneInstrument(e.target.value)}
+                    className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg focus:border-slate-800 focus:outline-none text-sm"
+                  >
+                    {getSoundfontProgramsByCategory(sfDroneCategory).map(prog => (
+                      <option key={prog.value} value={prog.value}>
+                        {prog.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {audioMode === 'midi' && hasMidi && (
+            <div className="space-y-4 pt-2 border-t border-slate-200">
+              <div>
+                <label className="block text-sm text-slate-600 mb-2">Sintetizzatore MIDI (output)</label>
+                <select
+                  value={selectedDeviceId}
+                  onChange={(e) => updateSelectedDeviceId(e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg focus:border-slate-800 focus:outline-none text-sm"
+                >
+                  {midiDevices.filter(d => d.isOutput).length === 0 && (
+                    <option value="">Nessun dispositivo output</option>
+                  )}
+                  {midiDevices.filter(d => d.isOutput).map(device => (
+                    <option key={device.id} value={device.id}>
+                      {device.name}{device.manufacturer ? ` (${device.manufacturer})` : ''}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-slate-400 mt-1">Il dispositivo che produce il suono (drone e note di riferimento)</p>
+              </div>
+
+              <div>
+                <label className="block text-sm text-slate-600 mb-2">Tastiera MIDI (input)</label>
+                <select
+                  value={selectedInputDeviceId}
+                  onChange={(e) => updateSelectedInputDeviceId(e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg focus:border-slate-800 focus:outline-none text-sm"
+                >
+                  <option value="">Auto (stesso dispositivo output)</option>
+                  {midiDevices.filter(d => d.isInput).map(device => (
+                    <option key={device.id} value={device.id}>
+                      {device.name}{device.manufacturer ? ` (${device.manufacturer})` : ''}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-slate-400 mt-1">La tastiera che suoni per rispondere agli esercizi</p>
+              </div>
+
+              <label className="flex items-center gap-3 cursor-pointer py-1">
+                <input
+                  type="checkbox"
+                  checked={monotimbral}
+                  onChange={(e) => updateMonotimbral(e.target.checked)}
+                  className="w-4 h-4 text-slate-800 rounded"
+                />
+                <div>
+                  <div className="text-sm font-medium text-slate-800">Dispositivo monotimbrale</div>
+                  <div className="text-xs text-slate-500">Usa un solo suono per drone e note (per tastiere con synth interno come AKAI MPK Mini Play)</div>
+                </div>
+              </label>
+
+              <div>
+                <label className="block text-sm text-slate-600 mb-2">{monotimbral ? 'Strumento (drone + note)' : 'Instrument'}</label>
+                <div className="space-y-2">
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => updateSelectedCategory(e.target.value)}
+                    className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg focus:border-slate-800 focus:outline-none text-sm"
+                  >
+                    {MIDI_PROGRAM_CATEGORIES.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={midiProgram}
+                    onChange={(e) => updateMidiProgram(Number(e.target.value))}
+                    className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg focus:border-slate-800 focus:outline-none text-sm"
+                  >
+                    {getProgramsByCategory(selectedCategory).map(prog => (
+                      <option key={prog.value} value={prog.value}>
+                        {prog.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {!monotimbral && (
+              <div>
+                <label className="block text-sm text-slate-600 mb-2">Drone</label>
+                <div className="space-y-2">
+                  <select
+                    value={selectedDroneCategory}
+                    onChange={(e) => updateSelectedDroneCategory(e.target.value)}
+                    className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg focus:border-slate-800 focus:outline-none text-sm"
+                  >
+                    {MIDI_PROGRAM_CATEGORIES.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={midiDroneProgram}
+                    onChange={(e) => updateMidiDroneProgram(Number(e.target.value))}
+                    className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg focus:border-slate-800 focus:outline-none text-sm"
+                  >
+                    {getProgramsByCategory(selectedDroneCategory).map(prog => (
+                      <option key={prog.value} value={prog.value}>
+                        {prog.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              )}
+            </div>
+          )}
         </fieldset>
       </div>
     </div>
