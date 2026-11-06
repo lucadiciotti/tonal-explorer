@@ -27,7 +27,7 @@ export class MidiRenderer implements AudioRenderer {
   private currentDroneProgram: number = 48;
   private noteCallbacks: Map<number, (note: string, octave: number) => void> = new Map();
 
-  async initialize(deviceId?: string): Promise<void> {
+  async initialize(deviceId?: string, inputDeviceId?: string): Promise<void> {
     if (!navigator.requestMIDIAccess) {
       throw new Error('Web MIDI API not supported in this browser');
     }
@@ -52,7 +52,14 @@ export class MidiRenderer implements AudioRenderer {
 
       const inputs = Array.from(this.midiAccess.inputs.values());
       if (inputs.length > 0) {
-        this.input = inputs[0];
+        let chosenInput: MIDIInput | null = null;
+        if (inputDeviceId) {
+          chosenInput = inputs.find(i => i.id === inputDeviceId) || null;
+        }
+        if (!chosenInput && deviceId) {
+          chosenInput = inputs.find(i => i.id === deviceId) || null;
+        }
+        this.input = chosenInput || inputs[0];
         this.input.onmidimessage = this.handleMidiMessage.bind(this);
         console.log('MIDI input initialized with device:', this.input.name);
       }
