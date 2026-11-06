@@ -292,21 +292,6 @@ export function Settings({ onStart }: SettingsProps) {
               <input
                 type="radio"
                 name="mode"
-                value="listen-and-play"
-                checked={mode === 'listen-and-play'}
-                onChange={(e) => setMode(e.target.value as SessionMode)}
-                className="w-4 h-4 text-slate-800"
-              />
-              <div className="flex-1">
-                <div className="font-medium text-slate-800">Ascolta e Suona</div>
-                <div className="text-sm text-slate-500">Avanzato. Il programma suona un drone che corrisponde alla tonalita' del pezzo e una nota che corrisponde ad un certo grado della tonalita' proposta. Il tuo compito e' quello di capire il grado e risolvere tale grado nella tonalita' proposta suonando la nota giusta sullo strumento. Attenzione, il programma rilevera' anche se sbagli l'ottava quindi se questo ti risultasse ancora difficile seleziona il checkbox Ignora Ottave.</div>
-              </div>
-            </label>
-
-            <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 has-[:checked]:border-slate-800 has-[:checked]:bg-slate-50">
-              <input
-                type="radio"
-                name="mode"
                 value="read-and-sing"
                 checked={mode === 'read-and-sing'}
                 onChange={(e) => setMode(e.target.value as SessionMode)}
@@ -315,6 +300,21 @@ export function Settings({ onStart }: SettingsProps) {
               <div className="flex-1">
                 <div className="font-medium text-slate-800">Leggi e Canta</div>
                 <div className="text-sm text-slate-500">Come Leggi e Suona, ma invece di suonare uno strumento MIDI, canti la nota nel microfono. Il programma rileva la frequenza della tua voce e verifica se corrisponde alla nota attesa.</div>
+              </div>
+            </label>
+
+            <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 has-[:checked]:border-slate-800 has-[:checked]:bg-slate-50">
+              <input
+                type="radio"
+                name="mode"
+                value="listen-and-play"
+                checked={mode === 'listen-and-play'}
+                onChange={(e) => setMode(e.target.value as SessionMode)}
+                className="w-4 h-4 text-slate-800"
+              />
+              <div className="flex-1">
+                <div className="font-medium text-slate-800">Ascolta e Suona</div>
+                <div className="text-sm text-slate-500">Avanzato. Il programma suona un drone che corrisponde alla tonalita' del pezzo e una nota che corrisponde ad un certo grado della tonalita' proposta. Il tuo compito e' quello di capire il grado e risolvere tale grado nella tonalita' proposta suonando la nota giusta sullo strumento. Attenzione, il programma rilevera' anche se sbagli l'ottava quindi se questo ti risultasse ancora difficile seleziona il checkbox Ignora Ottave.</div>
               </div>
             </label>
           </div>
