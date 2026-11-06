@@ -103,21 +103,21 @@ export function italianToEnglish(note: string): string {
 export function parseSpokenNote(text: string): string | null {
   const lower = text.toLowerCase().trim();
 
-  const sharpFlat: [RegExp, string][] = [
-    [/do\s*diesis/, 'Do#'],
-    [/do\s*bemolle/, 'Dob'],
-    [/re\s*diesis/, 'Re#'],
-    [/re\s*bemolle/, 'Reb'],
-    [/mi\s*diesis/, 'Mi#'],
-    [/mi\s*bemolle/, 'Mib'],
-    [/fa\s*diesis/, 'Fa#'],
-    [/fa\s*bemolle/, 'Fab'],
-    [/sol\s*diesis/, 'Sol#'],
-    [/sol\s*bemolle/, 'Solb'],
-    [/la\s*diesis/, 'La#'],
-    [/la\s*bemolle/, 'Lab'],
-    [/si\s*diesis/, 'Si#'],
-    [/si\s*bemolle/, 'Sib'],
+  const altered: [RegExp, string][] = [
+    [/do\s*diesis|du\b/, 'Do#'],
+    [/do\s*bemolle|di\b/, 'Dob'],
+    [/re\s*diesis|ri\b/, 'Re#'],
+    [/re\s*bemolle|ra\b/, 'Reb'],
+    [/mi\s*diesis|mo\b/, 'Mi#'],
+    [/mi\s*bemolle|me\b/, 'Mib'],
+    [/fa\s*diesis|fe\b/, 'Fa#'],
+    [/fa\s*bemolle|fu\b/, 'Fab'],
+    [/sol\s*diesis|sul\b/, 'Sol#'],
+    [/sol\s*bemolle|sil\b/, 'Solb'],
+    [/la\s*diesis|le\b/, 'La#'],
+    [/la\s*bemolle|lu\b/, 'Lab'],
+    [/si\s*diesis|so\b/, 'Si#'],
+    [/si\s*bemolle|se\b/, 'Sib'],
   ];
 
   const natural: [RegExp, string][] = [
@@ -130,7 +130,7 @@ export function parseSpokenNote(text: string): string | null {
     [/\bsi\b/, 'Si'],
   ];
 
-  for (const [regex, note] of sharpFlat) {
+  for (const [regex, note] of altered) {
     if (regex.test(lower)) return note;
   }
   for (const [regex, note] of natural) {
