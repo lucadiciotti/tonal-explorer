@@ -31,8 +31,20 @@ export class PitchDetector {
   private fired = false;
 
   async initialize(): Promise<void> {
-    this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw new Error('mediaDevices API not available — requires HTTPS context');
+    }
+    this.stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+      },
+    });
     this.audioContext = new AudioContext();
+    if (this.audioContext.state === 'suspended') {
+      await this.audioContext.resume();
+    }
     const source = this.audioContext.createMediaStreamSource(this.stream);
 
     this.analyser = this.audioContext.createAnalyser();
