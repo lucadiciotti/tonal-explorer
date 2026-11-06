@@ -8,10 +8,12 @@ export type AudioRendererType = 'web-audio' | 'midi' | 'soundfont';
 
 export class AudioManager {
   private renderer: AudioRenderer | null = null;
-  private rendererType: AudioRendererType = 'web-audio';
+  private rendererType: AudioRendererType;
+  private deviceId?: string;
 
-  constructor(rendererType: AudioRendererType = 'web-audio') {
+  constructor(rendererType: AudioRendererType = 'web-audio', deviceId?: string) {
     this.rendererType = rendererType;
+    this.deviceId = deviceId;
   }
 
   async initialize(): Promise<void> {
@@ -30,7 +32,7 @@ export class AudioManager {
         throw new Error(`Unknown renderer type: ${this.rendererType}`);
     }
 
-    await this.renderer.initialize();
+    await this.renderer.initialize(this.deviceId);
   }
 
   async playDrone(note: string): Promise<void> {
@@ -61,9 +63,10 @@ export class AudioManager {
     }
   }
 
-  setRendererType(type: AudioRendererType): void {
+  setRendererType(type: AudioRendererType, deviceId?: string): void {
     this.cleanup();
     this.rendererType = type;
+    this.deviceId = deviceId;
   }
 
   static async detectBestRenderer(): Promise<AudioRendererType> {

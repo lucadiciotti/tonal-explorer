@@ -7,7 +7,7 @@ import { getProgramsByCategory, MIDI_PROGRAM_CATEGORIES } from '../lib/audio/Mid
 import { getSoundfontProgramsByCategory, SOUNDFONT_CATEGORIES } from '../lib/audio/SoundfontPrograms';
 
 interface SettingsProps {
-  onStart: (settings: SessionSettings, rendererType: AudioRendererType, midiProgram?: number, midiDroneProgram?: number, soundfontNote?: string, soundfontDrone?: string) => void;
+  onStart: (settings: SessionSettings, rendererType: AudioRendererType, midiProgram?: number, midiDroneProgram?: number, soundfontNote?: string, soundfontDrone?: string, midiDeviceId?: string) => void;
 }
 
 // Organized in circle of fifths order starting from C at top, with enharmonic pairs grouped
@@ -48,6 +48,7 @@ interface StoredSettings {
   sfDroneCategory: string;
   tonalRetention: boolean;
   tonalRetentionDuration: number;
+  midiDeviceId: string;
 }
 
 function loadSettings(): Partial<StoredSettings> {
@@ -90,6 +91,7 @@ export function Settings({ onStart }: SettingsProps) {
   const [sfDroneCategory, setSfDroneCategory] = useState<string>(stored.sfDroneCategory || 'Strings');
   const [tonalRetention, setTonalRetention] = useState<boolean>(stored.tonalRetention ?? true);
   const [tonalRetentionDuration, setTonalRetentionDuration] = useState<number>(stored.tonalRetentionDuration ?? 3);
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string>(stored.midiDeviceId || '');
 
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
@@ -115,7 +117,7 @@ export function Settings({ onStart }: SettingsProps) {
   }, []);
 
   const handleStart = () => {
-    saveSettings({ tonic, numNotes, stepDuration, audioMode, midiProgram, selectedCategory, midiDroneProgram, selectedDroneCategory, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, sfNoteInstrument, sfNoteCategory, sfDroneInstrument, sfDroneCategory, tonalRetention, tonalRetentionDuration });
+    saveSettings({ tonic, numNotes, stepDuration, audioMode, midiProgram, selectedCategory, midiDroneProgram, selectedDroneCategory, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, sfNoteInstrument, sfNoteCategory, sfDroneInstrument, sfDroneCategory, tonalRetention, tonalRetentionDuration, midiDeviceId: selectedDeviceId });
     onStart(
       { tonic, numNotes, stepDuration, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, tonalRetention, tonalRetentionDuration },
       audioMode,
@@ -123,6 +125,7 @@ export function Settings({ onStart }: SettingsProps) {
       audioMode === 'midi' ? midiDroneProgram : undefined,
       audioMode === 'soundfont' ? sfNoteInstrument : undefined,
       audioMode === 'soundfont' ? sfDroneInstrument : undefined,
+      audioMode === 'midi' && selectedDeviceId ? selectedDeviceId : undefined,
     );
   };
 
@@ -473,6 +476,25 @@ export function Settings({ onStart }: SettingsProps) {
 
           {audioMode === 'midi' && hasMidi && (
             <div className="space-y-4 pt-2 border-t border-slate-200">
+              <div>
+                <label className="block text-sm text-slate-600 mb-2">Dispositivo MIDI</label>
+                <select
+                  value={selectedDeviceId}
+                  onChange={(e) => setSelectedDeviceId(e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg focus:border-slate-800 focus:outline-none text-sm"
+                >
+                  {midiDevices.map(device => (
+                    <option key={device.id} value={device.id}>
+                      {device.name}{device.manufacturer ? ` (${device.manufacturer})` : ''}
+                    </option>
+                  ))}
+                </select>
+                {midiDevices.length > 1 && (
+                  <p className="text-xs text-slate-400 mt-1">
+                    {midiDevices.length} dispositivi rilevati — seleziona la tua tastiera
+                  </p>
+                )}
+              </div>
               <div>
                 <label className="block text-sm text-slate-600 mb-2">Instrument</label>
                 <div className="space-y-2">

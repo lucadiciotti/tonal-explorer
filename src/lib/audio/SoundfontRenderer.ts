@@ -26,7 +26,7 @@ export class SoundfontRenderer implements AudioRenderer {
   private droneInstrumentName: string = 'string_ensemble_1';
   private loading = false;
 
-  async initialize(): Promise<void> {
+  async initialize(_deviceId?: string): Promise<void> {
     this.audioContext = new AudioContext();
     if (this.audioContext.state === 'suspended') {
       await this.audioContext.resume();

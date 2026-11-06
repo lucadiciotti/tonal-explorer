@@ -28,7 +28,7 @@ export class WebAudioRenderer implements AudioRenderer {
   private gainNode: GainNode | null = null;
   private filter: BiquadFilterNode | null = null;
 
-  async initialize(): Promise<void> {
+  async initialize(_deviceId?: string): Promise<void> {
     this.audioContext = new AudioContext();
 
     // Resume audio context if it's suspended (browser autoplay policy)
