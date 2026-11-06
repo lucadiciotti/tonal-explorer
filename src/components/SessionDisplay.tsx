@@ -3,7 +3,7 @@ import { Play, Pause, X, Check, AlertCircle, Mic, MicOff } from 'lucide-react';
 import { Note, SessionMode, SessionStats, ErrorLogEntry, NoteResult } from '../types';
 import { AudioManager } from '../lib/audio/AudioManager';
 import { convertScaleDegreeToNote } from '../utils/noteConverter';
-import { getItalianNoteName, parseSpokenNote, italianToEnglish } from '../utils/italianNotes';
+import { getItalianNoteName, parseSpokenNote } from '../utils/italianNotes';
 import { MidiRenderer } from '../lib/audio/MidiRenderer';
 import { PitchDetector, PitchData } from '../lib/audio/PitchDetector';
 import { SpeechRecognizer } from '../lib/audio/SpeechRecognizer';
@@ -252,10 +252,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     const currentNote = notes[idx];
     try {
       const expectedItalian = getItalianNoteName(tonic, currentNote);
-      const expectedEnglish = italianToEnglish(expectedItalian);
-      const spokenEnglish = italianToEnglish(spokenNote);
-
-      const isCorrect = areNotesEqual(spokenEnglish, expectedEnglish, true);
+      const isCorrect = spokenNote === expectedItalian;
 
       if (isCorrect) {
         noteAnsweredRef.current = true;

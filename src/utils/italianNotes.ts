@@ -23,6 +23,36 @@ const ITALIAN_CHROMATIC_SCALES: Record<string, string[]> = {
   'F':  ['Fa', 'Solb', 'Sol', 'Lab', 'La', 'Sib', 'Si', 'Do', 'Reb', 'Re', 'Mib', 'Mi'],
 };
 
+const SHARP_KEYS = new Set(['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#']);
+
+const DIATONIC_DEGREES: Record<string, string[]> = {
+  'C':  ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'],
+  'G':  ['Sol', 'La', 'Si', 'Do', 'Re', 'Mi', 'Fa#'],
+  'D':  ['Re', 'Mi', 'Fa#', 'Sol', 'La', 'Si', 'Do#'],
+  'A':  ['La', 'Si', 'Do#', 'Re', 'Mi', 'Fa#', 'Sol#'],
+  'E':  ['Mi', 'Fa#', 'Sol#', 'La', 'Si', 'Do#', 'Re#'],
+  'B':  ['Si', 'Do#', 'Re#', 'Mi', 'Fa#', 'Sol#', 'La#'],
+  'F#': ['Fa#', 'Sol#', 'La#', 'Si', 'Do#', 'Re#', 'Mi#'],
+  'C#': ['Do#', 'Re#', 'Mi#', 'Fa#', 'Sol#', 'La#', 'Si#'],
+  'F':  ['Fa', 'Sol', 'La', 'Sib', 'Do', 'Re', 'Mi'],
+  'Bb': ['Sib', 'Do', 'Re', 'Mib', 'Fa', 'Sol', 'La'],
+  'Eb': ['Mib', 'Fa', 'Sol', 'Lab', 'Sib', 'Do', 'Re'],
+  'Ab': ['Lab', 'Sib', 'Do', 'Reb', 'Mib', 'Fa', 'Sol'],
+  'Db': ['Reb', 'Mib', 'Fa', 'Solb', 'Lab', 'Sib', 'Do'],
+  'Gb': ['Solb', 'Lab', 'Sib', 'Dob', 'Reb', 'Mib', 'Fa'],
+  'Cb': ['Dob', 'Reb', 'Mib', 'Fab', 'Solb', 'Lab', 'Sib'],
+};
+
+function lowerSemitone(note: string): string {
+  if (note.endsWith('#')) return note.slice(0, -1);
+  return note + 'b';
+}
+
+function raiseSemitone(note: string): string {
+  if (note.endsWith('b')) return note.slice(0, -1);
+  return note + '#';
+}
+
 const ITALIAN_TO_ENGLISH: Record<string, string> = {
   'Do': 'C', 'Do#': 'C#', 'Dob': 'Cb',
   'Re': 'D', 'Re#': 'D#', 'Reb': 'Db',
@@ -39,14 +69,28 @@ export function getItalianNoteName(tonic: string, degree: Note): string {
     degreeString = degree.slice(1);
   }
 
+  const scale = ITALIAN_CHROMATIC_SCALES[tonic];
+  if (!scale) {
+    throw new Error(`Unknown tonic: ${tonic}`);
+  }
+
   const semitones = SCALE_DEGREE_TO_SEMITONES[degreeString];
   if (semitones === undefined) {
     throw new Error(`Unknown scale degree: ${degreeString}`);
   }
 
-  const scale = ITALIAN_CHROMATIC_SCALES[tonic];
-  if (!scale) {
-    throw new Error(`Unknown tonic: ${tonic}`);
+  if (degreeString.startsWith('b') && SHARP_KEYS.has(tonic)) {
+    const diatonic = DIATONIC_DEGREES[tonic];
+    const naturalDegreeNum = degreeString.slice(1);
+    const naturalNote = diatonic[parseInt(naturalDegreeNum) - 1];
+    return lowerSemitone(naturalNote);
+  }
+
+  if (degreeString.startsWith('#') && !SHARP_KEYS.has(tonic)) {
+    const diatonic = DIATONIC_DEGREES[tonic];
+    const naturalDegreeNum = degreeString.slice(1);
+    const naturalNote = diatonic[parseInt(naturalDegreeNum) - 1];
+    return raiseSemitone(naturalNote);
   }
 
   return scale[semitones];
