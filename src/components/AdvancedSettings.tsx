@@ -6,6 +6,7 @@ const STORAGE_KEY = 'mzt-settings';
 interface StoredSettings {
   stepDuration?: number;
   ignoreStepDuration?: boolean;
+  noteTransitionDelay?: number;
 }
 
 function loadSettings(): Partial<StoredSettings> {
@@ -34,6 +35,7 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
   const stored = loadSettings();
   const [stepDuration, setStepDuration] = useState<number>(stored.stepDuration ?? 3);
   const [ignoreStepDuration, setIgnoreStepDuration] = useState<boolean>(stored.ignoreStepDuration ?? true);
+  const [noteTransitionDelay, setNoteTransitionDelay] = useState<number>(stored.noteTransitionDelay ?? 500);
 
   const updateStepDuration = (value: number) => {
     setStepDuration(value);
@@ -43,6 +45,11 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
   const updateIgnoreStepDuration = (value: boolean) => {
     setIgnoreStepDuration(value);
     savePartial({ ignoreStepDuration: value });
+  };
+
+  const updateNoteTransitionDelay = (value: number) => {
+    setNoteTransitionDelay(value);
+    savePartial({ noteTransitionDelay: value });
   };
 
   return (
@@ -93,6 +100,32 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
               <div className="text-xs text-slate-500">Nessun timeout, il sistema attende la nota</div>
             </div>
           </label>
+        </fieldset>
+
+        <fieldset className="border-2 border-slate-200 rounded-lg p-4 space-y-4">
+          <legend className="text-sm font-medium text-slate-700 px-2">Pausa tra le note</legend>
+          <div>
+            <label htmlFor="noteTransitionDelay" className="block text-sm text-slate-600 mb-2">
+              Durata: {noteTransitionDelay}ms
+            </label>
+            <input
+              id="noteTransitionDelay"
+              type="range"
+              min="0"
+              max="1000"
+              step="50"
+              value={noteTransitionDelay}
+              onChange={(e) => updateNoteTransitionDelay(Number(e.target.value))}
+              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-800"
+            />
+            <div className="flex justify-between text-xs text-slate-500 mt-1">
+              <span>0ms</span>
+              <span>1000ms</span>
+            </div>
+          </div>
+          <p className="text-sm text-slate-500">
+            Tempo di attesa dopo una risposta corretta (o dopo lo scadere del timer) prima di presentare la nota successiva. Un valore piu' alto lascia piu' tempo per assimilare il feedback visivo; 0 rende la transizione istantanea.
+          </p>
         </fieldset>
       </div>
     </div>

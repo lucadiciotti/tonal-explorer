@@ -291,32 +291,6 @@ export function Settings({ onStart }: SettingsProps) {
         </fieldset>
 
         <fieldset className="border-2 border-slate-200 rounded-lg p-4 space-y-4">
-          <legend className="text-sm font-medium text-slate-700 px-2">Pausa tra le note</legend>
-          <div>
-            <label htmlFor="noteTransitionDelay" className="block text-sm text-slate-600 mb-2">
-              Durata: {noteTransitionDelay}ms
-            </label>
-            <input
-              id="noteTransitionDelay"
-              type="range"
-              min="0"
-              max="1000"
-              step="50"
-              value={noteTransitionDelay}
-              onChange={(e) => setNoteTransitionDelay(Number(e.target.value))}
-              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-800"
-            />
-            <div className="flex justify-between text-xs text-slate-500 mt-1">
-              <span>0ms</span>
-              <span>1000ms</span>
-            </div>
-          </div>
-          <p className="text-sm text-slate-500">
-            Tempo di attesa dopo una risposta corretta (o dopo lo scadere del timer) prima di presentare la nota successiva. Un valore piu' alto lascia piu' tempo per assimilare il feedback visivo; 0 rende la transizione istantanea.
-          </p>
-        </fieldset>
-
-        <fieldset className="border-2 border-slate-200 rounded-lg p-4 space-y-4">
           <legend className="text-sm font-medium text-slate-700 px-2">Audio / MIDI</legend>
           <div className="space-y-3">
             <label className="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 has-[:checked]:border-slate-800 has-[:checked]:bg-slate-50">
