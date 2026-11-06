@@ -591,31 +591,9 @@ export function Settings({ onStart }: SettingsProps) {
         </div>
 
         {mode === 'read-and-sing' && (
-          <fieldset className="border-2 border-slate-200 rounded-lg p-4 space-y-4">
-            <legend className="text-sm font-medium text-slate-700 px-2">Voce</legend>
-            <div>
-              <label htmlFor="singHoldDuration" className="block text-sm text-slate-600 mb-2">
-                Finestra di validazione: {singHoldDuration}ms
-              </label>
-              <input
-                id="singHoldDuration"
-                type="range"
-                min="500"
-                max="3000"
-                step="100"
-                value={singHoldDuration}
-                onChange={(e) => setSingHoldDuration(Number(e.target.value))}
-                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-800"
-              />
-              <div className="flex justify-between text-xs text-slate-500 mt-1">
-                <span>500ms</span>
-                <span>3000ms</span>
-              </div>
-            </div>
-            <p className="text-sm text-slate-500">
-              Per evitare falsi positivi, la nota cantata viene accettata solo se mantenuta stabile per tutta la durata della finestra di validazione. Un valore piu' basso rende la risposta piu' reattiva ma aumenta il rischio di errori involontari; un valore piu' alto richiede maggiore costanza ma garantisce un riconoscimento piu' affidabile.
-            </p>
-          </fieldset>
+          <p className="text-sm text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-4">
+            La finestra di validazione della voce e' configurabile nella sezione Advanced.
+          </p>
         )}
 
 

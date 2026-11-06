@@ -7,6 +7,7 @@ interface StoredSettings {
   stepDuration?: number;
   ignoreStepDuration?: boolean;
   noteTransitionDelay?: number;
+  singHoldDuration?: number;
 }
 
 function loadSettings(): Partial<StoredSettings> {
@@ -36,6 +37,7 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
   const [stepDuration, setStepDuration] = useState<number>(stored.stepDuration ?? 3);
   const [ignoreStepDuration, setIgnoreStepDuration] = useState<boolean>(stored.ignoreStepDuration ?? true);
   const [noteTransitionDelay, setNoteTransitionDelay] = useState<number>(stored.noteTransitionDelay ?? 500);
+  const [singHoldDuration, setSingHoldDuration] = useState<number>(stored.singHoldDuration ?? 1500);
 
   const updateStepDuration = (value: number) => {
     setStepDuration(value);
@@ -50,6 +52,11 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
   const updateNoteTransitionDelay = (value: number) => {
     setNoteTransitionDelay(value);
     savePartial({ noteTransitionDelay: value });
+  };
+
+  const updateSingHoldDuration = (value: number) => {
+    setSingHoldDuration(value);
+    savePartial({ singHoldDuration: value });
   };
 
   return (
@@ -125,6 +132,32 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
           </div>
           <p className="text-sm text-slate-500">
             Tempo di attesa dopo una risposta corretta (o dopo lo scadere del timer) prima di presentare la nota successiva. Un valore piu' alto lascia piu' tempo per assimilare il feedback visivo; 0 rende la transizione istantanea.
+          </p>
+        </fieldset>
+
+        <fieldset className="border-2 border-slate-200 rounded-lg p-4 space-y-4">
+          <legend className="text-sm font-medium text-slate-700 px-2">Finestra di validazione della Voce</legend>
+          <div>
+            <label htmlFor="singHoldDuration" className="block text-sm text-slate-600 mb-2">
+              Durata: {singHoldDuration}ms
+            </label>
+            <input
+              id="singHoldDuration"
+              type="range"
+              min="500"
+              max="3000"
+              step="100"
+              value={singHoldDuration}
+              onChange={(e) => updateSingHoldDuration(Number(e.target.value))}
+              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-800"
+            />
+            <div className="flex justify-between text-xs text-slate-500 mt-1">
+              <span>500ms</span>
+              <span>3000ms</span>
+            </div>
+          </div>
+          <p className="text-sm text-slate-500">
+            Per evitare falsi positivi, la nota cantata viene accettata solo se mantenuta stabile per tutta la durata della finestra di validazione. Un valore piu' basso rende la risposta piu' reattiva ma aumenta il rischio di errori involontari; un valore piu' alto richiede maggiore costanza ma garantisce un riconoscimento piu' affidabile.
           </p>
         </fieldset>
       </div>
