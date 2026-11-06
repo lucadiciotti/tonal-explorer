@@ -11,11 +11,13 @@ export class AudioManager {
   private rendererType: AudioRendererType;
   private deviceId?: string;
   private inputDeviceId?: string;
+  private monotimbral: boolean = false;
 
-  constructor(rendererType: AudioRendererType = 'web-audio', deviceId?: string, inputDeviceId?: string) {
+  constructor(rendererType: AudioRendererType = 'web-audio', deviceId?: string, inputDeviceId?: string, monotimbral: boolean = false) {
     this.rendererType = rendererType;
     this.deviceId = deviceId;
     this.inputDeviceId = inputDeviceId;
+    this.monotimbral = monotimbral;
   }
 
   async initialize(): Promise<void> {
@@ -35,6 +37,11 @@ export class AudioManager {
     }
 
     await this.renderer.initialize(this.deviceId, this.inputDeviceId);
+
+    if (this.rendererType === 'midi' && this.monotimbral) {
+      const midiRenderer = this.renderer as MidiRenderer;
+      midiRenderer.setMonotimbral(true);
+    }
   }
 
   async playDrone(note: string): Promise<void> {
@@ -65,11 +72,12 @@ export class AudioManager {
     }
   }
 
-  setRendererType(type: AudioRendererType, deviceId?: string, inputDeviceId?: string): void {
+  setRendererType(type: AudioRendererType, deviceId?: string, inputDeviceId?: string, monotimbral?: boolean): void {
     this.cleanup();
     this.rendererType = type;
     this.deviceId = deviceId;
     this.inputDeviceId = inputDeviceId;
+    if (monotimbral !== undefined) this.monotimbral = monotimbral;
   }
 
   static async detectBestRenderer(): Promise<AudioRendererType> {

@@ -48,7 +48,7 @@ function App() {
     return <AuthPage />;
   }
 
-  const handleStartSession = async (settings: SessionSettings, rendererType: 'web-audio' | 'midi' | 'soundfont', midiProgram?: number, midiDroneProgram?: number, soundfontNote?: string, soundfontDrone?: string, midiOutputDeviceId?: string, midiInputDeviceId?: string) => {
+  const handleStartSession = async (settings: SessionSettings, rendererType: 'web-audio' | 'midi' | 'soundfont', midiProgram?: number, midiDroneProgram?: number, soundfontNote?: string, soundfontDrone?: string, midiOutputDeviceId?: string, midiInputDeviceId?: string, monotimbral?: boolean) => {
     const generatedNotes = generateNoteSequence(settings.numNotes);
     setNotes(generatedNotes);
     setCurrentSettings(settings);
@@ -75,7 +75,7 @@ function App() {
 
     try {
       console.log('Starting audio with tonic:', settings.tonic, 'using', rendererType);
-      const manager = new AudioManager(rendererType, midiOutputDeviceId, midiInputDeviceId);
+      const manager = new AudioManager(rendererType, midiOutputDeviceId, midiInputDeviceId, monotimbral ?? false);
       await manager.initialize();
 
       if (rendererType === 'midi') {
@@ -84,7 +84,7 @@ function App() {
           if (midiProgram !== undefined) {
             renderer.setNoteProgram(midiProgram);
           }
-          if (midiDroneProgram !== undefined) {
+          if (midiDroneProgram !== undefined && !monotimbral) {
             renderer.setDroneProgram(midiDroneProgram);
           }
         }

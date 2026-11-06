@@ -7,7 +7,7 @@ import { getProgramsByCategory, MIDI_PROGRAM_CATEGORIES } from '../lib/audio/Mid
 import { getSoundfontProgramsByCategory, SOUNDFONT_CATEGORIES } from '../lib/audio/SoundfontPrograms';
 
 interface SettingsProps {
-  onStart: (settings: SessionSettings, rendererType: AudioRendererType, midiProgram?: number, midiDroneProgram?: number, soundfontNote?: string, soundfontDrone?: string, midiOutputDeviceId?: string, midiInputDeviceId?: string) => void;
+  onStart: (settings: SessionSettings, rendererType: AudioRendererType, midiProgram?: number, midiDroneProgram?: number, soundfontNote?: string, soundfontDrone?: string, midiOutputDeviceId?: string, midiInputDeviceId?: string, monotimbral?: boolean) => void;
 }
 
 // Organized in circle of fifths order starting from C at top, with enharmonic pairs grouped
@@ -50,6 +50,7 @@ interface StoredSettings {
   tonalRetentionDuration: number;
   midiOutputDeviceId: string;
   midiInputDeviceId: string;
+  monotimbral: boolean;
 }
 
 function loadSettings(): Partial<StoredSettings> {
@@ -94,6 +95,7 @@ export function Settings({ onStart }: SettingsProps) {
   const [tonalRetentionDuration, setTonalRetentionDuration] = useState<number>(stored.tonalRetentionDuration ?? 3);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>(stored.midiOutputDeviceId || '');
   const [selectedInputDeviceId, setSelectedInputDeviceId] = useState<string>(stored.midiInputDeviceId || '');
+  const [monotimbral, setMonotimbral] = useState<boolean>(stored.monotimbral ?? false);
 
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
@@ -119,7 +121,7 @@ export function Settings({ onStart }: SettingsProps) {
   }, []);
 
   const handleStart = () => {
-    saveSettings({ tonic, numNotes, stepDuration, audioMode, midiProgram, selectedCategory, midiDroneProgram, selectedDroneCategory, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, sfNoteInstrument, sfNoteCategory, sfDroneInstrument, sfDroneCategory, tonalRetention, tonalRetentionDuration, midiOutputDeviceId: selectedDeviceId, midiInputDeviceId: selectedInputDeviceId });
+    saveSettings({ tonic, numNotes, stepDuration, audioMode, midiProgram, selectedCategory, midiDroneProgram, selectedDroneCategory, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, sfNoteInstrument, sfNoteCategory, sfDroneInstrument, sfDroneCategory, tonalRetention, tonalRetentionDuration, midiOutputDeviceId: selectedDeviceId, midiInputDeviceId: selectedInputDeviceId, monotimbral });
     onStart(
       { tonic, numNotes, stepDuration, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, tonalRetention, tonalRetentionDuration },
       audioMode,
@@ -129,6 +131,7 @@ export function Settings({ onStart }: SettingsProps) {
       audioMode === 'soundfont' ? sfDroneInstrument : undefined,
       audioMode === 'midi' && selectedDeviceId ? selectedDeviceId : undefined,
       audioMode === 'midi' && selectedInputDeviceId ? selectedInputDeviceId : undefined,
+      audioMode === 'midi' ? monotimbral : undefined,
     );
   };
 
@@ -515,8 +518,21 @@ export function Settings({ onStart }: SettingsProps) {
                 <p className="text-xs text-slate-400 mt-1">La tastiera che suoni per rispondere agli esercizi</p>
               </div>
 
+              <label className="flex items-center gap-3 cursor-pointer py-1">
+                <input
+                  type="checkbox"
+                  checked={monotimbral}
+                  onChange={(e) => setMonotimbral(e.target.checked)}
+                  className="w-4 h-4 text-slate-800 rounded"
+                />
+                <div>
+                  <div className="text-sm font-medium text-slate-800">Dispositivo monotimbrale</div>
+                  <div className="text-xs text-slate-500">Usa un solo suono per drone e note (per tastiere con synth interno come AKAI MPK Mini Play)</div>
+                </div>
+              </label>
+
               <div>
-                <label className="block text-sm text-slate-600 mb-2">Instrument</label>
+                <label className="block text-sm text-slate-600 mb-2">{monotimbral ? 'Strumento (drone + note)' : 'Instrument'}</label>
                 <div className="space-y-2">
                   <select
                     value={selectedCategory}
@@ -547,6 +563,7 @@ export function Settings({ onStart }: SettingsProps) {
                 </div>
               </div>
 
+              {!monotimbral && (
               <div>
                 <label className="block text-sm text-slate-600 mb-2">Drone</label>
                 <div className="space-y-2">
@@ -578,6 +595,7 @@ export function Settings({ onStart }: SettingsProps) {
                   </select>
                 </div>
               </div>
+              )}
             </div>
           )}
         </fieldset>

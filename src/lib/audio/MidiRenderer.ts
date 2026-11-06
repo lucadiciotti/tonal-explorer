@@ -17,6 +17,7 @@ const NOTE_TO_MIDI: Record<string, number> = {
 
 const DRONE_CHANNEL = 1;
 const NOTE_CHANNEL = 0;
+const MONO_CHANNEL = 0;
 
 export class MidiRenderer implements AudioRenderer {
   private midiAccess: MIDIAccess | null = null;
@@ -25,7 +26,20 @@ export class MidiRenderer implements AudioRenderer {
   private droneNoteNumber: number | null = null;
   private currentProgram: number = 0;
   private currentDroneProgram: number = 48;
+  private monotimbral: boolean = false;
   private noteCallbacks: Map<number, (note: string, octave: number) => void> = new Map();
+
+  setMonotimbral(monotimbral: boolean): void {
+    this.monotimbral = monotimbral;
+    if (this.output && monotimbral) {
+      this.currentDroneProgram = this.currentProgram;
+      this.output.send([0xC0 + MONO_CHANNEL, this.currentProgram]);
+    }
+  }
+
+  isMonotimbral(): boolean {
+    return this.monotimbral;
+  }
 
   async initialize(deviceId?: string, inputDeviceId?: string): Promise<void> {
     if (!navigator.requestMIDIAccess) {
@@ -47,8 +61,13 @@ export class MidiRenderer implements AudioRenderer {
         this.output = outputs[0];
       }
       this.output.send([0xC0 + NOTE_CHANNEL, this.currentProgram]);
-      this.output.send([0xC0 + DRONE_CHANNEL, this.currentDroneProgram]);
-      console.log('MIDI output initialized with device:', this.output.name);
+      if (!this.monotimbral) {
+        this.output.send([0xC0 + DRONE_CHANNEL, this.currentDroneProgram]);
+      } else {
+        this.currentDroneProgram = this.currentProgram;
+        this.output.send([0xC0 + MONO_CHANNEL, this.currentProgram]);
+      }
+      console.log('MIDI output initialized with device:', this.output.name, this.monotimbral ? '(monotimbral)' : '(multi-timbral)');
 
       const inputs = Array.from(this.midiAccess.inputs.values());
       if (inputs.length > 0) {
@@ -83,13 +102,15 @@ export class MidiRenderer implements AudioRenderer {
 
     this.droneNoteNumber = (octave + 1) * 12 + midiNote;
     const velocity = 80;
+    const channel = this.monotimbral ? MONO_CHANNEL : DRONE_CHANNEL;
 
-    this.output.send([0x90 + DRONE_CHANNEL, this.droneNoteNumber, velocity]);
+    this.output.send([0x90 + channel, this.droneNoteNumber, velocity]);
   }
 
   stopDrone(): void {
     if (this.output && this.droneNoteNumber !== null) {
-      this.output.send([0x80 + DRONE_CHANNEL, this.droneNoteNumber, 0]);
+      const channel = this.monotimbral ? MONO_CHANNEL : DRONE_CHANNEL;
+      this.output.send([0x80 + channel, this.droneNoteNumber, 0]);
       this.droneNoteNumber = null;
     }
   }
@@ -106,12 +127,13 @@ export class MidiRenderer implements AudioRenderer {
 
     const noteNumber = (octave + 1) * 12 + midiNote;
     const velocity = 100;
+    const channel = this.monotimbral ? MONO_CHANNEL : NOTE_CHANNEL;
 
-    this.output.send([0x90 + NOTE_CHANNEL, noteNumber, velocity]);
+    this.output.send([0x90 + channel, noteNumber, velocity]);
 
     setTimeout(() => {
       if (this.output) {
-        this.output.send([0x80 + NOTE_CHANNEL, noteNumber, 0]);
+        this.output.send([0x80 + channel, noteNumber, 0]);
       }
     }, duration);
   }
@@ -157,13 +179,25 @@ export class MidiRenderer implements AudioRenderer {
   setNoteProgram(program: number): void {
     if (!this.output) return;
     this.currentProgram = program;
-    this.output.send([0xC0 + NOTE_CHANNEL, program]);
+    if (this.monotimbral) {
+      this.currentDroneProgram = program;
+      this.stopDrone();
+      this.output.send([0xC0 + MONO_CHANNEL, program]);
+    } else {
+      this.output.send([0xC0 + NOTE_CHANNEL, program]);
+    }
   }
 
   setDroneProgram(program: number): void {
     if (!this.output) return;
     this.currentDroneProgram = program;
-    this.output.send([0xC0 + DRONE_CHANNEL, program]);
+    if (this.monotimbral) {
+      this.currentProgram = program;
+      this.stopDrone();
+      this.output.send([0xC0 + MONO_CHANNEL, program]);
+    } else {
+      this.output.send([0xC0 + DRONE_CHANNEL, program]);
+    }
   }
 
   getProgram(): number {
