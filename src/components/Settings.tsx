@@ -28,6 +28,22 @@ const TONIC_GROUPS: Tonic[][] = [
 
 const STORAGE_KEY = 'mzt-settings';
 
+const MONOTIMBRAL_DEVICE_PATTERNS = [
+  /mpk mini/i,
+  /mpk mini play/i,
+  /mpk element/i,
+  /lpk25/i,
+  /launchkey mini/i,
+  /goriller/i,
+  /microkey/i,
+  /reface/i,
+  /microlab/i,
+];
+
+function isMonotimbralDeviceName(name: string): boolean {
+  return MONOTIMBRAL_DEVICE_PATTERNS.some(p => p.test(name));
+}
+
 interface StoredSettings {
   tonic: Tonic;
   numNotes: number;
@@ -106,6 +122,14 @@ export function Settings({ onStart }: SettingsProps) {
       setHasMidi(devices.length > 0);
       if (devices.length > 0 && !stored.audioMode) {
         setAudioMode('midi');
+      }
+
+      const storedOut = stored.midiOutputDeviceId;
+      if (storedOut && !stored.monotimbral) {
+        const dev = devices.find(d => d.id === storedOut);
+        if (dev && isMonotimbralDeviceName(dev.name)) {
+          setMonotimbral(true);
+        }
       }
 
       unsubscribe = await MidiDetector.onDeviceChange((devices) => {
@@ -486,7 +510,13 @@ export function Settings({ onStart }: SettingsProps) {
                 <label className="block text-sm text-slate-600 mb-2">Sintetizzatore MIDI (output)</label>
                 <select
                   value={selectedDeviceId}
-                  onChange={(e) => setSelectedDeviceId(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedDeviceId(e.target.value);
+                    const dev = midiDevices.find(d => d.id === e.target.value);
+                    if (dev && isMonotimbralDeviceName(dev.name)) {
+                      setMonotimbral(true);
+                    }
+                  }}
                   className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg focus:border-slate-800 focus:outline-none text-sm"
                 >
                   {midiDevices.filter(d => d.isOutput).length === 0 && (
@@ -526,7 +556,15 @@ export function Settings({ onStart }: SettingsProps) {
                   className="w-4 h-4 text-slate-800 rounded"
                 />
                 <div>
-                  <div className="text-sm font-medium text-slate-800">Dispositivo monotimbrale</div>
+                  <div className="text-sm font-medium text-slate-800">
+                    Dispositivo monotimbrale
+                    {(() => {
+                      const dev = midiDevices.find(d => d.id === selectedDeviceId);
+                      return dev && isMonotimbralDeviceName(dev.name) ? (
+                        <span className="ml-2 text-xs text-blue-600 font-normal">rilevato automaticamente</span>
+                      ) : null;
+                    })()}
+                  </div>
                   <div className="text-xs text-slate-500">Usa un solo suono per drone e note (per tastiere con synth interno come AKAI MPK Mini Play)</div>
                 </div>
               </label>
