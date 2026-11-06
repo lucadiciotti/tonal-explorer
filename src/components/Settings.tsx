@@ -292,6 +292,21 @@ export function Settings({ onStart }: SettingsProps) {
               <input
                 type="radio"
                 name="mode"
+                value="read-and-speak"
+                checked={mode === 'read-and-speak'}
+                onChange={(e) => setMode(e.target.value as SessionMode)}
+                className="w-4 h-4 text-slate-800"
+              />
+              <div className="flex-1">
+                <div className="font-medium text-slate-800">Leggi e Parla</div>
+                <div className="text-sm text-slate-500">Il programma visualizza un grado, il tuo compito e' dire ad alta voce il nome italiano della nota che corrisponde a quel grado nella tonalita' proposta. Il riconoscimento vocale verifica la risposta tenendo conto delle giuste diteggiature enarmoniche (diesis o bemolle a seconda della tonalita').</div>
+              </div>
+            </label>
+
+            <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 has-[:checked]:border-slate-800 has-[:checked]:bg-slate-50">
+              <input
+                type="radio"
+                name="mode"
                 value="read-and-sing"
                 checked={mode === 'read-and-sing'}
                 onChange={(e) => setMode(e.target.value as SessionMode)}
@@ -319,6 +334,14 @@ export function Settings({ onStart }: SettingsProps) {
             </label>
           </div>
         </div>
+
+        {mode === 'read-and-speak' && (
+          <div className="text-sm text-slate-600 bg-sky-50 border border-sky-200 rounded-lg p-4 space-y-2">
+            <p className="font-medium text-slate-700">Nota:</p>
+            <p>Il riconoscimento vocale richiede un browser compatibile (Chrome o Edge) e il permesso del microfono. Le risposte vengono valutate usando la nomenclatura italiana con le alterazioni corrette per la tonalita' scelta.</p>
+            <p>Esempio: in tonalita' di <strong>Do</strong>, il grado <strong>2</strong> corrisponde a <strong>Re</strong>. In tonalita' di <strong>Re bemolle</strong>, il grado <strong>2</strong> corrisponde a <strong>Mib</strong> (non Mi).</p>
+          </div>
+        )}
 
         {mode === 'read-and-sing' && (
           <p className="text-sm text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-4">

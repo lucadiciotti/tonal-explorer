@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { Play, Pause, X, Check, AlertCircle, Mic } from 'lucide-react';
+import { Play, Pause, X, Check, AlertCircle, Mic, MicOff } from 'lucide-react';
 import { Note, SessionMode, SessionStats, ErrorLogEntry, NoteResult } from '../types';
 import { AudioManager } from '../lib/audio/AudioManager';
 import { convertScaleDegreeToNote } from '../utils/noteConverter';
+import { getItalianNoteName, parseSpokenNote, italianToEnglish } from '../utils/italianNotes';
 import { MidiRenderer } from '../lib/audio/MidiRenderer';
 import { PitchDetector, PitchData } from '../lib/audio/PitchDetector';
+import { SpeechRecognizer } from '../lib/audio/SpeechRecognizer';
 import { PitchTuner } from './PitchTuner';
 import { areNotesEqual } from '../utils/noteComparison';
 import { ResultEntry, calculateStreaks } from '../utils/streakCalculator';
@@ -40,7 +42,8 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
   const currentNoteStatusRef = useRef<'waiting' | 'correct' | 'incorrect'>('waiting');
   const isMidiMode = audioManager?.getRenderer() instanceof MidiRenderer;
   const isSingMode = mode === 'read-and-sing';
-  const isInteractiveMode = isMidiMode || isSingMode;
+  const isSpeakMode = mode === 'read-and-speak';
+  const isInteractiveMode = isMidiMode || isSingMode || isSpeakMode;
   const pitchDetectorRef = useRef<PitchDetector | null>(null);
   const [micActive, setMicActive] = useState(false);
   const [detectedNoteName, setDetectedNoteName] = useState<string | null>(null);
@@ -66,6 +69,10 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
   const firstWrongReactionTimeRef = useRef<number | null>(null);
   const currentIndexRef = useRef<number>(0);
   const singHoldBarRef = useRef<HTMLDivElement>(null);
+  const speechRecognizerRef = useRef<SpeechRecognizer | null>(null);
+  const [speechSupported, setSpeechSupported] = useState(true);
+  const [heardText, setHeardText] = useState<string | null>(null);
+  const [speechListening, setSpeechListening] = useState(false);
 
   const updateHoldBar = (progress: number) => {
     const el = singHoldBarRef.current;
@@ -234,6 +241,70 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     }
   };
 
+  const handleSpokenInput = (text: string) => {
+    if (noteAnsweredRef.current) return;
+    if (isTransitioning) return;
+
+    const spokenNote = parseSpokenNote(text);
+    if (!spokenNote) return;
+
+    const idx = currentIndexRef.current;
+    const currentNote = notes[idx];
+    try {
+      const expectedItalian = getItalianNoteName(tonic, currentNote);
+      const expectedEnglish = italianToEnglish(expectedItalian);
+      const spokenEnglish = italianToEnglish(spokenNote);
+
+      const isCorrect = areNotesEqual(spokenEnglish, expectedEnglish, true);
+
+      if (isCorrect) {
+        noteAnsweredRef.current = true;
+        if (!hadMissForCurrentNoteRef.current) {
+          if (noteReadyAtRef.current > 0) {
+            hitReactionTimesRef.current.push(performance.now() - noteReadyAtRef.current);
+          }
+          setCorrectCount(c => {
+            const newCount = c + 1;
+            correctCountRef.current = newCount;
+            return newCount;
+          });
+          setFlashCorrect(true);
+          setTimeout(() => setFlashCorrect(false), 500);
+        }
+        setCurrentNoteStatus('correct');
+        currentNoteStatusRef.current = 'correct';
+        advanceToNextNote(spokenNote, null);
+      } else {
+        if (!hadMissForCurrentNoteRef.current) {
+          firstWrongNoteRef.current = spokenNote;
+          firstWrongReactionTimeRef.current = noteReadyAtRef.current > 0
+            ? performance.now() - noteReadyAtRef.current
+            : null;
+        }
+        hadMissForCurrentNoteRef.current = true;
+        setHadMissState(true);
+        errorLogRef.current.push({
+          stepIndex: idx,
+          drone: tonic,
+          degree: currentNote,
+          expectedNote: expectedItalian,
+          sungNote: spokenNote,
+        });
+        setIncorrectCount(c => c + 1);
+        setCurrentNoteStatus('incorrect');
+        currentNoteStatusRef.current = 'incorrect';
+        setTimeout(() => {
+          if (!noteAnsweredRef.current) {
+            setCurrentNoteStatus('waiting');
+            currentNoteStatusRef.current = 'waiting';
+          }
+        }, noteTransitionDelay);
+      }
+    } catch (error) {
+      console.error('Failed to check spoken note:', error);
+    }
+  };
+
   const handleNoteInput = (playedNote: string, playedOctave: number) => {
     if (noteAnsweredRef.current) return;
     if (isPlayingNoteRef.current) return;
@@ -244,7 +315,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     try {
       const { note: expectedNote, octave: expectedOctave } = convertScaleDegreeToNote(currentNote, tonic);
 
-      const isCorrect = ignoreOctaves
+      const isCorrect = ignoreOctaves || isSpeakMode
         ? areNotesEqual(playedNote, expectedNote, true)
         : areNotesEqual(playedNote, expectedNote, true) && playedOctave === expectedOctave;
 
@@ -433,11 +504,39 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
   }, [currentIndex, notes, tonic, isSingMode, ignoreOctaves, ignoreStepDuration, mode, isDroneIntro]);
 
   useEffect(() => {
+    if (!isSpeakMode) return;
+    if (isDroneIntro) return;
+
+    if (!SpeechRecognizer.isSupported()) {
+      setSpeechSupported(false);
+      return;
+    }
+
+    const recognizer = new SpeechRecognizer();
+    speechRecognizerRef.current = recognizer;
+    setSpeechListening(true);
+
+    recognizer.start((text, isFinal) => {
+      setHeardText(text.trim());
+      if (isFinal) {
+        handleSpokenInput(text);
+      }
+    });
+
+    return () => {
+      recognizer.cleanup();
+      speechRecognizerRef.current = null;
+      setSpeechListening(false);
+      setHeardText(null);
+    };
+  }, [currentIndex, notes, tonic, isSpeakMode, isDroneIntro, noteTransitionDelay]);
+
+  useEffect(() => {
     if (!isPlaying) return;
     if (isDroneIntro) return;
 
     if (ignoreStepDuration) {
-      if ((mode === 'read-and-play' || mode === 'read-and-sing') && noteReadyAtRef.current === 0) {
+      if ((mode === 'read-and-play' || mode === 'read-and-sing' || mode === 'read-and-speak') && noteReadyAtRef.current === 0) {
         noteReadyAtRef.current = performance.now();
       }
       if (mode === 'listen-and-play' && !hasPlayedNoteRef.current && audioManager) {
@@ -481,7 +580,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
           }
         }
 
-        if (prev === 1 && (mode === 'read-and-play' || mode === 'read-and-sing') && !hasPlayedNoteRef.current && audioManager) {
+        if (prev === 1 && (mode === 'read-and-play' || mode === 'read-and-sing' || mode === 'read-and-speak') && !hasPlayedNoteRef.current && audioManager) {
           hasPlayedNoteRef.current = true;
           const currentNote = notes[currentIndex];
           try {
@@ -624,7 +723,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
             <div className="text-9xl font-bold text-slate-800 mb-4 font-mono tracking-wider leading-none">
               {isTransitioning
                 ? <span className="text-slate-300">---</span>
-                : mode === 'read-and-play' || mode === 'read-and-sing'
+                : mode === 'read-and-play' || mode === 'read-and-sing' || mode === 'read-and-speak'
                   ? <DegreeDisplay note={notes[currentIndex]} />
                   : <span>?</span>}            </div>
             {isInteractiveMode && currentNoteStatus !== 'waiting' && (
@@ -669,6 +768,26 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
                   </div>
                 </div>
               )}
+            </>
+          )}
+          {isSpeakMode && (
+            <>
+              <div className="flex items-center justify-center gap-3 mb-3">
+                {speechSupported ? (
+                  <Mic className={`w-5 h-5 ${speechListening ? 'text-green-500' : 'text-slate-400'}`} />
+                ) : (
+                  <MicOff className="w-5 h-5 text-red-400" />
+                )}
+                <span className="text-sm text-slate-500">
+                  {!speechSupported
+                    ? 'Riconoscimento vocale non supportato in questo browser'
+                    : speechListening
+                      ? heardText
+                        ? `Ho sentito: "${heardText}"`
+                        : "In ascolto — di' il nome della nota"
+                      : 'Microfono non disponibile'}
+                </span>
+              </div>
             </>
           )}
           <div className="text-2xl text-slate-500">

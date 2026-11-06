@@ -1,6 +1,6 @@
-export type Tonic = 'Ab' | 'Eb' | 'Bb' | 'F' | 'C' | 'G' | 'D' | 'A' | 'E' | 'B' | 'F#' | 'C#' | 'Db' | 'G#';
+export type Tonic = 'Ab' | 'Eb' | 'Bb' | 'F' | 'C' | 'G' | 'D' | 'A' | 'E' | 'B' | 'F#' | 'C#' | 'Db' | 'G#' | 'Cb' | 'Gb';
 
-export type SessionMode = 'read-and-play' | 'listen-and-play' | 'read-and-sing';
+export type SessionMode = 'read-and-play' | 'read-and-speak' | 'read-and-sing' | 'listen-and-play';
 
 export interface SessionSettings {
   tonic: Tonic;

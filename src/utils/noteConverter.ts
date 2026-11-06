@@ -29,7 +29,7 @@ const NOTE_TO_SEMITONES: Record<string, number> = {
   'G#': 8, 'Ab': 8,
   'A': 9,
   'A#': 10, 'Bb': 10,
-  'B': 11,
+  'B': 11, 'Cb': 11,
 };
 
 const SEMITONES_TO_NOTE: string[] = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
