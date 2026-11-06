@@ -83,7 +83,7 @@ export function Settings({ onStart }: SettingsProps) {
   const [midiDroneProgram, setMidiDroneProgram] = useState<number>(stored.midiDroneProgram ?? 48);
   const [selectedDroneCategory, setSelectedDroneCategory] = useState<string>(stored.selectedDroneCategory || 'Strings');
   const [ignoreOctaves, setIgnoreOctaves] = useState<boolean>(stored.ignoreOctaves ?? true);
-  const [ignoreStepDuration, setIgnoreStepDuration] = useState<boolean>(stored.ignoreStepDuration ?? false);
+  const [ignoreStepDuration, setIgnoreStepDuration] = useState<boolean>(stored.ignoreStepDuration ?? true);
   const [mode, setMode] = useState<SessionMode>(stored.mode || 'read-and-play');
   const [singHoldDuration, setSingHoldDuration] = useState<number>(stored.singHoldDuration ?? 1500);
   const [noteTransitionDelay, setNoteTransitionDelay] = useState<number>(stored.noteTransitionDelay ?? 500);
@@ -249,42 +249,6 @@ export function Settings({ onStart }: SettingsProps) {
             <div>
               <div className="text-sm font-medium text-slate-800">Ignora Ottave</div>
               <div className="text-xs text-slate-500">Accetta la nota corretta in qualsiasi ottava</div>
-            </div>
-          </label>
-        </fieldset>
-
-        <fieldset className="border-2 border-slate-200 rounded-lg p-4 space-y-4">
-          <legend className="text-sm font-medium text-slate-700 px-2">Step Duration</legend>
-          <div>
-            <label htmlFor="stepDuration" className="block text-sm text-slate-600 mb-2">
-              Duration (P): {stepDuration}s
-            </label>
-            <input
-              id="stepDuration"
-              type="range"
-              min="1"
-              max="10"
-              step="1"
-              value={stepDuration}
-              onChange={(e) => setStepDuration(Number(e.target.value))}
-              disabled={ignoreStepDuration}
-              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
-            />
-            <div className="flex justify-between text-xs text-slate-500 mt-1">
-              <span>1s</span>
-              <span>10s</span>
-            </div>
-          </div>
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={ignoreStepDuration}
-              onChange={(e) => setIgnoreStepDuration(e.target.checked)}
-              className="w-4 h-4 text-slate-800 rounded"
-            />
-            <div>
-              <div className="text-sm font-medium text-slate-800">Ignora Step Duration</div>
-              <div className="text-xs text-slate-500">Nessun timeout, il sistema attende la nota</div>
             </div>
           </label>
         </fieldset>

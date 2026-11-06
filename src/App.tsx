@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Music, LogOut, BarChart3 } from 'lucide-react';
+import { Music, LogOut, BarChart3, SlidersHorizontal } from 'lucide-react';
 import { Settings } from './components/Settings';
 import { SessionDisplay } from './components/SessionDisplay';
 import { StatsPage } from './components/StatsPage';
@@ -8,6 +8,7 @@ import { FifthsErrorChart } from './components/FifthsErrorChart';
 import { OctaveErrorChart } from './components/OctaveErrorChart';
 import { ResponseTimeChart } from './components/ResponseTimeChart';
 import { AuthPage } from './components/AuthPage';
+import { AdvancedSettings } from './components/AdvancedSettings';
 import { useAuth } from './contexts/AuthContext';
 import { SessionSettings, Note, SessionStats, ErrorLogEntry, NoteResult } from './types';
 import { classifyError } from './utils/noteComparison';
@@ -17,7 +18,7 @@ import { AudioManager } from './lib/audio/AudioManager';
 import { MidiRenderer } from './lib/audio/MidiRenderer';
 import { SoundfontRenderer } from './lib/audio/SoundfontRenderer';
 
-type AppState = 'settings' | 'session' | 'completed' | 'stats';
+type AppState = 'settings' | 'session' | 'completed' | 'stats' | 'advanced';
 
 function App() {
   const { user, loading, signOut } = useAuth();
@@ -178,6 +179,14 @@ function App() {
         <header className="text-center mb-12 relative">
           <div className="absolute right-0 top-0 flex items-center gap-1">
             <button
+              onClick={() => setAppState('advanced')}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-slate-800 hover:bg-white/80 rounded-lg transition-colors"
+              title="Advanced"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              <span className="hidden sm:inline">Advanced</span>
+            </button>
+            <button
               onClick={() => setAppState('stats')}
               className="flex items-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-slate-800 hover:bg-white/80 rounded-lg transition-colors"
               title="Statistiche"
@@ -204,6 +213,8 @@ function App() {
 
         <main>
           {appState === 'stats' && <StatsPage onBack={() => setAppState('settings')} />}
+
+          {appState === 'advanced' && <AdvancedSettings onBack={() => setAppState('settings')} />}
 
           {appState === 'settings' && <Settings onStart={handleStartSession} />}
 
