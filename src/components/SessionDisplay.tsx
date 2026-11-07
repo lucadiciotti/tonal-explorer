@@ -156,6 +156,9 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     noteAnsweredRef.current = false;
     hasAdvancedRef.current = false;
     lastSpokenTextRef.current = '';
+    // Reset the speech recognizer's buffer so the new note starts fresh
+    // and old cumulative transcript doesn't leak in.
+    speechRecognizerRef.current?.reset();
     setCurrentNoteStatus('waiting');
     currentNoteStatusRef.current = 'waiting';
     setTimeLeft(stepDuration);
@@ -249,7 +252,11 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     if (isTransitioning) return false;
 
     const spokenNote = parseSpokenNote(text);
+    console.debug(`[speech] parsed="${spokenNote}" expected="${(() => { try { return getItalianNoteName(tonic, notes[currentIndexRef.current]); } catch { return '?'; } })()}" lastSpoken="${lastSpokenTextRef.current}"`);
     if (!spokenNote) return false;
+    // Skip if the parsed note is the same as the last one we already
+    // processed for THIS note (avoids interim spam re-triggering). The
+    // guard is cleared on every note change via showNextNote.
     if (spokenNote === lastSpokenTextRef.current) return false;
     lastSpokenTextRef.current = spokenNote;
 
@@ -520,9 +527,13 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     setSpeechListening(true);
 
     recognizer.start((text, _isFinal) => {
+      console.debug(`[speech] delta="${text}" isFinal=${_isFinal} noteIdx=${currentIndexRef.current} answered=${noteAnsweredRef.current}`);
       setHeardText(text.trim());
       return handleSpokenInput(text);
     });
+
+    // Reset the recognizer's transcript buffer when the note changes
+    // so stale words from the previous note don't pollute the new one.
 
     return () => {
       recognizer.cleanup();
@@ -532,12 +543,12 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     };
   }, [isSpeakMode, isDroneIntro]);
 
-  // Clear dedup guard and heard text when note changes so the previous
-  // note's transcript doesn't leak into the next one
+  // Clear dedup guard, heard text, and recognizer buffer when note changes
   useEffect(() => {
     if (!isSpeakMode || isDroneIntro) return;
     lastSpokenTextRef.current = '';
     setHeardText(null);
+    speechRecognizerRef.current?.reset();
   }, [currentIndex, isSpeakMode, isDroneIntro]);
 
   useEffect(() => {

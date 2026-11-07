@@ -51,7 +51,7 @@ export class SpeechRecognizer {
   private recognition: SpeechRecognition | null = null;
   private onResult: ((text: string, isFinal: boolean) => boolean) | null = null;
   private isRunning = false;
-  private consumedIndices = new Set<number>();
+  private lastFinalTranscript = '';
 
   constructor() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -68,21 +68,48 @@ export class SpeechRecognizer {
     return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
   }
 
+  /**
+   * Extract only the new portion of a cumulative transcript by removing
+   * the previously-seen final text from the beginning.
+   */
+  private extractDelta(transcript: string): string {
+    if (this.lastFinalTranscript && transcript.toLowerCase().startsWith(this.lastFinalTranscript.toLowerCase())) {
+      return transcript.slice(this.lastFinalTranscript.length).trim();
+    }
+    return transcript.trim();
+  }
+
   start(onResult: (text: string, isFinal: boolean) => boolean): void {
     if (!this.recognition) return;
     this.onResult = onResult;
     this.isRunning = true;
 
     this.recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let interimDelta = '';
+
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
-        const text = result[0].transcript.trim();
+        const transcript = result[0].transcript.trim();
 
-        if (this.consumedIndices.has(i)) continue;
+        if (result.isFinal) {
+          // The final transcript is cumulative — strip the part we've
+          // already processed so only the newly spoken words remain.
+          const delta = this.extractDelta(transcript);
+          this.lastFinalTranscript = transcript;
 
-        const consumed = this.onResult?.(text, result.isFinal) ?? false;
+          if (delta) {
+            this.onResult?.(delta, true);
+          }
+        } else {
+          // Accumulate interim deltas; we'll deliver them as a single
+          // callback after the loop.
+          const delta = this.extractDelta(transcript);
+          if (delta) interimDelta = delta;
+        }
+      }
 
-        if (consumed) this.consumedIndices.add(i);
+      if (interimDelta) {
+        this.onResult?.(interimDelta, false);
       }
     };
 
@@ -92,7 +119,6 @@ export class SpeechRecognizer {
 
     this.recognition.onend = () => {
       if (this.isRunning) {
-        this.consumedIndices.clear();
         try { this.recognition?.start(); } catch { /* ignore */ }
       }
     };
@@ -106,6 +132,7 @@ export class SpeechRecognizer {
 
   reset(): void {
     if (!this.recognition || !this.isRunning) return;
+    this.lastFinalTranscript = '';
     try {
       this.recognition.abort();
     } catch { /* ignore */ }
@@ -122,6 +149,7 @@ export class SpeechRecognizer {
   cleanup(): void {
     this.stop();
     this.onResult = null;
+    this.lastFinalTranscript = '';
     if (this.recognition) {
       this.recognition.onresult = null;
       this.recognition.onerror = null;

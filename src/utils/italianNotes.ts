@@ -132,7 +132,7 @@ export function parseSpokenNote(text: string): string | null {
 
   const altered: [RegExp, string][] = [
     [/do\s*diesis|\bdu\b/, 'Do#'],
-    [/do\s*bemolle|\bdi\b/, 'Dob'],
+    [/do\s*bemolle/, 'Dob'],
     [/re\s*diesis|\bri\b/, 'Re#'],
     [/re\s*bemolle|\bra\b/, 'Reb'],
     [/mi\s*diesis|\bmo\b/, 'Mi#'],
@@ -157,10 +157,15 @@ export function parseSpokenNote(text: string): string | null {
     [/\bsi\b/, 'Si'],
   ];
 
-  for (const [regex, note] of altered) {
+  // Search from the end of the text so that if the delta contains
+  // filler words before the note name (e.g. "ehm... la"), we match
+  // the last — and most likely intended — note name.
+  for (let i = altered.length - 1; i >= 0; i--) {
+    const [regex, note] = altered[i];
     if (regex.test(lower)) return note;
   }
-  for (const [regex, note] of natural) {
+  for (let i = natural.length - 1; i >= 0; i--) {
+    const [regex, note] = natural[i];
     if (regex.test(lower)) return note;
   }
 
