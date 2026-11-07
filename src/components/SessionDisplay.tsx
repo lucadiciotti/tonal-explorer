@@ -194,7 +194,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     }
 
     if (currentIndexRef.current < notes.length - 1) {
-      if (noteTransitionDelay > 0) {
+      if (noteTransitionDelay > 0 && !isSpeakMode) {
         setIsTransitioning(true);
         noteAnsweredRef.current = true;
         setTimeout(showNextNote, noteTransitionDelay);
@@ -525,7 +525,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
       setSpeechListening(false);
       setHeardText(null);
     };
-  }, [currentIndex, notes, tonic, isSpeakMode, isDroneIntro, noteTransitionDelay]);
+  }, [isSpeakMode, isDroneIntro]);
 
   useEffect(() => {
     if (!isPlaying) return;
