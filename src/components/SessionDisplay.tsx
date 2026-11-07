@@ -249,18 +249,13 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     }
   };
 
-  const handleSpokenInput = (text: string): boolean => {
+  const handleSpokenInput = (text: string, isFinal: boolean): boolean => {
     if (noteAnsweredRef.current) return false;
     if (isTransitioning) return false;
 
     const spokenNote = parseSpokenNote(text);
-    console.debug(`[speech] parsed="${spokenNote}" expected="${(() => { try { return getItalianNoteName(tonic, notes[currentIndexRef.current]); } catch { return '?'; } })()}" lastSpoken="${lastSpokenTextRef.current}"`);
+    console.debug(`[speech] parsed="${spokenNote}" isFinal=${isFinal} expected="${(() => { try { return getItalianNoteName(tonic, notes[currentIndexRef.current]); } catch { return '?'; } })()}" lastSpoken="${lastSpokenTextRef.current}"`);
     if (!spokenNote) return false;
-    // Skip if the parsed note is the same as the last one we already
-    // processed for THIS note (avoids interim spam re-triggering). The
-    // guard is cleared on every note change via showNextNote.
-    if (spokenNote === lastSpokenTextRef.current) return false;
-    lastSpokenTextRef.current = spokenNote;
 
     const idx = currentIndexRef.current;
     const currentNote = notes[idx];
@@ -269,6 +264,8 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
       const isCorrect = spokenNote === expectedItalian;
 
       if (isCorrect) {
+        // Accept correct answers immediately, even from interim results —
+        // there's no benefit to waiting for the final transcript.
         noteAnsweredRef.current = true;
         if (!hadMissForCurrentNoteRef.current) {
           if (noteReadyAtRef.current > 0) {
@@ -286,6 +283,17 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
         currentNoteStatusRef.current = 'correct';
         advanceToNextNote(spokenNote, null);
       } else {
+        // Only count errors on final results. Interim results are
+        // unreliable — the engine often mishears a short syllable
+        // before correcting itself in the final transcript. Counting
+        // interim misses would penalize correct answers (you say "Do",
+        // the interim hears "lo" → false miss, then final hears "do"
+        // → correct, but the note is already tainted red).
+        if (!isFinal) return true;
+
+        if (spokenNote === lastSpokenTextRef.current) return false;
+        lastSpokenTextRef.current = spokenNote;
+
         if (!hadMissForCurrentNoteRef.current) {
           firstWrongNoteRef.current = spokenNote;
           firstWrongReactionTimeRef.current = noteReadyAtRef.current > 0
@@ -528,10 +536,10 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     speechRecognizerRef.current = recognizer;
 
     recognizer.start(
-      (text, _isFinal) => {
-        console.debug(`[speech] delta="${text}" isFinal=${_isFinal} noteIdx=${currentIndexRef.current} answered=${noteAnsweredRef.current}`);
+      (text, isFinal) => {
+        console.debug(`[speech] delta="${text}" isFinal=${isFinal} noteIdx=${currentIndexRef.current} answered=${noteAnsweredRef.current}`);
         setHeardText(text.trim());
-        return handleSpokenInput(text);
+        return handleSpokenInput(text, isFinal);
       },
       (listening) => {
         setSpeechListening(listening);
