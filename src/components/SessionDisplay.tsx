@@ -524,13 +524,17 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
 
     const recognizer = new SpeechRecognizer();
     speechRecognizerRef.current = recognizer;
-    setSpeechListening(true);
 
-    recognizer.start((text, _isFinal) => {
-      console.debug(`[speech] delta="${text}" isFinal=${_isFinal} noteIdx=${currentIndexRef.current} answered=${noteAnsweredRef.current}`);
-      setHeardText(text.trim());
-      return handleSpokenInput(text);
-    });
+    recognizer.start(
+      (text, _isFinal) => {
+        console.debug(`[speech] delta="${text}" isFinal=${_isFinal} noteIdx=${currentIndexRef.current} answered=${noteAnsweredRef.current}`);
+        setHeardText(text.trim());
+        return handleSpokenInput(text);
+      },
+      (listening) => {
+        setSpeechListening(listening);
+      },
+    );
 
     // Reset the recognizer's transcript buffer when the note changes
     // so stale words from the previous note don't pollute the new one.
@@ -813,7 +817,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
                       ? heardText
                         ? `Ho sentito: "${heardText}"`
                         : "In ascolto — di' il nome della nota"
-                      : 'Microfono non disponibile'}
+                      : 'Riavvio del microfono...'}
                 </span>
               </div>
             </>

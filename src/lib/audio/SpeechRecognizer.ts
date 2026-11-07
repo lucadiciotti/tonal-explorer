@@ -50,7 +50,9 @@ declare global {
 export class SpeechRecognizer {
   private recognition: SpeechRecognition | null = null;
   private onResult: ((text: string, isFinal: boolean) => boolean) | null = null;
+  private onListeningChange: ((listening: boolean) => void) | null = null;
   private isRunning = false;
+  private isActuallyListening = false;
   private lastFinalTranscript = '';
 
   constructor() {
@@ -79,9 +81,13 @@ export class SpeechRecognizer {
     return transcript.trim();
   }
 
-  start(onResult: (text: string, isFinal: boolean) => boolean): void {
+  start(
+    onResult: (text: string, isFinal: boolean) => boolean,
+    onListeningChange?: (listening: boolean) => void,
+  ): void {
     if (!this.recognition) return;
     this.onResult = onResult;
+    this.onListeningChange = onListeningChange ?? null;
     this.isRunning = true;
 
     this.recognition.onresult = (event: SpeechRecognitionEvent) => {
@@ -113,11 +119,18 @@ export class SpeechRecognizer {
       }
     };
 
+    this.recognition.onstart = () => {
+      this.isActuallyListening = true;
+      this.onListeningChange?.(true);
+    };
+
     this.recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('Speech recognition error:', event.error);
     };
 
     this.recognition.onend = () => {
+      this.isActuallyListening = false;
+      this.onListeningChange?.(false);
       if (this.isRunning) {
         try { this.recognition?.start(); } catch { /* ignore */ }
       }
@@ -149,11 +162,14 @@ export class SpeechRecognizer {
   cleanup(): void {
     this.stop();
     this.onResult = null;
+    this.onListeningChange = null;
     this.lastFinalTranscript = '';
+    this.isActuallyListening = false;
     if (this.recognition) {
       this.recognition.onresult = null;
       this.recognition.onerror = null;
       this.recognition.onend = null;
+      this.recognition.onstart = null;
     }
   }
 }
