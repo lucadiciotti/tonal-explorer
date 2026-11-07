@@ -158,6 +158,8 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     lastSpokenTextRef.current = '';
     // Reset the speech recognizer's buffer so the new note starts fresh
     // and old cumulative transcript doesn't leak in.
+    // (reset is a no-op now — the engine stays running continuously
+    //  to avoid dropping short syllables during restart gaps)
     speechRecognizerRef.current?.reset();
     setCurrentNoteStatus('waiting');
     currentNoteStatusRef.current = 'waiting';

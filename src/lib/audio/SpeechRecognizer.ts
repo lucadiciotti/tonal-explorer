@@ -52,8 +52,7 @@ export class SpeechRecognizer {
   private onResult: ((text: string, isFinal: boolean) => boolean) | null = null;
   private onListeningChange: ((listening: boolean) => void) | null = null;
   private isRunning = false;
-  private isActuallyListening = false;
-  private lastFinalTranscript = '';
+  private consumedIndices = new Set<number>();
 
   constructor() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -70,17 +69,6 @@ export class SpeechRecognizer {
     return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
   }
 
-  /**
-   * Extract only the new portion of a cumulative transcript by removing
-   * the previously-seen final text from the beginning.
-   */
-  private extractDelta(transcript: string): string {
-    if (this.lastFinalTranscript && transcript.toLowerCase().startsWith(this.lastFinalTranscript.toLowerCase())) {
-      return transcript.slice(this.lastFinalTranscript.length).trim();
-    }
-    return transcript.trim();
-  }
-
   start(
     onResult: (text: string, isFinal: boolean) => boolean,
     onListeningChange?: (listening: boolean) => void,
@@ -91,36 +79,25 @@ export class SpeechRecognizer {
     this.isRunning = true;
 
     this.recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let interimDelta = '';
-
       for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (this.consumedIndices.has(i)) continue;
+
         const result = event.results[i];
-        const transcript = result[0].transcript.trim();
+        const text = result[0].transcript.trim();
+        if (!text) continue;
 
-        if (result.isFinal) {
-          // The final transcript is cumulative — strip the part we've
-          // already processed so only the newly spoken words remain.
-          const delta = this.extractDelta(transcript);
-          this.lastFinalTranscript = transcript;
+        const consumed = this.onResult?.(text, result.isFinal) ?? false;
 
-          if (delta) {
-            this.onResult?.(delta, true);
-          }
-        } else {
-          // Accumulate interim deltas; we'll deliver them as a single
-          // callback after the loop.
-          const delta = this.extractDelta(transcript);
-          if (delta) interimDelta = delta;
+        // Only mark as consumed when final so that a more accurate
+        // final transcript can still be delivered after an interim
+        // that was too partial to match.
+        if (consumed && result.isFinal) {
+          this.consumedIndices.add(i);
         }
-      }
-
-      if (interimDelta) {
-        this.onResult?.(interimDelta, false);
       }
     };
 
     this.recognition.onstart = () => {
-      this.isActuallyListening = true;
       this.onListeningChange?.(true);
     };
 
@@ -129,9 +106,12 @@ export class SpeechRecognizer {
     };
 
     this.recognition.onend = () => {
-      this.isActuallyListening = false;
       this.onListeningChange?.(false);
       if (this.isRunning) {
+        // Engine stopped on its own (Chrome timeout / silence).
+        // Clear consumed indices because the results array resets
+        // on restart, then restart the engine.
+        this.consumedIndices.clear();
         try { this.recognition?.start(); } catch { /* ignore */ }
       }
     };
@@ -143,13 +123,13 @@ export class SpeechRecognizer {
     }
   }
 
+  /**
+   * Soft reset — does NOT abort the engine. The engine keeps listening
+   * continuously so short syllables like "Do" are not lost during a
+   * restart gap. Dedup is handled by the caller's per-note guard.
+   */
   reset(): void {
-    if (!this.recognition || !this.isRunning) return;
-    this.lastFinalTranscript = '';
-    try {
-      this.recognition.abort();
-    } catch { /* ignore */ }
-    // onend fires after abort and restarts since isRunning is still true
+    // No-op: intentionally keep the engine running.
   }
 
   stop(): void {
@@ -163,8 +143,7 @@ export class SpeechRecognizer {
     this.stop();
     this.onResult = null;
     this.onListeningChange = null;
-    this.lastFinalTranscript = '';
-    this.isActuallyListening = false;
+    this.consumedIndices.clear();
     if (this.recognition) {
       this.recognition.onresult = null;
       this.recognition.onerror = null;
