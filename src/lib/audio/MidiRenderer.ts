@@ -60,12 +60,12 @@ export class MidiRenderer implements AudioRenderer {
       } else {
         this.output = outputs[0];
       }
-      this.output.send([0xC0 + NOTE_CHANNEL, this.currentProgram]);
-      if (!this.monotimbral) {
-        this.output.send([0xC0 + DRONE_CHANNEL, this.currentDroneProgram]);
-      } else {
+      if (this.monotimbral) {
         this.currentDroneProgram = this.currentProgram;
         this.output.send([0xC0 + MONO_CHANNEL, this.currentProgram]);
+      } else {
+        this.output.send([0xC0 + NOTE_CHANNEL, this.currentProgram]);
+        this.output.send([0xC0 + DRONE_CHANNEL, this.currentDroneProgram]);
       }
       console.log('MIDI output initialized with device:', this.output.name, this.monotimbral ? '(monotimbral)' : '(multi-timbral)');
 
@@ -170,6 +170,9 @@ export class MidiRenderer implements AudioRenderer {
     this.currentProgram = program;
     if (channel !== undefined) {
       this.output.send([0xC0 + channel, program]);
+    } else if (this.monotimbral) {
+      this.currentDroneProgram = program;
+      this.output.send([0xC0 + MONO_CHANNEL, program]);
     } else {
       this.output.send([0xC0 + NOTE_CHANNEL, program]);
       this.output.send([0xC0 + DRONE_CHANNEL, program]);
