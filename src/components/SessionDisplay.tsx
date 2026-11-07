@@ -531,12 +531,11 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     };
   }, [isSpeakMode, isDroneIntro]);
 
-  // Reset speech buffer when note changes so the previous note's transcript
-  // doesn't leak into the next one
+  // Clear dedup guard when note changes so the previous note's transcript
+  // doesn't block the next one
   useEffect(() => {
     if (!isSpeakMode || isDroneIntro) return;
     lastSpokenTextRef.current = '';
-    speechRecognizerRef.current?.reset();
   }, [currentIndex, isSpeakMode, isDroneIntro]);
 
   useEffect(() => {
