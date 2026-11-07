@@ -128,7 +128,7 @@ export function italianToEnglish(note: string): string {
 }
 
 export function parseSpokenNote(text: string): string | null {
-  const lower = text.toLowerCase().trim();
+  const lower = text.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   const altered: [RegExp, string][] = [
     [/do\s*diesis|\bdu\b/, 'Do#'],
