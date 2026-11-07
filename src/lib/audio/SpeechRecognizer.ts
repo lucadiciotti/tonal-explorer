@@ -51,6 +51,7 @@ export class SpeechRecognizer {
   private recognition: SpeechRecognition | null = null;
   private onResult: ((text: string, isFinal: boolean) => void) | null = null;
   private isRunning = false;
+  private lastProcessedText = '';
 
   constructor() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -75,7 +76,14 @@ export class SpeechRecognizer {
     this.recognition.onresult = (event: SpeechRecognitionEvent) => {
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
-        const text = result[0].transcript;
+        const text = result[0].transcript.trim();
+
+        if (result.isFinal && text === this.lastProcessedText) {
+          this.lastProcessedText = '';
+          continue;
+        }
+
+        this.lastProcessedText = text;
         this.onResult?.(text, result.isFinal);
       }
     };
