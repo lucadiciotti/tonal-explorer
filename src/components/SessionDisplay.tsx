@@ -514,11 +514,9 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     speechRecognizerRef.current = recognizer;
     setSpeechListening(true);
 
-    recognizer.start((text, isFinal) => {
+    recognizer.start((text, _isFinal) => {
       setHeardText(text.trim());
-      if (isFinal) {
-        handleSpokenInput(text);
-      }
+      handleSpokenInput(text);
     });
 
     return () => {
