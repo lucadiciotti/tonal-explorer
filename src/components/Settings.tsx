@@ -48,6 +48,7 @@ interface StoredSettings {
   midiOutputDeviceId: string;
   midiInputDeviceId: string;
   monotimbral: boolean;
+  debugMode: boolean;
 }
 
 function loadSettings(): Partial<StoredSettings> {
@@ -79,6 +80,7 @@ export function Settings({ onStart }: SettingsProps) {
   const [noteTransitionDelay, setNoteTransitionDelay] = useState<number>(stored.noteTransitionDelay ?? 500);
   const [tonalRetention, setTonalRetention] = useState<boolean>(stored.tonalRetention ?? true);
   const [tonalRetentionDuration, setTonalRetentionDuration] = useState<number>(stored.tonalRetentionDuration ?? 3);
+  const [debugMode, setDebugMode] = useState<boolean>(stored.debugMode ?? false);
 
   const handleStart = () => {
     saveSettings({
@@ -97,11 +99,12 @@ export function Settings({ onStart }: SettingsProps) {
       midiOutputDeviceId: stored.midiOutputDeviceId || '',
       midiInputDeviceId: stored.midiInputDeviceId || '',
       monotimbral: stored.monotimbral ?? false,
+      debugMode,
     });
 
     const audioMode = stored.audioMode || 'web-audio';
     onStart(
-      { tonic, numNotes, stepDuration, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, tonalRetention, tonalRetentionDuration },
+      { tonic, numNotes, stepDuration, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, tonalRetention, tonalRetentionDuration, debugMode },
       audioMode,
       audioMode === 'midi' ? stored.midiProgram : undefined,
       audioMode === 'midi' ? stored.midiDroneProgram : undefined,
@@ -348,6 +351,22 @@ export function Settings({ onStart }: SettingsProps) {
             La finestra di validazione della voce e' configurabile nella sezione Advanced.
           </p>
         )}
+
+        <fieldset className="border-2 border-slate-200 rounded-lg p-4">
+          <legend className="text-sm font-medium text-slate-700 px-2">Debug</legend>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={debugMode}
+              onChange={(e) => setDebugMode(e.target.checked)}
+              className="w-4 h-4 text-slate-800 rounded"
+            />
+            <div>
+              <div className="text-sm font-medium text-slate-800">Modalita' debug</div>
+              <div className="text-xs text-slate-500">Mostra la risposta attesa sotto il grado da indovinare (in modalita' Leggi e Parla)</div>
+            </div>
+          </label>
+        </fieldset>
 
 
       </div>

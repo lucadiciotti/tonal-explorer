@@ -13,6 +13,7 @@ export interface SessionSettings {
   noteTransitionDelay: number;
   tonalRetention: boolean;
   tonalRetentionDuration: number;
+  debugMode: boolean;
 }
 
 export interface Session {

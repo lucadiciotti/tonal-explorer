@@ -3,7 +3,7 @@ import { Play, Pause, X, Check, AlertCircle, Mic, MicOff } from 'lucide-react';
 import { Note, SessionMode, SessionStats, ErrorLogEntry, NoteResult } from '../types';
 import { AudioManager } from '../lib/audio/AudioManager';
 import { convertScaleDegreeToNote } from '../utils/noteConverter';
-import { getItalianNoteName, parseSpokenNote } from '../utils/italianNotes';
+import { getItalianNoteName, parseSpokenNote, getSpokenForms } from '../utils/italianNotes';
 import { MidiRenderer } from '../lib/audio/MidiRenderer';
 import { PitchDetector, PitchData } from '../lib/audio/PitchDetector';
 import { SpeechRecognizer } from '../lib/audio/SpeechRecognizer';
@@ -25,9 +25,10 @@ interface SessionDisplayProps {
   noteTransitionDelay: number;
   tonalRetention: boolean;
   tonalRetentionDuration: number;
+  debugMode: boolean;
 }
 
-export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onComplete, onCancel, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, tonalRetention, tonalRetentionDuration }: SessionDisplayProps) {
+export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onComplete, onCancel, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, tonalRetention, tonalRetentionDuration, debugMode }: SessionDisplayProps) {
   const [isDroneIntro, setIsDroneIntro] = useState<boolean>(true);
   const [droneIntroTimeLeft, setDroneIntroTimeLeft] = useState<number>(tonalRetentionDuration);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -733,6 +734,14 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
               </div>
             )}
           </div>
+          {debugMode && isSpeakMode && !isTransitioning && (
+            <div className="text-sm text-slate-400 font-mono mt-2">
+              {(() => {
+                try { return getSpokenForms(getItalianNoteName(tonic, notes[currentIndex])); }
+                catch { return '?'; }
+              })()}
+            </div>
+          )}
           {hadMissState && !isTransitioning && (
             <div className="absolute top-1/2 -translate-y-3/4 left-1/2 -translate-x-1/2 w-[90%] max-w-sm px-4 py-3 bg-orange-100/90 border border-orange-200 rounded-lg text-left shadow-sm">
               <p className="text-xs font-semibold text-orange-800 uppercase tracking-wide mb-1">Concentrati, non affrettarti</p>

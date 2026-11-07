@@ -233,6 +233,7 @@ function App() {
               noteTransitionDelay={currentSettings.noteTransitionDelay}
               tonalRetention={currentSettings.tonalRetention}
               tonalRetentionDuration={currentSettings.tonalRetentionDuration}
+              debugMode={currentSettings.debugMode}
             />
           )}
 

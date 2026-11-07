@@ -96,6 +96,33 @@ export function getItalianNoteName(tonic: string, degree: Note): string {
   return scale[semitones];
 }
 
+const ITALIAN_TO_COMPACT: Record<string, string> = {
+  'Do#': 'Du', 'Dob': 'Di',
+  'Re#': 'Ri', 'Reb': 'Ra',
+  'Mi#': 'Mo', 'Mib': 'Me',
+  'Fa#': 'Fe', 'Fab': 'Fu',
+  'Sol#': 'Sul', 'Solb': 'Sil',
+  'La#': 'Le', 'Lab': 'Lu',
+  'Si#': 'So', 'Sib': 'Se',
+};
+
+const ITALIAN_TO_SPOKEN: Record<string, string> = {
+  'Do#': 'Do diesis', 'Dob': 'Do bemolle',
+  'Re#': 'Re diesis', 'Reb': 'Re bemolle',
+  'Mi#': 'Mi diesis', 'Mib': 'Mi bemolle',
+  'Fa#': 'Fa diesis', 'Fab': 'Fa bemolle',
+  'Sol#': 'Sol diesis', 'Solb': 'Sol bemolle',
+  'La#': 'La diesis', 'Lab': 'La bemolle',
+  'Si#': 'Si diesis', 'Sib': 'Si bemolle',
+};
+
+export function getSpokenForms(note: string): string {
+  const compact = ITALIAN_TO_COMPACT[note];
+  const spoken = ITALIAN_TO_SPOKEN[note];
+  if (compact && spoken) return `${spoken} / ${compact}`;
+  return note;
+}
+
 export function italianToEnglish(note: string): string {
   return ITALIAN_TO_ENGLISH[note] ?? note;
 }
