@@ -532,11 +532,12 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     };
   }, [isSpeakMode, isDroneIntro]);
 
-  // Clear dedup guard when note changes so the previous note's transcript
-  // doesn't block the next one
+  // Clear dedup guard and heard text when note changes so the previous
+  // note's transcript doesn't leak into the next one
   useEffect(() => {
     if (!isSpeakMode || isDroneIntro) return;
     lastSpokenTextRef.current = '';
+    setHeardText(null);
   }, [currentIndex, isSpeakMode, isDroneIntro]);
 
   useEffect(() => {
