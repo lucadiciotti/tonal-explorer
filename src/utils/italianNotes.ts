@@ -131,20 +131,20 @@ export function parseSpokenNote(text: string): string | null {
   const lower = text.toLowerCase().trim();
 
   const altered: [RegExp, string][] = [
-    [/do\s*diesis|du\b/, 'Do#'],
-    [/do\s*bemolle|di\b/, 'Dob'],
-    [/re\s*diesis|ri\b/, 'Re#'],
-    [/re\s*bemolle|ra\b/, 'Reb'],
-    [/mi\s*diesis|mo\b/, 'Mi#'],
-    [/mi\s*bemolle|me\b/, 'Mib'],
-    [/fa\s*diesis|fe\b/, 'Fa#'],
-    [/fa\s*bemolle|fu\b/, 'Fab'],
-    [/sol\s*diesis|sul\b/, 'Sol#'],
-    [/sol\s*bemolle|sil\b/, 'Solb'],
-    [/la\s*diesis|le\b/, 'La#'],
-    [/la\s*bemolle|lu\b/, 'Lab'],
-    [/si\s*diesis|so\b/, 'Si#'],
-    [/si\s*bemolle|se\b/, 'Sib'],
+    [/do\s*diesis|\bdu\b/, 'Do#'],
+    [/do\s*bemolle|\bdi\b/, 'Dob'],
+    [/re\s*diesis|\bri\b/, 'Re#'],
+    [/re\s*bemolle|\bra\b/, 'Reb'],
+    [/mi\s*diesis|\bmo\b/, 'Mi#'],
+    [/mi\s*bemolle|\bme\b/, 'Mib'],
+    [/fa\s*diesis|\bfe\b/, 'Fa#'],
+    [/fa\s*bemolle|\bfu\b/, 'Fab'],
+    [/sol\s*diesis|\bsul\b/, 'Sol#'],
+    [/sol\s*bemolle|\bsil\b/, 'Solb'],
+    [/la\s*diesis|\ble\b/, 'La#'],
+    [/la\s*bemolle|\blu\b/, 'Lab'],
+    [/si\s*diesis|\bso\b/, 'Si#'],
+    [/si\s*bemolle|\bse\b/, 'Sib'],
   ];
 
   const natural: [RegExp, string][] = [
