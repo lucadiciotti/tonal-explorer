@@ -72,6 +72,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
   const singHoldBarRef = useRef<HTMLDivElement>(null);
   const speechRecognizerRef = useRef<SpeechRecognizer | null>(null);
   const [speechSupported, setSpeechSupported] = useState(true);
+  const lastSpokenTextRef = useRef<string>('');
   const [heardText, setHeardText] = useState<string | null>(null);
   const [speechListening, setSpeechListening] = useState(false);
 
@@ -154,6 +155,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     hasPlayedNoteRef.current = false;
     noteAnsweredRef.current = false;
     hasAdvancedRef.current = false;
+    lastSpokenTextRef.current = '';
     setCurrentNoteStatus('waiting');
     currentNoteStatusRef.current = 'waiting';
     setTimeLeft(stepDuration);
@@ -194,7 +196,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     }
 
     if (currentIndexRef.current < notes.length - 1) {
-      if (noteTransitionDelay > 0 && !isSpeakMode) {
+      if (noteTransitionDelay > 0) {
         setIsTransitioning(true);
         noteAnsweredRef.current = true;
         setTimeout(showNextNote, noteTransitionDelay);
@@ -248,6 +250,8 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
 
     const spokenNote = parseSpokenNote(text);
     if (!spokenNote) return;
+    if (spokenNote === lastSpokenTextRef.current) return;
+    lastSpokenTextRef.current = spokenNote;
 
     const idx = currentIndexRef.current;
     const currentNote = notes[idx];
@@ -526,6 +530,14 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
       setHeardText(null);
     };
   }, [isSpeakMode, isDroneIntro]);
+
+  // Reset speech buffer when note changes so the previous note's transcript
+  // doesn't leak into the next one
+  useEffect(() => {
+    if (!isSpeakMode || isDroneIntro) return;
+    lastSpokenTextRef.current = '';
+    speechRecognizerRef.current?.reset();
+  }, [currentIndex, isSpeakMode, isDroneIntro]);
 
   useEffect(() => {
     if (!isPlaying) return;

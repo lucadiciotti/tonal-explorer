@@ -97,6 +97,14 @@ export class SpeechRecognizer {
     }
   }
 
+  reset(): void {
+    if (!this.recognition || !this.isRunning) return;
+    try {
+      this.recognition.abort();
+    } catch { /* ignore */ }
+    // onend fires after abort and restarts since isRunning is still true
+  }
+
   stop(): void {
     this.isRunning = false;
     if (this.recognition) {
