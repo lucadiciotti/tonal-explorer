@@ -131,19 +131,19 @@ export function parseSpokenNote(text: string): string | null {
   const lower = text.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   const altered: [RegExp, string][] = [
-    [/do\s*diesis|\bdu\b/, 'Do#'],
+    [/do\s*diesis|\bdu\b|\bdù\b/, 'Do#'],
     [/do\s*bemolle/, 'Dob'],
-    [/re\s*diesis|\bri\b/, 'Re#'],
+    [/re\s*diesis|\bri\b|\brì\b/, 'Re#'],
     [/re\s*bemolle|\bra\b/, 'Reb'],
-    [/mi\s*diesis|\bmo\b/, 'Mi#'],
+    [/mi\s*diesis|\bmo\b|\bmò\b/, 'Mi#'],
     [/mi\s*bemolle|\bme\b/, 'Mib'],
-    [/fa\s*diesis|\bfe\b/, 'Fa#'],
-    [/fa\s*bemolle|\bfu\b/, 'Fab'],
-    [/sol\s*diesis|\bsul\b/, 'Sol#'],
+    [/fa\s*diesis|\bfe\b|\bfè\b/, 'Fa#'],
+    [/fa\s*bemolle|\bfu\b|\bfù\b/, 'Fab'],
+    [/sol\s*diesis|\bsul\b|\bsùl\b/, 'Sol#'],
     [/sol\s*bemolle|\bsil\b/, 'Solb'],
-    [/la\s*diesis|\ble\b/, 'La#'],
-    [/la\s*bemolle|\blu\b/, 'Lab'],
-    [/si\s*diesis|\bso\b/, 'Si#'],
+    [/la\s*diesis|\ble\b|\blè\b/, 'La#'],
+    [/la\s*bemolle|\blu\b|\blo\b|\blou\b|\blù\b/, 'Lab'],
+    [/si\s*diesis|\bso\b|\bsò\b/, 'Si#'],
     [/si\s*bemolle|\bse\b/, 'Sib'],
   ];
 
