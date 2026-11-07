@@ -244,13 +244,13 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     }
   };
 
-  const handleSpokenInput = (text: string) => {
-    if (noteAnsweredRef.current) return;
-    if (isTransitioning) return;
+  const handleSpokenInput = (text: string): boolean => {
+    if (noteAnsweredRef.current) return false;
+    if (isTransitioning) return false;
 
     const spokenNote = parseSpokenNote(text);
-    if (!spokenNote) return;
-    if (spokenNote === lastSpokenTextRef.current) return;
+    if (!spokenNote) return false;
+    if (spokenNote === lastSpokenTextRef.current) return false;
     lastSpokenTextRef.current = spokenNote;
 
     const idx = currentIndexRef.current;
@@ -305,6 +305,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     } catch (error) {
       console.error('Failed to check spoken note:', error);
     }
+    return true;
   };
 
   const handleNoteInput = (playedNote: string, playedOctave: number) => {
@@ -520,7 +521,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
 
     recognizer.start((text, _isFinal) => {
       setHeardText(text.trim());
-      handleSpokenInput(text);
+      return handleSpokenInput(text);
     });
 
     return () => {

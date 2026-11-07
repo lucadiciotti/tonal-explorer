@@ -49,9 +49,9 @@ declare global {
 
 export class SpeechRecognizer {
   private recognition: SpeechRecognition | null = null;
-  private onResult: ((text: string, isFinal: boolean) => void) | null = null;
+  private onResult: ((text: string, isFinal: boolean) => boolean) | null = null;
   private isRunning = false;
-  private lastProcessedText = '';
+  private consumedIndices = new Set<number>();
 
   constructor() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -68,7 +68,7 @@ export class SpeechRecognizer {
     return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
   }
 
-  start(onResult: (text: string, isFinal: boolean) => void): void {
+  start(onResult: (text: string, isFinal: boolean) => boolean): void {
     if (!this.recognition) return;
     this.onResult = onResult;
     this.isRunning = true;
@@ -78,13 +78,11 @@ export class SpeechRecognizer {
         const result = event.results[i];
         const text = result[0].transcript.trim();
 
-        if (result.isFinal && text === this.lastProcessedText) {
-          this.lastProcessedText = '';
-          continue;
-        }
+        if (this.consumedIndices.has(i)) continue;
 
-        this.lastProcessedText = text;
-        this.onResult?.(text, result.isFinal);
+        const consumed = this.onResult?.(text, result.isFinal) ?? false;
+
+        if (consumed) this.consumedIndices.add(i);
       }
     };
 
@@ -94,6 +92,7 @@ export class SpeechRecognizer {
 
     this.recognition.onend = () => {
       if (this.isRunning) {
+        this.consumedIndices.clear();
         try { this.recognition?.start(); } catch { /* ignore */ }
       }
     };
