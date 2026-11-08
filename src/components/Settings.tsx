@@ -73,14 +73,8 @@ export function Settings({ onStart }: SettingsProps) {
   const [tonic, setTonic] = useState<Tonic>(stored.tonic || 'C');
   const [numNotes, setNumNotes] = useState<number>(stored.numNotes || 10);
   const [stepDuration, setStepDuration] = useState<number>(stored.stepDuration || 3);
-  const [ignoreOctaves, setIgnoreOctaves] = useState<boolean>(stored.ignoreOctaves ?? true);
   const [ignoreStepDuration, setIgnoreStepDuration] = useState<boolean>(stored.ignoreStepDuration ?? true);
   const [mode, setMode] = useState<SessionMode>(stored.mode || 'read-and-play');
-  const [singHoldDuration, setSingHoldDuration] = useState<number>(stored.singHoldDuration ?? 1500);
-  const [noteTransitionDelay, setNoteTransitionDelay] = useState<number>(stored.noteTransitionDelay ?? 500);
-  const [tonalRetention, setTonalRetention] = useState<boolean>(stored.tonalRetention ?? true);
-  const [tonalRetentionDuration, setTonalRetentionDuration] = useState<number>(stored.tonalRetentionDuration ?? 3);
-  const [debugMode, setDebugMode] = useState<boolean>(stored.debugMode ?? false);
 
   const handleStart = () => {
     saveSettings({
@@ -90,21 +84,21 @@ export function Settings({ onStart }: SettingsProps) {
       selectedCategory: stored.selectedCategory || 'Piano',
       midiDroneProgram: stored.midiDroneProgram ?? 48,
       selectedDroneCategory: stored.selectedDroneCategory || 'Strings',
-      ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay,
+      ignoreOctaves: stored.ignoreOctaves ?? true, ignoreStepDuration, mode, singHoldDuration: stored.singHoldDuration ?? 1500, noteTransitionDelay: stored.noteTransitionDelay ?? 500,
       sfNoteInstrument: stored.sfNoteInstrument || 'acoustic_grand_piano',
       sfNoteCategory: stored.sfNoteCategory || 'Piano',
       sfDroneInstrument: stored.sfDroneInstrument || 'string_ensemble_1',
       sfDroneCategory: stored.sfDroneCategory || 'Strings',
-      tonalRetention, tonalRetentionDuration,
+      tonalRetention: stored.tonalRetention ?? true, tonalRetentionDuration: stored.tonalRetentionDuration ?? 3,
       midiOutputDeviceId: stored.midiOutputDeviceId || '',
       midiInputDeviceId: stored.midiInputDeviceId || '',
       monotimbral: stored.monotimbral ?? false,
-      debugMode,
+      debugMode: stored.debugMode ?? false,
     });
 
     const audioMode = stored.audioMode || 'web-audio';
     onStart(
-      { tonic, numNotes, stepDuration, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, tonalRetention, tonalRetentionDuration, debugMode },
+      { tonic, numNotes, stepDuration, ignoreOctaves: stored.ignoreOctaves ?? true, ignoreStepDuration, mode, singHoldDuration: stored.singHoldDuration ?? 1500, noteTransitionDelay: stored.noteTransitionDelay ?? 500, tonalRetention: stored.tonalRetention ?? true, tonalRetentionDuration: stored.tonalRetentionDuration ?? 3, debugMode: stored.debugMode ?? false },
       audioMode,
       audioMode === 'midi' ? stored.midiProgram : undefined,
       audioMode === 'midi' ? stored.midiDroneProgram : undefined,
@@ -215,62 +209,6 @@ export function Settings({ onStart }: SettingsProps) {
           </div>
         </div>
 
-        <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3">
-          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Octaves</legend>
-          <p className="text-sm text-slate-600 dark:text-slate-300">
-            Le note vengono generate su 3 ottave: ottava 3, 4 e 5.
-          </p>
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={ignoreOctaves}
-              onChange={(e) => setIgnoreOctaves(e.target.checked)}
-              className="w-4 h-4 text-slate-800 dark:text-slate-100 rounded"
-            />
-            <div>
-              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">Ignora Ottave</div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">Accetta la nota corretta in qualsiasi ottava</div>
-            </div>
-          </label>
-        </fieldset>
-
-        <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
-          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Tonal Retention</legend>
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={tonalRetention}
-              onChange={(e) => setTonalRetention(e.target.checked)}
-              className="w-4 h-4 text-slate-800 dark:text-slate-100 rounded"
-            />
-            <div>
-              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">Drone continuo</div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">Il drone suona per tutta la durata dell'esercizio; se disattivato, si ferma dopo i secondi impostati</div>
-            </div>
-          </label>
-          {!tonalRetention && (
-            <div>
-              <label htmlFor="tonalRetentionDuration" className="block text-sm text-slate-600 dark:text-slate-300 mb-2">
-                Durata intro drone: {tonalRetentionDuration}s
-              </label>
-              <input
-                id="tonalRetentionDuration"
-                type="range"
-                min="1"
-                max="10"
-                step="1"
-                value={tonalRetentionDuration}
-                onChange={(e) => setTonalRetentionDuration(Number(e.target.value))}
-                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-slate-800 dark:accent-sky-500"
-              />
-              <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
-                <span>1s</span>
-                <span>10s</span>
-              </div>
-            </div>
-          )}
-        </fieldset>
-
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-3">
             Session Mode
@@ -351,23 +289,6 @@ export function Settings({ onStart }: SettingsProps) {
             La finestra di validazione della voce e' configurabile nella sezione Advanced.
           </p>
         )}
-
-        <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4">
-          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Debug</legend>
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={debugMode}
-              onChange={(e) => setDebugMode(e.target.checked)}
-              className="w-4 h-4 text-slate-800 dark:text-slate-100 rounded"
-            />
-            <div>
-              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">Modalita' debug</div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">Mostra la risposta attesa sotto il grado da indovinare (in modalita' Leggi e Parla)</div>
-            </div>
-          </label>
-        </fieldset>
-
 
       </div>
     </div>
