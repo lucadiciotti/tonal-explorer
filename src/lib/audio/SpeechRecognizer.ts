@@ -47,6 +47,11 @@ declare global {
   }
 }
 
+function isMobile(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return /Android|iPhone|iPad|iPod|Mobile|CriOS|FxiOS/i.test(navigator.userAgent);
+}
+
 export class SpeechRecognizer {
   private recognition: SpeechRecognition | null = null;
   private onResult: ((text: string, isFinal: boolean) => boolean) | null = null;
@@ -54,15 +59,24 @@ export class SpeechRecognizer {
   private isRunning = false;
   private consumedIndices = new Set<number>();
   private lastResultsLength = 0;
+  private mobile: boolean;
+  private restartTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    this.mobile = isMobile();
     if (SR) {
       this.recognition = new SR();
       this.recognition.lang = 'it-IT';
-      this.recognition.continuous = true;
-      this.recognition.interimResults = true;
-      this.recognition.maxAlternatives = 1;
+      // Mobile engines often fail to fire results for short syllables
+      // when continuous mode is used. Non-continuous mode forces the
+      // engine to process each utterance as a self-contained segment,
+      // which improves detection of brief syllables like "Do" or "La".
+      this.recognition.continuous = !this.mobile;
+      this.recognition.interimResults = !this.mobile;
+      // Request multiple alternatives so that if the top transcript is
+      // garbage, a lower-ranked alternative may still contain the note.
+      this.recognition.maxAlternatives = this.mobile ? 5 : 1;
     }
   }
 
@@ -84,10 +98,17 @@ export class SpeechRecognizer {
         if (this.consumedIndices.has(i)) continue;
 
         const result = event.results[i];
-        const text = result[0].transcript.trim();
-        if (!text) continue;
-
-        const consumed = this.onResult?.(text, result.isFinal) ?? false;
+        // On mobile, check all alternatives — the top transcript is
+        // often empty or garbage for short syllables, but a lower-ranked
+        // alternative may contain the spoken note name.
+        const numAlts = result.length;
+        let consumed = false;
+        for (let a = 0; a < numAlts; a++) {
+          const text = result[a].transcript.trim();
+          if (!text) continue;
+          consumed = this.onResult?.(text, result.isFinal) ?? false;
+          if (consumed) break;
+        }
 
         // Only mark as consumed when final so that a more accurate
         // final transcript can still be delivered after an interim
@@ -115,7 +136,15 @@ export class SpeechRecognizer {
         // on restart, then restart the engine.
         this.consumedIndices.clear();
         this.lastResultsLength = 0;
-        try { this.recognition?.start(); } catch { /* ignore */ }
+        // On mobile non-continuous mode, the engine stops after each
+        // utterance. Restart immediately, but add a tiny delay to avoid
+        // a tight loop if the engine keeps ending without input.
+        const delay = this.mobile ? 50 : 0;
+        if (this.restartTimer) clearTimeout(this.restartTimer);
+        this.restartTimer = setTimeout(() => {
+          this.restartTimer = null;
+          try { this.recognition?.start(); } catch { /* ignore */ }
+        }, delay);
       }
     };
 
@@ -145,6 +174,10 @@ export class SpeechRecognizer {
 
   stop(): void {
     this.isRunning = false;
+    if (this.restartTimer) {
+      clearTimeout(this.restartTimer);
+      this.restartTimer = null;
+    }
     if (this.recognition) {
       try { this.recognition.stop(); } catch { /* ignore */ }
     }

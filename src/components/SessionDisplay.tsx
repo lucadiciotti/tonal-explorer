@@ -10,6 +10,7 @@ import { SpeechRecognizer } from '../lib/audio/SpeechRecognizer';
 import { PitchTuner } from './PitchTuner';
 import { areNotesEqual } from '../utils/noteComparison';
 import { ResultEntry, calculateStreaks } from '../utils/streakCalculator';
+import { playBeep } from '../utils/beep';
 
 interface SessionDisplayProps {
   notes: Note[];
@@ -636,6 +637,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
             setIncorrectCount(c => c + 1);
             setCurrentNoteStatus('incorrect');
             currentNoteStatusRef.current = 'incorrect';
+            playBeep(440, 0.12, 0.2);
           }
           advanceToNextNote(lastPlayedNoteRef.current, lastReactionTimeRef.current);
         }
