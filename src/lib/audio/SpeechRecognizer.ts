@@ -68,15 +68,11 @@ export class SpeechRecognizer {
     if (SR) {
       this.recognition = new SR();
       this.recognition.lang = 'it-IT';
-      // Mobile engines often fail to fire results for short syllables
-      // when continuous mode is used. Non-continuous mode forces the
-      // engine to process each utterance as a self-contained segment,
-      // which improves detection of brief syllables like "Do" or "La".
-      this.recognition.continuous = !this.mobile;
-      this.recognition.interimResults = !this.mobile;
+      this.recognition.continuous = true;
+      this.recognition.interimResults = true;
       // Request multiple alternatives so that if the top transcript is
       // garbage, a lower-ranked alternative may still contain the note.
-      this.recognition.maxAlternatives = this.mobile ? 5 : 1;
+      this.recognition.maxAlternatives = 5;
     }
   }
 
@@ -136,9 +132,6 @@ export class SpeechRecognizer {
         // on restart, then restart the engine.
         this.consumedIndices.clear();
         this.lastResultsLength = 0;
-        // On mobile non-continuous mode, the engine stops after each
-        // utterance. Restart immediately, but add a tiny delay to avoid
-        // a tight loop if the engine keeps ending without input.
         const delay = this.mobile ? 50 : 0;
         if (this.restartTimer) clearTimeout(this.restartTimer);
         this.restartTimer = setTimeout(() => {
