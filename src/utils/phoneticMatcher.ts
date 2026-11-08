@@ -71,12 +71,51 @@ function weightedLevenshtein(a: string, b: string): number {
 }
 
 /**
+ * Normalize a word to its Italian phonetic form before distance
+ * comparison. The Italian speech engine often mishears short
+ * syllables as English-looking words (e.g. "sil"→"seal", "sil"→"syll").
+ * These rules collapse English digraphs and doubled consonants back
+ * to their Italian phonetic equivalents.
+ */
+function phoneticNormalize(word: string): string {
+  let w = word;
+
+  // y → i  (syll → sill)
+  w = w.replace(/y/g, 'i');
+
+  // English vowel digraphs → Italian single vowel
+  w = w
+    .replace(/ea/g, 'i')   // seal → sil
+    .replace(/ee/g, 'i')   // seel → sil
+    .replace(/ie/g, 'i')   // 
+    .replace(/oo/g, 'u')   // sool → sul
+    .replace(/ou/g, 'u')   // soul → sul
+    .replace(/oa/g, 'o')   // 
+    .replace(/ai/g, 'e')   // 
+    .replace(/ae/g, 'e');  //
+
+  // Collapse doubled consonants (ll→l, ss→s, nn→n, etc.)
+  w = w.replace(/([bcdfglmnprst])\1/g, '$1');
+
+  // Drop trailing silent 'e' after a consonant (but not after a vowel
+  // cluster that would change the syllable — "se" is a valid syllable
+  // for Sib, so we only drop 'e' when the word is longer than 2 chars
+  // and the preceding char is a consonant, meaning the 'e' was likely
+  // silent: "sile" → "sil", but "se" stays "se").
+  if (w.length > 2 && /[^aeiou]e$/.test(w)) {
+    w = w.slice(0, -1);
+  }
+
+  return w;
+}
+
+/**
  * Fallback matcher: when the regex-based parseSpokenNote finds nothing,
  * compare each word against all valid note syllables using a phonetically
  * weighted edit distance. Catches mishearings the regex doesn't anticipate
- * (e.g. "no" → "do", "te" → "re") by exploiting the fact that consonants
- * in the same place of articulation and close vowels are easily confused
- * by a general-purpose speech engine.
+ * (e.g. "no" → "do", "te" → "re", "seal" → "sil") by exploiting the fact
+ * that consonants in the same place of articulation and close vowels are
+ * easily confused by a general-purpose speech engine.
  */
 export function phoneticMatchNote(text: string): string | null {
   const normalized = text.toLowerCase().trim()
@@ -91,8 +130,9 @@ export function phoneticMatchNote(text: string): string | null {
   let bestPriority = Infinity;
 
   for (const word of words) {
+    const phonetic = phoneticNormalize(word);
     for (const { syllable, note, priority } of VALID_SYLLABLES) {
-      const dist = weightedLevenshtein(word, syllable);
+      const dist = weightedLevenshtein(phonetic, syllable);
       const threshold = syllable.length <= 2 ? 0.5 : 1.0;
       if (dist > threshold) continue;
 
