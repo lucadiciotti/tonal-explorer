@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Music, LogOut, BarChart3, SlidersHorizontal } from 'lucide-react';
 import { Settings } from './components/Settings';
 import { SessionDisplay } from './components/SessionDisplay';
@@ -29,6 +29,8 @@ function App() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [audioManager, setAudioManager] = useState<AudioManager | null>(null);
   const [sessionResults, setSessionResults] = useState<{ correct: number; total: number; stats: SessionStats; errorLog: ErrorLogEntry[]; noteResults: NoteResult[] } | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {
@@ -175,7 +177,25 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+    <div
+      className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900"
+      onTouchStart={(e) => {
+        if (appState === 'settings' || appState === 'advanced') {
+          touchStartX.current = e.touches[0].clientX;
+          touchStartY.current = e.touches[0].clientY;
+        }
+      }}
+      onTouchEnd={(e) => {
+        if (touchStartX.current === null) return;
+        const dx = e.changedTouches[0].clientX - touchStartX.current;
+        const dy = e.changedTouches[0].clientY - (touchStartY.current ?? 0);
+        touchStartX.current = null;
+        touchStartY.current = null;
+        if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return;
+        if (dx > 0 && appState === 'settings') setAppState('advanced');
+        else if (dx < 0 && appState === 'advanced') setAppState('settings');
+      }}
+    >
       <div className="container mx-auto px-4 py-8">
         <header className="text-center mb-12 relative">
           <div className="absolute right-0 top-0 flex items-center gap-1">
@@ -189,7 +209,7 @@ function App() {
             </button>
             <button
               onClick={() => setAppState('stats')}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
+              className="hidden sm:flex items-center gap-2 px-3 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
               title="Statistiche"
             >
               <BarChart3 className="w-4 h-4" />
