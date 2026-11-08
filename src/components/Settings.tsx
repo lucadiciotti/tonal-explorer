@@ -128,10 +128,10 @@ export function Settings({ onStart }: SettingsProps) {
           <label className="block text-sm font-medium text-slate-700 mb-2">
             Tonic (T)
           </label>
-          <div className="relative w-96 h-96 mx-auto">
+          <div className="relative w-72 h-72 sm:w-96 sm:h-96 mx-auto">
             {TONIC_GROUPS.map((group, index) => {
               const angle = (index * 360) / TONIC_GROUPS.length - 90;
-              const radius = 140;
+              const radius = 108;
               const x = radius * Math.cos((angle * Math.PI) / 180);
               const y = radius * Math.sin((angle * Math.PI) / 180);
 

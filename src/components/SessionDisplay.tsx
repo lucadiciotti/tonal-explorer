@@ -763,7 +763,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
                   ? <DegreeDisplay note={notes[currentIndex]} />
                   : <span>?</span>}            </div>
             {isInteractiveMode && currentNoteStatus !== 'waiting' && (
-              <div className="absolute -right-16 top-1/2 -translate-y-1/2">
+              <div className="absolute right-2 sm:right-0 top-0 sm:top-1/2 sm:-right-16 sm:-translate-y-1/2">
                 {currentNoteStatus === 'correct' ? (
                   <Check className="w-12 h-12 text-green-500" />
                 ) : (
