@@ -3,7 +3,7 @@ import { Play, Pause, X, Check, AlertCircle, Mic, MicOff } from 'lucide-react';
 import { Note, SessionMode, SessionStats, ErrorLogEntry, NoteResult } from '../types';
 import { AudioManager } from '../lib/audio/AudioManager';
 import { convertScaleDegreeToNote } from '../utils/noteConverter';
-import { getItalianNoteName, parseSpokenNote, getSpokenForms } from '../utils/italianNotes';
+import { getItalianNoteName, parseSpokenNote, getSpokenForms, getItalianChromaticScale } from '../utils/italianNotes';
 import { MidiRenderer } from '../lib/audio/MidiRenderer';
 import { PitchDetector, PitchData } from '../lib/audio/PitchDetector';
 import { SpeechRecognizer } from '../lib/audio/SpeechRecognizer';
@@ -833,6 +833,23 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
                 </span>
               </div>
             </>
+          )}
+          {isSpeakMode && !isDroneIntro && !isTransitioning && (
+            <div className="max-w-md mx-auto mt-4">
+              <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">Tocca una nota se il microfono non sente</p>
+              <div className="grid grid-cols-4 gap-2">
+                {getItalianChromaticScale(tonic).map((noteName) => (
+                  <button
+                    key={noteName}
+                    onClick={() => handleSpokenInput(noteName, true)}
+                    disabled={noteAnsweredRef.current}
+                    className="px-2 py-3 rounded-lg text-sm font-semibold border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {noteName}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
           <div className="text-2xl text-slate-500 dark:text-slate-400">
             {!isPlaying ? 'Paused' : ignoreStepDuration ? 'In attesa...' : `Next in ${timeLeft}s`}

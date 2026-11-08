@@ -6,6 +6,10 @@ const SCALE_DEGREE_TO_SEMITONES: Record<string, number> = {
   '#4': 6, '5': 7, 'b6': 8, '6': 9, 'b7': 10, '7': 11,
 };
 
+export function getItalianChromaticScale(tonic: string): string[] {
+  return ITALIAN_CHROMATIC_SCALES[tonic] ?? ITALIAN_CHROMATIC_SCALES['C'];
+}
+
 const ITALIAN_CHROMATIC_SCALES: Record<string, string[]> = {
   'C':  ['Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si'],
   'G':  ['Sol', 'Sol#', 'La', 'La#', 'Si', 'Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#'],
