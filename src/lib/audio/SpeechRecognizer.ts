@@ -53,6 +53,7 @@ export class SpeechRecognizer {
   private onListeningChange: ((listening: boolean) => void) | null = null;
   private isRunning = false;
   private consumedIndices = new Set<number>();
+  private lastResultsLength = 0;
 
   constructor() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -95,6 +96,7 @@ export class SpeechRecognizer {
           this.consumedIndices.add(i);
         }
       }
+      this.lastResultsLength = event.results.length;
     };
 
     this.recognition.onstart = () => {
@@ -112,6 +114,7 @@ export class SpeechRecognizer {
         // Clear consumed indices because the results array resets
         // on restart, then restart the engine.
         this.consumedIndices.clear();
+        this.lastResultsLength = 0;
         try { this.recognition?.start(); } catch { /* ignore */ }
       }
     };
@@ -129,7 +132,15 @@ export class SpeechRecognizer {
    * restart gap. Dedup is handled by the caller's per-note guard.
    */
   reset(): void {
-    // No-op: intentionally keep the engine running.
+    // Mark all currently known result indices as consumed so that
+    // pending interim results that become final after a note change
+    // are not attributed to the new note. Without this, the final
+    // transcript of the previous note's utterance arrives after the
+    // note has already advanced and gets misattributed as a wrong
+    // answer for the new note.
+    for (let i = 0; i < this.lastResultsLength; i++) {
+      this.consumedIndices.add(i);
+    }
   }
 
   stop(): void {
