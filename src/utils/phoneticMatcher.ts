@@ -87,11 +87,11 @@ function phoneticNormalize(word: string): string {
   w = w
     .replace(/ea/g, 'i')   // seal → sil
     .replace(/ee/g, 'i')   // seel → sil
-    .replace(/ie/g, 'i')   // 
+    .replace(/ie/g, 'i')   //
     .replace(/oo/g, 'u')   // sool → sul
     .replace(/ou/g, 'u')   // soul → sul
-    .replace(/oa/g, 'o')   // 
-    .replace(/ai/g, 'e')   // 
+    .replace(/oa/g, 'o')   //
+    .replace(/ai/g, 'e')   //
     .replace(/ae/g, 'e');  //
 
   // Collapse doubled consonants (ll→l, ss→s, nn→n, etc.)
@@ -104,6 +104,16 @@ function phoneticNormalize(word: string): string {
   // silent: "sile" → "sil", but "se" stays "se").
   if (w.length > 2 && /[^aeiou]e$/.test(w)) {
     w = w.slice(0, -1);
+  }
+
+  // Drop trailing 'h' — mobile engines often append it (doh→do, blah→bla)
+  if (w.length > 2 && w.endsWith('h')) {
+    w = w.slice(0, -1);
+  }
+
+  // Remove a leading 'h' that some engines prepend (hdo → do)
+  if (w.length > 2 && w.startsWith('h')) {
+    w = w.slice(1);
   }
 
   return w;

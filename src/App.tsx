@@ -12,6 +12,7 @@ import { AdvancedSettings } from './components/AdvancedSettings';
 import { useAuth } from './contexts/AuthContext';
 import { SessionSettings, Note, SessionStats, ErrorLogEntry, NoteResult } from './types';
 import { classifyError } from './utils/noteComparison';
+import { APP_VERSION } from './version';
 import { generateNoteSequence } from './utils/noteGenerator';
 import { supabase } from './lib/supabase';
 import { AudioManager } from './lib/audio/AudioManager';
@@ -209,6 +210,7 @@ function App() {
           </div>
           <p className="text-slate-600 text-lg">Music Training Assistant</p>
           <p className="text-slate-400 text-xs mt-1">{user.email}</p>
+          <p className="text-slate-300 text-xs mt-0.5">v{APP_VERSION}</p>
         </header>
 
         <main>

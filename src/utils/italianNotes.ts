@@ -132,30 +132,30 @@ export function parseSpokenNote(text: string): string | null {
   const lower = text.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   const altered: [RegExp, string][] = [
-    [/do\s*diesis|\bdu\b|\bdù\b/, 'Do#'],
-    [/do\s*bemolle/, 'Dob'],
-    [/re\s*diesis|\bri\b|\brì\b/, 'Re#'],
-    [/re\s*bemolle|\bra\b/, 'Reb'],
+    [/do\s*diesis|\bdu\b|\bdù\b|\bdhu\b|\bdoo\b/, 'Do#'],
+    [/do\s*bemolle|\bdi\b|\bdì\b/, 'Dob'],
+    [/re\s*diesis|\bri\b|\brì\b|\bree\b|\brye\b/, 'Re#'],
+    [/re\s*bemolle|\bra\b|\brah\b/, 'Reb'],
     [/mi\s*diesis|\bmo\b|\bmò\b/, 'Mi#'],
-    [/mi\s*bemolle|\bme\b/, 'Mib'],
-    [/fa\s*diesis|\bfe\b|\bfè\b/, 'Fa#'],
-    [/fa\s*bemolle|\bfu\b|\bfù\b/, 'Fab'],
-    [/sol\s*diesis|\bsul\b|\bsùl\b/, 'Sol#'],
-    [/sol\s*bemolle|\bsil\b/, 'Solb'],
-    [/la\s*diesis|\ble\b|\blè\b/, 'La#'],
-    [/la\s*bemolle|\blu\b|\blo\b|\blou\b|\blù\b/, 'Lab'],
+    [/mi\s*bemolle|\bme\b|\bmeh\b/, 'Mib'],
+    [/fa\s*diesis|\bfe\b|\bfè\b|\bfay\b/, 'Fa#'],
+    [/fa\s*bemolle|\bfu\b|\bfù\b|\bfoo\b/, 'Fab'],
+    [/sol\s*diesis|\bsul\b|\bsùl\b|\bsool\b|\bsoul\b/, 'Sol#'],
+    [/sol\s*bemolle|\bsil\b|\bseal\b|\bsyll\b|\bsill\b/, 'Solb'],
+    [/la\s*diesis|\ble\b|\blè\b|\blay\b/, 'La#'],
+    [/la\s*bemolle|\blu\b|\blo\b|\blou\b|\blù\b|\bloo\b/, 'Lab'],
     [/si\s*diesis|\bso\b|\bsò\b/, 'Si#'],
-    [/si\s*bemolle|\bse\b/, 'Sib'],
+    [/si\s*bemolle|\bse\b|\bseh\b|\bsay\b/, 'Sib'],
   ];
 
   const natural: [RegExp, string][] = [
-    [/\bdo\b/, 'Do'],
-    [/\bre\b/, 'Re'],
-    [/\bmi\b/, 'Mi'],
-    [/\bfa\b/, 'Fa'],
-    [/\bsol\b/, 'Sol'],
-    [/\bla\b/, 'La'],
-    [/\bsi\b/, 'Si'],
+    [/\bdo\b|\bdoh\b|\bdow\b/, 'Do'],
+    [/\bre\b|\breh\b|\bray\b/, 'Re'],
+    [/\bmi\b|\bmee\b|\bme\b/, 'Mi'],
+    [/\bfa\b|\bfah\b|\bfar\b/, 'Fa'],
+    [/\bsol\b|\bsoul\b|\bsohl\b/, 'Sol'],
+    [/\bla\b|\blah\b/, 'La'],
+    [/\bsi\b|\bsee\b|\bsea\b/, 'Si'],
   ];
 
   // Search from the end of the text so that if the delta contains
