@@ -1,4 +1,5 @@
 import { Note } from '../types';
+import { phoneticMatchNote } from './phoneticMatcher';
 
 const SCALE_DEGREE_TO_SEMITONES: Record<string, number> = {
   '1': 0, 'b2': 1, '2': 2, 'b3': 3, '3': 4, '4': 5,
@@ -169,5 +170,9 @@ export function parseSpokenNote(text: string): string | null {
     if (regex.test(lower)) return note;
   }
 
-  return null;
+  // Regex match failed — try phonetic fallback. The speech engine
+  // often mishears short syllables as real Italian words that the
+  // regex doesn't cover. Phonetic matching finds the closest valid
+  // syllable by edit distance, catching e.g. "no"→Do, "te"→Re.
+  return phoneticMatchNote(lower);
 }
