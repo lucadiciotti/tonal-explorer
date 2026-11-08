@@ -108,7 +108,7 @@ export function ResponseTimeChart({ notes, tonic, correctOnly }: ResponseTimeCha
   const hasData = data.some(d => d.stats !== null);
   if (!hasData) {
     return (
-      <div className="text-center py-8 text-slate-400 text-sm">
+      <div className="text-center py-8 text-slate-400 dark:text-slate-500 text-sm">
         Nessun dato{correctOnly ? ' corretto' : ' errato'} con tempo di risposta disponibile.
       </div>
     );
@@ -140,7 +140,7 @@ export function ResponseTimeChart({ notes, tonic, correctOnly }: ResponseTimeCha
 
   return (
     <div className="overflow-x-auto">
-      <div className="text-xs text-slate-500 text-center mb-3 font-medium uppercase tracking-wide">
+      <div className="text-xs text-slate-500 dark:text-slate-400 text-center mb-3 font-medium uppercase tracking-wide">
         Tempi di risposta per grado —{' '}
         <span style={{ color }}>{correctOnly ? 'risposte corrette' : 'risposte errate'}</span>
       </div>
@@ -153,7 +153,7 @@ export function ResponseTimeChart({ notes, tonic, correctOnly }: ResponseTimeCha
           {yTicks.map(t => (
             <div
               key={t}
-              className="absolute right-2 text-[10px] text-slate-400 font-mono"
+              className="absolute right-2 text-[10px] text-slate-400 dark:text-slate-500 font-mono"
               style={{ top: msToY(t) - 6 + 'px', lineHeight: '12px' }}
             >
               {t === 0 ? '0' : t >= 1000 ? `${t / 1000}s` : `${t}`}
@@ -271,19 +271,19 @@ export function ResponseTimeChart({ notes, tonic, correctOnly }: ResponseTimeCha
         {data.map(col => (
           <div
             key={col.degree}
-            className="text-center text-xs font-semibold text-slate-600"
+            className="text-center text-xs font-semibold text-slate-600 dark:text-slate-300"
             style={{ width: colWidth + 'px', flexShrink: 0 }}
           >
             {col.degree}
             {col.stats && (
-              <span className="block text-[9px] text-slate-400 font-normal">{col.stats.count}x</span>
+              <span className="block text-[9px] text-slate-400 dark:text-slate-500 font-normal">{col.stats.count}x</span>
             )}
           </div>
         ))}
       </div>
 
       {/* Legend */}
-      <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-slate-500 justify-center">
+      <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-slate-500 dark:text-slate-400 justify-center">
         <div className="flex items-center gap-1.5">
           <div className="w-0.5 h-4 rounded" style={{ backgroundColor: colorMid }} />
           <span>Range min-max</span>

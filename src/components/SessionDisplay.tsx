@@ -673,18 +673,18 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     return (
       <span className="inline-flex flex-col items-center">
         <span
-          className="h-2 rounded-full transition-opacity"
+          className="h-2 rounded-full transition-opacity bg-slate-800 dark:bg-slate-200"
           style={{
             width: '80%',
-            background: modifier === 'upper' ? '#1e293b' : 'transparent',
+            opacity: modifier === 'upper' ? 1 : 0,
           }}
         />
         <span>{display}</span>
         <span
-          className="h-2 rounded-full transition-opacity"
+          className="h-2 rounded-full transition-opacity bg-slate-800 dark:bg-slate-200"
           style={{
             width: '80%',
-            background: modifier === 'lower' ? '#1e293b' : 'transparent',
+            opacity: modifier === 'lower' ? 1 : 0,
             marginTop: '-0.15em',
           }}
         />
@@ -694,34 +694,34 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-8 mb-6">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8 mb-6">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <button
               onClick={togglePlayPause}
-              className="p-3 bg-slate-800 hover:bg-slate-900 text-white rounded-lg transition-colors"
+              className="p-3 bg-slate-800 dark:bg-sky-600 hover:bg-slate-900 dark:hover:bg-sky-500 text-white rounded-lg transition-colors"
             >
               {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
             </button>
-            <div className="text-slate-700">
+            <div className="text-slate-700 dark:text-slate-200">
               <div className="text-sm font-medium">Tonic: {tonic}</div>
-              <div className="text-sm text-slate-500">
+              <div className="text-sm text-slate-500 dark:text-slate-400">
                 Note {currentIndex + 1} of {notes.length}
               </div>
             </div>
           </div>
           <button
             onClick={onCancel}
-            className="p-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
+            className="p-3 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 rounded-lg transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
         </div>
 
         <div className="mb-6">
-          <div className="w-full bg-slate-200 rounded-full h-2">
+          <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
             <div
-              className="bg-slate-800 h-2 rounded-full transition-all duration-300"
+              className="bg-slate-800 dark:bg-sky-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             ></div>
           </div>
@@ -741,13 +741,13 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
         >
           {isDroneIntro ? (
             <div className="flex flex-col items-center gap-6">
-              <div className="text-6xl font-bold text-slate-800 font-mono">{tonic}</div>
-              <p className="text-slate-500 text-sm">Ascolta il drone — le note inizieranno tra</p>
-              <div className="text-5xl font-bold text-slate-400 font-mono">{droneIntroTimeLeft}s</div>
+              <div className="text-6xl font-bold text-slate-800 dark:text-slate-100 font-mono">{tonic}</div>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">Ascolta il drone — le note inizieranno tra</p>
+              <div className="text-5xl font-bold text-slate-400 dark:text-slate-500 font-mono">{droneIntroTimeLeft}s</div>
               <div className="w-48">
-                <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                   <div
-                    className="h-full bg-slate-800 rounded-full transition-all duration-1000"
+                    className="h-full bg-slate-800 dark:bg-sky-600 rounded-full transition-all duration-1000"
                     style={{ width: `${((tonalRetentionDuration - droneIntroTimeLeft) / tonalRetentionDuration) * 100}%` }}
                   />
                 </div>
@@ -756,9 +756,9 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
           ) : (
           <>
           <div className="relative inline-block">
-            <div className="text-9xl font-bold text-slate-800 mb-4 font-mono tracking-wider leading-none">
+            <div className="text-9xl font-bold text-slate-800 dark:text-slate-100 mb-4 font-mono tracking-wider leading-none">
               {isTransitioning
-                ? <span className="text-slate-300">---</span>
+                ? <span className="text-slate-300 dark:text-slate-600">---</span>
                 : mode === 'read-and-play' || mode === 'read-and-sing' || mode === 'read-and-speak'
                   ? <DegreeDisplay note={notes[currentIndex]} />
                   : <span>?</span>}            </div>
@@ -773,7 +773,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
             )}
           </div>
           {debugMode && isSpeakMode && !isTransitioning && (
-            <div className="text-sm text-slate-400 font-mono mt-2">
+            <div className="text-sm text-slate-400 dark:text-slate-500 font-mono mt-2">
               {(() => {
                 try { return getSpokenForms(getItalianNoteName(tonic, notes[currentIndex])); }
                 catch { return '?'; }
@@ -781,9 +781,9 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
             </div>
           )}
           {hadMissState && !isTransitioning && (
-            <div className="absolute top-1/2 -translate-y-3/4 left-1/2 -translate-x-1/2 w-[90%] max-w-sm px-4 py-3 bg-orange-100/90 border border-orange-200 rounded-lg text-left shadow-sm">
-              <p className="text-xs font-semibold text-orange-800 uppercase tracking-wide mb-1">Concentrati, non affrettarti</p>
-              <p className="text-xs text-orange-700 leading-relaxed">
+            <div className="absolute top-1/2 -translate-y-3/4 left-1/2 -translate-x-1/2 w-[90%] max-w-sm px-4 py-3 bg-orange-100/90 dark:bg-orange-950/80 border border-orange-200 dark:border-orange-800 rounded-lg text-left shadow-sm">
+              <p className="text-xs font-semibold text-orange-800 dark:text-orange-400 uppercase tracking-wide mb-1">Concentrati, non affrettarti</p>
+              <p className="text-xs text-orange-700 dark:text-orange-300 leading-relaxed">
                 La nota ti verra' riproposta finche' non la indovini. Il tempo di reazione non viene registrato in questa fase: prenditi tutto il tempo che ti serve. Il cervello consolida l'apprendimento solo risolvendo correttamente il problema — premere a caso ostacola la memorizzazione invece di favorirla.
               </p>
             </div>
@@ -791,8 +791,8 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
           {isSingMode && (
             <>
               <div className="flex items-center justify-center gap-3 mb-3">
-                <Mic className={`w-5 h-5 ${micActive ? 'text-green-500' : 'text-slate-400'}`} />
-                <span className="text-sm text-slate-500">
+                <Mic className={`w-5 h-5 ${micActive ? 'text-green-500' : 'text-slate-400 dark:text-slate-500'}`} />
+                <span className="text-sm text-slate-500 dark:text-slate-400">
                   {micActive
                     ? detectedNoteName
                       ? `Rilevato: ${detectedNoteName}`
@@ -803,7 +803,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
               {micActive && <PitchTuner pitchData={pitchData} />}
               {micActive && (
                 <div className="w-48 mx-auto mt-4 mb-1">
-                  <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
                     <div
                       ref={singHoldBarRef}
                       className="h-full rounded-full"
@@ -818,11 +818,11 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
             <>
               <div className="flex items-center justify-center gap-3 mb-3">
                 {speechSupported ? (
-                  <Mic className={`w-5 h-5 ${speechListening ? 'text-green-500' : 'text-slate-400'}`} />
+                  <Mic className={`w-5 h-5 ${speechListening ? 'text-green-500' : 'text-slate-400 dark:text-slate-500'}`} />
                 ) : (
-                  <MicOff className="w-5 h-5 text-red-400" />
+                  <MicOff className="w-5 h-5 text-red-400 dark:text-red-500" />
                 )}
-                <span className="text-sm text-slate-500">
+                <span className="text-sm text-slate-500 dark:text-slate-400">
                   {!speechSupported
                     ? 'Riconoscimento vocale non supportato in questo browser'
                     : speechListening
@@ -834,18 +834,18 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
               </div>
             </>
           )}
-          <div className="text-2xl text-slate-500">
+          <div className="text-2xl text-slate-500 dark:text-slate-400">
             {!isPlaying ? 'Paused' : ignoreStepDuration ? 'In attesa...' : `Next in ${timeLeft}s`}
           </div>
           {isInteractiveMode && (
             <div className="mt-6 flex items-center justify-center gap-6 text-lg">
               <div className="flex items-center gap-2">
                 <Check className="w-5 h-5 text-green-500" />
-                <span className="font-semibold text-slate-700">{correctCount}</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{correctCount}</span>
               </div>
               <div className="flex items-center gap-2">
                 <AlertCircle className="w-5 h-5 text-red-500" />
-                <span className="font-semibold text-slate-700">{incorrectCount}</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{incorrectCount}</span>
               </div>
             </div>
           )}
@@ -854,9 +854,9 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
         </div>
       </div>
 
-      <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-700 mb-3">Notation Guide</h3>
-        <div className="grid grid-cols-2 gap-4 text-sm text-slate-600">
+      <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">Notation Guide</h3>
+        <div className="grid grid-cols-2 gap-4 text-sm text-slate-600 dark:text-slate-300">
           <div>
             <span className="font-mono font-semibold">1, 2, 3...</span> - Scale degrees
           </div>
@@ -867,13 +867,13 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
             <span className="font-mono font-semibold inline-flex flex-col items-center leading-none">
               <span className="h-0.5 w-4 bg-transparent" />
               <span>3</span>
-              <span className="h-0.5 w-4 rounded-full bg-slate-700" />
+              <span className="h-0.5 w-4 rounded-full bg-slate-700 dark:bg-slate-300" />
             </span>
             <span>- Lower octave</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="font-mono font-semibold inline-flex flex-col items-center leading-none">
-              <span className="h-0.5 w-4 rounded-full bg-slate-700" />
+              <span className="h-0.5 w-4 rounded-full bg-slate-700 dark:bg-slate-300" />
               <span>#4</span>
               <span className="h-0.5 w-4 bg-transparent" />
             </span>

@@ -118,7 +118,7 @@ export function FifthsErrorChart({ notes, tonic }: FifthsErrorChartProps) {
   const hasAnyData = data.some(d => d.total > 0);
   if (!hasAnyData) {
     return (
-      <div className="text-center py-8 text-slate-400 text-sm">
+      <div className="text-center py-8 text-slate-400 dark:text-slate-500 text-sm">
         Nessun dato da visualizzare in questa sessione.
       </div>
     );
@@ -146,7 +146,7 @@ export function FifthsErrorChart({ notes, tonic }: FifthsErrorChartProps) {
 
   return (
     <div className="overflow-x-auto">
-      <div className="text-xs text-slate-500 text-center mb-3 font-medium uppercase tracking-wide">
+      <div className="text-xs text-slate-500 dark:text-slate-400 text-center mb-3 font-medium uppercase tracking-wide">
         Distribuzione nel circolo delle quinte per grado
       </div>
       <div className="flex gap-0 items-start">
@@ -155,7 +155,7 @@ export function FifthsErrorChart({ notes, tonic }: FifthsErrorChartProps) {
           {yTicks.map(v => (
             <div
               key={v}
-              className="absolute right-2 text-[10px] text-slate-400 font-mono"
+              className="absolute right-2 text-[10px] text-slate-400 dark:text-slate-500 font-mono"
               style={{ top: yMid - v * rowHeight - 6 + 'px', lineHeight: '12px' }}
             >
               {v === 0 ? '0' : v > 0 ? `+${v}` : v}
@@ -241,12 +241,12 @@ export function FifthsErrorChart({ notes, tonic }: FifthsErrorChartProps) {
         {data.map(col => (
           <div
             key={col.degree}
-            className="text-center text-xs font-semibold text-slate-600"
+            className="text-center text-xs font-semibold text-slate-600 dark:text-slate-300"
             style={{ width: colWidth + 'px', flexShrink: 0 }}
           >
             {col.degree}
             {col.total > 0 && (
-              <span className="block text-[9px] text-slate-400 font-normal">{col.total}x</span>
+              <span className="block text-[9px] text-slate-400 dark:text-slate-500 font-normal">{col.total}x</span>
             )}
           </div>
         ))}
@@ -254,7 +254,7 @@ export function FifthsErrorChart({ notes, tonic }: FifthsErrorChartProps) {
 
       {/* Legend */}
       <div className="mt-5">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-500 justify-center">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-500 dark:text-slate-400 justify-center">
           <div className="flex items-center gap-1.5">
             <div className="w-6 h-3 rounded-sm bg-green-500 opacity-75" />
             <span>Risposta corretta (dist. 0)</span>
@@ -268,7 +268,7 @@ export function FifthsErrorChart({ notes, tonic }: FifthsErrorChartProps) {
             <span>Troppo bemolle (circolo indietro)</span>
           </div>
         </div>
-        <p className="text-[10px] text-slate-400 text-center mt-2 max-w-md mx-auto">
+        <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center mt-2 max-w-md mx-auto">
           Lo spessore di ogni segmento è proporzionale alla percentuale di risposte in quella posizione.
           Un grado perfetto mostra un unico blocco verde centrato su 0.
         </p>

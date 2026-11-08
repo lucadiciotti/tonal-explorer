@@ -117,15 +117,15 @@ export function Settings({ onStart }: SettingsProps) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg border border-slate-200 p-8">
+    <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
       <div className="flex items-center gap-3 mb-8">
-        <SettingsIcon className="w-6 h-6 text-slate-700" />
-        <h2 className="text-2xl font-bold text-slate-800">Session Settings</h2>
+        <SettingsIcon className="w-6 h-6 text-slate-700 dark:text-slate-200" />
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Session Settings</h2>
       </div>
 
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
             Tonic (T)
           </label>
           <div className="relative w-72 h-72 sm:w-96 sm:h-96 mx-auto">
@@ -142,8 +142,8 @@ export function Settings({ onStart }: SettingsProps) {
                     onClick={() => setTonic(group[0])}
                     className={`absolute px-4 py-2 rounded-lg font-semibold transition-all transform -translate-x-1/2 -translate-y-1/2 ${
                       tonic === group[0]
-                        ? 'bg-slate-800 text-white shadow-lg scale-110'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:scale-105'
+                        ? 'bg-slate-800 dark:bg-sky-600 text-white shadow-lg scale-110'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 hover:scale-105'
                     }`}
                     style={{
                       left: `calc(50% + ${x}px)`,
@@ -171,8 +171,8 @@ export function Settings({ onStart }: SettingsProps) {
                         onClick={() => setTonic(t)}
                         className={`px-3 py-1 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ${
                           tonic === t
-                            ? 'bg-slate-800 text-white shadow-lg scale-110'
-                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:scale-105'
+                            ? 'bg-slate-800 dark:bg-sky-600 text-white shadow-lg scale-110'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 hover:scale-105'
                         }`}
                       >
                         {t}
@@ -182,7 +182,7 @@ export function Settings({ onStart }: SettingsProps) {
                 </div>
               );
             })}
-            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">
+            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm font-medium">
               Circle of Fifths
             </div>
           </div>
@@ -190,13 +190,13 @@ export function Settings({ onStart }: SettingsProps) {
 
         <button
           onClick={handleStart}
-          className="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-md hover:shadow-lg"
+          className="w-full bg-slate-800 dark:bg-sky-600 hover:bg-slate-900 dark:hover:bg-sky-500 text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-md hover:shadow-lg"
         >
           Start Session
         </button>
 
         <div>
-          <label htmlFor="numNotes" className="block text-sm font-medium text-slate-700 mb-2">
+          <label htmlFor="numNotes" className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
             Number of Notes (N): {numNotes}
           </label>
           <input
@@ -207,17 +207,17 @@ export function Settings({ onStart }: SettingsProps) {
             step="5"
             value={numNotes}
             onChange={(e) => setNumNotes(Number(e.target.value))}
-            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-800"
+            className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-slate-800 dark:accent-sky-500"
           />
-          <div className="flex justify-between text-xs text-slate-500 mt-1">
+          <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
             <span>5</span>
             <span>50</span>
           </div>
         </div>
 
-        <fieldset className="border-2 border-slate-200 rounded-lg p-4 space-y-3">
-          <legend className="text-sm font-medium text-slate-700 px-2">Octaves</legend>
-          <p className="text-sm text-slate-600">
+        <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3">
+          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Octaves</legend>
+          <p className="text-sm text-slate-600 dark:text-slate-300">
             Le note vengono generate su 3 ottave: ottava 3, 4 e 5.
           </p>
           <label className="flex items-center gap-3 cursor-pointer">
@@ -225,32 +225,32 @@ export function Settings({ onStart }: SettingsProps) {
               type="checkbox"
               checked={ignoreOctaves}
               onChange={(e) => setIgnoreOctaves(e.target.checked)}
-              className="w-4 h-4 text-slate-800 rounded"
+              className="w-4 h-4 text-slate-800 dark:text-slate-100 rounded"
             />
             <div>
-              <div className="text-sm font-medium text-slate-800">Ignora Ottave</div>
-              <div className="text-xs text-slate-500">Accetta la nota corretta in qualsiasi ottava</div>
+              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">Ignora Ottave</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">Accetta la nota corretta in qualsiasi ottava</div>
             </div>
           </label>
         </fieldset>
 
-        <fieldset className="border-2 border-slate-200 rounded-lg p-4 space-y-4">
-          <legend className="text-sm font-medium text-slate-700 px-2">Tonal Retention</legend>
+        <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
+          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Tonal Retention</legend>
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               checked={tonalRetention}
               onChange={(e) => setTonalRetention(e.target.checked)}
-              className="w-4 h-4 text-slate-800 rounded"
+              className="w-4 h-4 text-slate-800 dark:text-slate-100 rounded"
             />
             <div>
-              <div className="text-sm font-medium text-slate-800">Drone continuo</div>
-              <div className="text-xs text-slate-500">Il drone suona per tutta la durata dell'esercizio; se disattivato, si ferma dopo i secondi impostati</div>
+              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">Drone continuo</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">Il drone suona per tutta la durata dell'esercizio; se disattivato, si ferma dopo i secondi impostati</div>
             </div>
           </label>
           {!tonalRetention && (
             <div>
-              <label htmlFor="tonalRetentionDuration" className="block text-sm text-slate-600 mb-2">
+              <label htmlFor="tonalRetentionDuration" className="block text-sm text-slate-600 dark:text-slate-300 mb-2">
                 Durata intro drone: {tonalRetentionDuration}s
               </label>
               <input
@@ -261,9 +261,9 @@ export function Settings({ onStart }: SettingsProps) {
                 step="1"
                 value={tonalRetentionDuration}
                 onChange={(e) => setTonalRetentionDuration(Number(e.target.value))}
-                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-800"
+                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-slate-800 dark:accent-sky-500"
               />
-              <div className="flex justify-between text-xs text-slate-500 mt-1">
+              <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
                 <span>1s</span>
                 <span>10s</span>
               </div>
@@ -272,98 +272,98 @@ export function Settings({ onStart }: SettingsProps) {
         </fieldset>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-3">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-3">
             Session Mode
           </label>
           <div className="space-y-3">
-            <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 has-[:checked]:border-slate-800 has-[:checked]:bg-slate-50">
+            <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 has-[:checked]:border-slate-800 dark:has-[:checked]:border-sky-500 has-[:checked]:bg-slate-50 dark:has-[:checked]:bg-sky-950">
               <input
                 type="radio"
                 name="mode"
                 value="read-and-play"
                 checked={mode === 'read-and-play'}
                 onChange={(e) => setMode(e.target.value as SessionMode)}
-                className="w-4 h-4 text-slate-800"
+                className="w-4 h-4 text-slate-800 dark:text-slate-100"
               />
               <div className="flex-1">
-                <div className="font-medium text-slate-800">Leggi e Suona</div>
-                <div className="text-sm text-slate-500">Il programma visualizza un grado, il tuo compito e' suonare la nota che corrisponde a quel grado nella tonalita' proposta</div>
+                <div className="font-medium text-slate-800 dark:text-slate-100">Leggi e Suona</div>
+                <div className="text-sm text-slate-500 dark:text-slate-400">Il programma visualizza un grado, il tuo compito e' suonare la nota che corrisponde a quel grado nella tonalita' proposta</div>
               </div>
             </label>
 
-            <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 has-[:checked]:border-slate-800 has-[:checked]:bg-slate-50">
+            <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 has-[:checked]:border-slate-800 dark:has-[:checked]:border-sky-500 has-[:checked]:bg-slate-50 dark:has-[:checked]:bg-sky-950">
               <input
                 type="radio"
                 name="mode"
                 value="read-and-speak"
                 checked={mode === 'read-and-speak'}
                 onChange={(e) => setMode(e.target.value as SessionMode)}
-                className="w-4 h-4 text-slate-800"
+                className="w-4 h-4 text-slate-800 dark:text-slate-100"
               />
               <div className="flex-1">
-                <div className="font-medium text-slate-800">Leggi e Parla</div>
-                <div className="text-sm text-slate-500">Il programma visualizza un grado, il tuo compito e' dire ad alta voce il nome italiano della nota che corrisponde a quel grado nella tonalita' proposta. Il riconoscimento vocale verifica la risposta tenendo conto delle giuste diteggiature enarmoniche (diesis o bemolle a seconda della tonalita').</div>
+                <div className="font-medium text-slate-800 dark:text-slate-100">Leggi e Parla</div>
+                <div className="text-sm text-slate-500 dark:text-slate-400">Il programma visualizza un grado, il tuo compito e' dire ad alta voce il nome italiano della nota che corrisponde a quel grado nella tonalita' proposta. Il riconoscimento vocale verifica la risposta tenendo conto delle giuste diteggiature enarmoniche (diesis o bemolle a seconda della tonalita').</div>
               </div>
             </label>
 
-            <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 has-[:checked]:border-slate-800 has-[:checked]:bg-slate-50">
+            <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 has-[:checked]:border-slate-800 dark:has-[:checked]:border-sky-500 has-[:checked]:bg-slate-50 dark:has-[:checked]:bg-sky-950">
               <input
                 type="radio"
                 name="mode"
                 value="read-and-sing"
                 checked={mode === 'read-and-sing'}
                 onChange={(e) => setMode(e.target.value as SessionMode)}
-                className="w-4 h-4 text-slate-800"
+                className="w-4 h-4 text-slate-800 dark:text-slate-100"
               />
               <div className="flex-1">
-                <div className="font-medium text-slate-800">Leggi e Canta</div>
-                <div className="text-sm text-slate-500">Come Leggi e Suona, ma invece di suonare uno strumento MIDI, canti la nota nel microfono. Il programma rileva la frequenza della tua voce e verifica se corrisponde alla nota attesa.</div>
+                <div className="font-medium text-slate-800 dark:text-slate-100">Leggi e Canta</div>
+                <div className="text-sm text-slate-500 dark:text-slate-400">Come Leggi e Suona, ma invece di suonare uno strumento MIDI, canti la nota nel microfono. Il programma rileva la frequenza della tua voce e verifica se corrisponde alla nota attesa.</div>
               </div>
             </label>
 
-            <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 has-[:checked]:border-slate-800 has-[:checked]:bg-slate-50">
+            <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 has-[:checked]:border-slate-800 dark:has-[:checked]:border-sky-500 has-[:checked]:bg-slate-50 dark:has-[:checked]:bg-sky-950">
               <input
                 type="radio"
                 name="mode"
                 value="listen-and-play"
                 checked={mode === 'listen-and-play'}
                 onChange={(e) => setMode(e.target.value as SessionMode)}
-                className="w-4 h-4 text-slate-800"
+                className="w-4 h-4 text-slate-800 dark:text-slate-100"
               />
               <div className="flex-1">
-                <div className="font-medium text-slate-800">Ascolta e Suona</div>
-                <div className="text-sm text-slate-500">Avanzato. Il programma suona un drone che corrisponde alla tonalita' del pezzo e una nota che corrisponde ad un certo grado della tonalita' proposta. Il tuo compito e' quello di capire il grado e risolvere tale grado nella tonalita' proposta suonando la nota giusta sullo strumento. Attenzione, il programma rilevera' anche se sbagli l'ottava quindi se questo ti risultasse ancora difficile seleziona il checkbox Ignora Ottave.</div>
+                <div className="font-medium text-slate-800 dark:text-slate-100">Ascolta e Suona</div>
+                <div className="text-sm text-slate-500 dark:text-slate-400">Avanzato. Il programma suona un drone che corrisponde alla tonalita' del pezzo e una nota che corrisponde ad un certo grado della tonalita' proposta. Il tuo compito e' quello di capire il grado e risolvere tale grado nella tonalita' proposta suonando la nota giusta sullo strumento. Attenzione, il programma rilevera' anche se sbagli l'ottava quindi se questo ti risultasse ancora difficile seleziona il checkbox Ignora Ottave.</div>
               </div>
             </label>
           </div>
         </div>
 
         {mode === 'read-and-speak' && (
-          <div className="text-sm text-slate-600 bg-sky-50 border border-sky-200 rounded-lg p-4 space-y-2">
-            <p className="font-medium text-slate-700">Nota:</p>
+          <div className="text-sm text-slate-600 dark:text-slate-300 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 rounded-lg p-4 space-y-2">
+            <p className="font-medium text-slate-700 dark:text-slate-200">Nota:</p>
             <p>Il riconoscimento vocale richiede un browser compatibile (Chrome o Edge) e il permesso del microfono. Le risposte vengono valutate usando la nomenclatura italiana con le alterazioni corrette per la tonalita' scelta.</p>
             <p>Esempio: in tonalita' di <strong>Do</strong>, il grado <strong>2</strong> corrisponde a <strong>Re</strong>. In tonalita' di <strong>Re bemolle</strong>, il grado <strong>2</strong> corrisponde a <strong>Mib</strong> (non Mi).</p>
           </div>
         )}
 
         {mode === 'read-and-sing' && (
-          <p className="text-sm text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-4">
+          <p className="text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
             La finestra di validazione della voce e' configurabile nella sezione Advanced.
           </p>
         )}
 
-        <fieldset className="border-2 border-slate-200 rounded-lg p-4">
-          <legend className="text-sm font-medium text-slate-700 px-2">Debug</legend>
+        <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4">
+          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Debug</legend>
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               checked={debugMode}
               onChange={(e) => setDebugMode(e.target.checked)}
-              className="w-4 h-4 text-slate-800 rounded"
+              className="w-4 h-4 text-slate-800 dark:text-slate-100 rounded"
             />
             <div>
-              <div className="text-sm font-medium text-slate-800">Modalita' debug</div>
-              <div className="text-xs text-slate-500">Mostra la risposta attesa sotto il grado da indovinare (in modalita' Leggi e Parla)</div>
+              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">Modalita' debug</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">Mostra la risposta attesa sotto il grado da indovinare (in modalita' Leggi e Parla)</div>
             </div>
           </label>
         </fieldset>

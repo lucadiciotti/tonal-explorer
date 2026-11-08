@@ -175,13 +175,13 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       <div className="container mx-auto px-4 py-8">
         <header className="text-center mb-12 relative">
           <div className="absolute right-0 top-0 flex items-center gap-1">
             <button
               onClick={() => setAppState('advanced')}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-slate-800 hover:bg-white/80 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
               title="Advanced"
             >
               <SlidersHorizontal className="w-4 h-4" />
@@ -189,7 +189,7 @@ function App() {
             </button>
             <button
               onClick={() => setAppState('stats')}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-slate-800 hover:bg-white/80 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
               title="Statistiche"
             >
               <BarChart3 className="w-4 h-4" />
@@ -197,7 +197,7 @@ function App() {
             </button>
             <button
               onClick={signOut}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-slate-800 hover:bg-white/80 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
               title="Esci"
             >
               <LogOut className="w-4 h-4" />
@@ -205,12 +205,12 @@ function App() {
             </button>
           </div>
           <div className="flex items-center justify-center gap-3 mb-2">
-            <Music className="w-10 h-10 text-slate-800" />
-            <h1 className="text-5xl font-bold text-slate-800">Tonal Explorer</h1>
+            <Music className="w-10 h-10 text-slate-800 dark:text-slate-100" />
+            <h1 className="text-5xl font-bold text-slate-800 dark:text-slate-100">Tonal Explorer</h1>
           </div>
-          <p className="text-slate-600 text-lg">Music Training Assistant</p>
-          <p className="text-slate-400 text-xs mt-1">{user.email}</p>
-          <p className="text-slate-300 text-xs mt-0.5">v{APP_VERSION}</p>
+          <p className="text-slate-600 dark:text-slate-300 text-lg">Music Training Assistant</p>
+          <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">{user.email}</p>
+          <p className="text-slate-300 dark:text-slate-600 text-xs mt-0.5">v{APP_VERSION}</p>
         </header>
 
         <main>
@@ -240,13 +240,13 @@ function App() {
           )}
 
           {appState === 'completed' && (
-            <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-slate-200 p-8">
+            <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
               <div className="text-center mb-6">
                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Music className="w-10 h-10 text-green-600" />
                 </div>
-                <h2 className="text-3xl font-bold text-slate-800 mb-2">Session Completed!</h2>
-                <p className="text-slate-600">Great job on completing your training session.</p>
+                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-2">Session Completed!</h2>
+                <p className="text-slate-600 dark:text-slate-300">Great job on completing your training session.</p>
               </div>
 
               {sessionResults && sessionResults.total > 0 && (() => {
@@ -255,16 +255,16 @@ function App() {
                 const degreeErrors = wrong.length - octaveErrors;
                 return (
                 <>
-                  <div className="p-6 bg-slate-50 rounded-lg text-center mb-4">
-                    <p className="text-2xl font-bold text-slate-800 mb-2">
+                  <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-lg text-center mb-4">
+                    <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">
                       Hai indovinato {sessionResults.correct} {sessionResults.correct === 1 ? 'nota' : 'note'}
                     </p>
-                    <p className="text-slate-600">
+                    <p className="text-slate-600 dark:text-slate-300">
                       su {sessionResults.total} totali ({Math.round((sessionResults.correct / sessionResults.total) * 100)}%)
                     </p>
                     {wrong.length > 0 && (
                       <div className="mt-3 flex items-center justify-center gap-4 text-sm">
-                        <span className="text-slate-400">{wrong.length} {wrong.length === 1 ? 'errore' : 'errori'}:</span>
+                        <span className="text-slate-400 dark:text-slate-500">{wrong.length} {wrong.length === 1 ? 'errore' : 'errori'}:</span>
                         {degreeErrors > 0 && (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 border border-red-200 rounded-full text-red-700 font-medium">
                             <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
@@ -282,85 +282,85 @@ function App() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                      <p className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-2">Hit consecutivi</p>
+                    <div className="p-4 bg-green-50 dark:bg-green-950/40 rounded-lg border border-green-200 dark:border-green-800">
+                      <p className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide mb-2">Hit consecutivi</p>
                       <div className="flex items-baseline justify-between">
                         <div>
-                          <span className="text-sm text-slate-500">Max</span>
-                          <span className="ml-2 text-2xl font-bold text-green-800">{sessionResults.stats.maxHitStreak}</span>
+                          <span className="text-sm text-slate-500 dark:text-slate-400">Max</span>
+                          <span className="ml-2 text-2xl font-bold text-green-800 dark:text-green-400">{sessionResults.stats.maxHitStreak}</span>
                         </div>
                         <div>
-                          <span className="text-sm text-slate-500">Min</span>
-                          <span className="ml-2 text-2xl font-bold text-green-800">{sessionResults.stats.minHitStreak}</span>
+                          <span className="text-sm text-slate-500 dark:text-slate-400">Min</span>
+                          <span className="ml-2 text-2xl font-bold text-green-800 dark:text-green-400">{sessionResults.stats.minHitStreak}</span>
                         </div>
                       </div>
                     </div>
-                    <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                      <p className="text-xs font-semibold text-red-700 uppercase tracking-wide mb-2">Miss consecutivi</p>
+                    <div className="p-4 bg-red-50 dark:bg-red-950/40 rounded-lg border border-red-200 dark:border-red-800">
+                      <p className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide mb-2">Miss consecutivi</p>
                       <div className="flex items-baseline justify-between">
                         <div>
-                          <span className="text-sm text-slate-500">Max</span>
-                          <span className="ml-2 text-2xl font-bold text-red-800">{sessionResults.stats.maxMissStreak}</span>
+                          <span className="text-sm text-slate-500 dark:text-slate-400">Max</span>
+                          <span className="ml-2 text-2xl font-bold text-red-800 dark:text-red-400">{sessionResults.stats.maxMissStreak}</span>
                         </div>
                         <div>
-                          <span className="text-sm text-slate-500">Min</span>
-                          <span className="ml-2 text-2xl font-bold text-red-800">{sessionResults.stats.minMissStreak}</span>
+                          <span className="text-sm text-slate-500 dark:text-slate-400">Min</span>
+                          <span className="ml-2 text-2xl font-bold text-red-800 dark:text-red-400">{sessionResults.stats.minMissStreak}</span>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {sessionResults.stats.reactionTime.count > 0 && (
-                    <div className="p-4 bg-sky-50 rounded-lg border border-sky-200 mb-4">
-                      <p className="text-xs font-semibold text-sky-700 uppercase tracking-wide mb-3">Tempo di reazione (solo hit)</p>
+                    <div className="p-4 bg-sky-50 dark:bg-sky-950/40 rounded-lg border border-sky-200 dark:border-sky-800 mb-4">
+                      <p className="text-xs font-semibold text-sky-700 dark:text-sky-400 uppercase tracking-wide mb-3">Tempo di reazione (solo hit)</p>
                       <div className="grid grid-cols-4 gap-2">
                         <div className="text-center">
-                          <p className="text-sm text-slate-500">Media</p>
-                          <p className="text-xl font-bold text-sky-800">{(sessionResults.stats.reactionTime.mean / 1000).toFixed(1)}s</p>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">Media</p>
+                          <p className="text-xl font-bold text-sky-800 dark:text-sky-400">{(sessionResults.stats.reactionTime.mean / 1000).toFixed(1)}s</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-sm text-slate-500">Moda</p>
-                          <p className="text-xl font-bold text-sky-800">{(sessionResults.stats.reactionTime.mode / 1000).toFixed(1)}s</p>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">Moda</p>
+                          <p className="text-xl font-bold text-sky-800 dark:text-sky-400">{(sessionResults.stats.reactionTime.mode / 1000).toFixed(1)}s</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-sm text-slate-500">Min</p>
-                          <p className="text-xl font-bold text-sky-800">{(sessionResults.stats.reactionTime.min / 1000).toFixed(1)}s</p>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">Min</p>
+                          <p className="text-xl font-bold text-sky-800 dark:text-sky-400">{(sessionResults.stats.reactionTime.min / 1000).toFixed(1)}s</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-sm text-slate-500">Max</p>
-                          <p className="text-xl font-bold text-sky-800">{(sessionResults.stats.reactionTime.max / 1000).toFixed(1)}s</p>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">Max</p>
+                          <p className="text-xl font-bold text-sky-800 dark:text-sky-400">{(sessionResults.stats.reactionTime.max / 1000).toFixed(1)}s</p>
                         </div>
                       </div>
-                      <p className="text-xs text-slate-400 mt-2">Su {sessionResults.stats.reactionTime.count} hit</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">Su {sessionResults.stats.reactionTime.count} hit</p>
                     </div>
                   )}
 
-                  <div className="border border-slate-200 rounded-lg p-4 mb-4">
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Confusion Matrix</p>
+                  <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 mb-4">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">Confusion Matrix</p>
                     <ConfusionMatrix
                       notes={sessionResults.noteResults}
                       tonic={currentSettings?.tonic ?? 'C'}
                     />
                   </div>
 
-                  <div className="border border-slate-200 rounded-lg p-4 mb-4">
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Errori nel Circolo delle Quinte</p>
+                  <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 mb-4">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">Errori nel Circolo delle Quinte</p>
                     <FifthsErrorChart
                       notes={sessionResults.noteResults}
                       tonic={currentSettings?.tonic ?? 'C'}
                     />
                   </div>
 
-                  <div className="border border-slate-200 rounded-lg p-4 mb-4">
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Errori di Ottava per Grado</p>
+                  <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 mb-4">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">Errori di Ottava per Grado</p>
                     <OctaveErrorChart
                       notes={sessionResults.noteResults}
                       tonic={currentSettings?.tonic ?? 'C'}
                     />
                   </div>
 
-                  <div className="border border-slate-200 rounded-lg p-4 mb-4">
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Tempi di Risposta — Risposte Corrette</p>
+                  <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 mb-4">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">Tempi di Risposta — Risposte Corrette</p>
                     <ResponseTimeChart
                       notes={sessionResults.noteResults}
                       tonic={currentSettings?.tonic ?? 'C'}
@@ -368,8 +368,8 @@ function App() {
                     />
                   </div>
 
-                  <div className="border border-slate-200 rounded-lg p-4 mb-6">
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Tempi di Risposta — Risposte Errate</p>
+                  <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 mb-6">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">Tempi di Risposta — Risposte Errate</p>
                     <ResponseTimeChart
                       notes={sessionResults.noteResults}
                       tonic={currentSettings?.tonic ?? 'C'}
@@ -380,11 +380,11 @@ function App() {
                   {/* legacy-error-table: showLegacyErrorTable */}
                   {localStorage.getItem('showLegacyErrorTable') === 'true' && sessionResults.errorLog.length > 0 && (
                     <div className="mb-6 text-left">
-                      <p className="text-xs font-semibold text-red-700 uppercase tracking-wide mb-3">Dettaglio errori</p>
-                      <div className="overflow-hidden rounded-lg border border-red-200">
+                      <p className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide mb-3">Dettaglio errori</p>
+                      <div className="overflow-hidden rounded-lg border border-red-200 dark:border-red-800">
                         <table className="w-full text-sm">
                           <thead>
-                            <tr className="bg-red-50 text-red-800">
+                            <tr className="bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-400">
                               <th className="px-3 py-2 text-left font-semibold">#</th>
                               <th className="px-3 py-2 text-left font-semibold">Drone</th>
                               <th className="px-3 py-2 text-left font-semibold">Grado</th>
@@ -394,12 +394,12 @@ function App() {
                           </thead>
                           <tbody>
                             {sessionResults.errorLog.map((entry, i) => (
-                              <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
-                                <td className="px-3 py-2 text-slate-500 font-mono">{entry.stepIndex + 1}</td>
-                                <td className="px-3 py-2 font-mono font-semibold text-slate-700">{entry.drone}</td>
-                                <td className="px-3 py-2 font-mono font-semibold text-slate-700">{entry.degree}</td>
-                                <td className="px-3 py-2 font-mono font-semibold text-green-700">{entry.expectedNote}</td>
-                                <td className="px-3 py-2 font-mono font-semibold text-red-700">{entry.sungNote}</td>
+                              <tr key={i} className={i % 2 === 0 ? 'bg-white dark:bg-slate-900' : 'bg-slate-50 dark:bg-slate-800'}>
+                                <td className="px-3 py-2 text-slate-500 dark:text-slate-400 font-mono">{entry.stepIndex + 1}</td>
+                                <td className="px-3 py-2 font-mono font-semibold text-slate-700 dark:text-slate-200">{entry.drone}</td>
+                                <td className="px-3 py-2 font-mono font-semibold text-slate-700 dark:text-slate-200">{entry.degree}</td>
+                                <td className="px-3 py-2 font-mono font-semibold text-green-700 dark:text-green-400">{entry.expectedNote}</td>
+                                <td className="px-3 py-2 font-mono font-semibold text-red-700 dark:text-red-400">{entry.sungNote}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -414,7 +414,7 @@ function App() {
               <div className="text-center">
                 <button
                   onClick={handleNewSession}
-                  className="bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 px-8 rounded-lg transition-colors shadow-md hover:shadow-lg"
+                  className="bg-slate-800 dark:bg-sky-600 hover:bg-slate-900 dark:hover:bg-sky-500 text-white font-bold py-4 px-8 rounded-lg transition-colors shadow-md hover:shadow-lg"
                 >
                   Start New Session
                 </button>

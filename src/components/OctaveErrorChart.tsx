@@ -117,7 +117,7 @@ export function OctaveErrorChart({ notes, tonic }: OctaveErrorChartProps) {
   const hasAnyData = data.some(d => d.total > 0);
   if (!hasAnyData) {
     return (
-      <div className="text-center py-8 text-slate-400 text-sm">
+      <div className="text-center py-8 text-slate-400 dark:text-slate-500 text-sm">
         Nessun dato di ottava da visualizzare in questa sessione.
       </div>
     );
@@ -142,7 +142,7 @@ export function OctaveErrorChart({ notes, tonic }: OctaveErrorChartProps) {
 
   return (
     <div className="overflow-x-auto">
-      <div className="text-xs text-slate-500 text-center mb-3 font-medium uppercase tracking-wide">
+      <div className="text-xs text-slate-500 dark:text-slate-400 text-center mb-3 font-medium uppercase tracking-wide">
         Errori di ottava per grado (solo risposte con grado corretto)
       </div>
       <div className="flex gap-0 items-start">
@@ -249,12 +249,12 @@ export function OctaveErrorChart({ notes, tonic }: OctaveErrorChartProps) {
         {data.map(col => (
           <div
             key={col.degree}
-            className="text-center text-xs font-semibold text-slate-600"
+            className="text-center text-xs font-semibold text-slate-600 dark:text-slate-300"
             style={{ width: colWidth + 'px', flexShrink: 0 }}
           >
             {col.degree}
             {col.total > 0 && (
-              <span className="block text-[9px] text-slate-400 font-normal">{col.total}x</span>
+              <span className="block text-[9px] text-slate-400 dark:text-slate-500 font-normal">{col.total}x</span>
             )}
           </div>
         ))}
@@ -262,7 +262,7 @@ export function OctaveErrorChart({ notes, tonic }: OctaveErrorChartProps) {
 
       {/* Legend */}
       <div className="mt-5">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-500 justify-center">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-500 dark:text-slate-400 justify-center">
           <div className="flex items-center gap-1.5">
             <div className="w-6 h-3 rounded-sm bg-green-500 opacity-75" />
             <span>Ottava corretta</span>
@@ -276,7 +276,7 @@ export function OctaveErrorChart({ notes, tonic }: OctaveErrorChartProps) {
             <span>Ottava sotto (-1)</span>
           </div>
         </div>
-        <p className="text-[10px] text-slate-400 text-center mt-2 max-w-md mx-auto">
+        <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center mt-2 max-w-md mx-auto">
           Conteggiati solo i tentativi dove il grado era corretto ma l'ottava sbagliata. Le risposte con grado errato non appaiono qui.
         </p>
       </div>

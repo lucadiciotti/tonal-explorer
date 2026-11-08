@@ -102,11 +102,12 @@ export function PitchTuner({ pitchData }: PitchTunerProps) {
       const w = rect.width;
       const h = rect.height;
       const history = historyRef.current;
+      const isDark = document.documentElement.classList.contains('dark');
 
       ctx.clearRect(0, 0, w, h);
 
       // Background
-      ctx.fillStyle = '#f8fafc';
+      ctx.fillStyle = isDark ? '#1e293b' : '#f8fafc';
       ctx.beginPath();
       ctx.roundRect(0, 0, w, h, 8);
       ctx.fill();
@@ -124,10 +125,10 @@ export function PitchTuner({ pitchData }: PitchTunerProps) {
       for (const step of scaleSteps) {
         const x = centerX + (step / CENTS_RANGE) * (w / 2 - 40);
         if (step === 0) {
-          ctx.strokeStyle = '#94a3b8';
+          ctx.strokeStyle = isDark ? '#64748b' : '#94a3b8';
           ctx.lineWidth = 2;
         } else {
-          ctx.strokeStyle = '#e2e8f0';
+          ctx.strokeStyle = isDark ? '#334155' : '#e2e8f0';
           ctx.lineWidth = 1;
         }
         ctx.beginPath();
@@ -136,7 +137,7 @@ export function PitchTuner({ pitchData }: PitchTunerProps) {
         ctx.stroke();
 
         if (step % 20 === 0) {
-          ctx.fillStyle = '#94a3b8';
+          ctx.fillStyle = isDark ? '#64748b' : '#94a3b8';
           ctx.fillText(`${step > 0 ? '+' : ''}${step}`, x, barAreaTop - 1);
         }
       }
@@ -216,7 +217,7 @@ export function PitchTuner({ pitchData }: PitchTunerProps) {
       }
 
       // Center target line (on top of everything)
-      ctx.strokeStyle = '#1e293b';
+      ctx.strokeStyle = isDark ? '#cbd5e1' : '#1e293b';
       ctx.lineWidth = 2;
       ctx.setLineDash([4, 3]);
       ctx.beginPath();
@@ -235,19 +236,19 @@ export function PitchTuner({ pitchData }: PitchTunerProps) {
   return (
     <div className="w-full max-w-lg mx-auto mt-4">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-slate-400 font-medium tracking-wide uppercase">Intonazione</span>
+        <span className="text-xs text-slate-400 dark:text-slate-500 font-medium tracking-wide uppercase">Intonazione</span>
         {displayNote && (
-          <span className="text-sm font-semibold text-slate-600 font-mono">{displayNote}</span>
+          <span className="text-sm font-semibold text-slate-600 dark:text-slate-300 font-mono">{displayNote}</span>
         )}
       </div>
       <canvas
         ref={canvasRef}
-        className="w-full rounded-lg border border-slate-200"
+        className="w-full rounded-lg border border-slate-200 dark:border-slate-700"
         style={{ height: 80 }}
       />
       <div className="flex justify-between mt-1">
-        <span className="text-[10px] text-slate-400">calante</span>
-        <span className="text-[10px] text-slate-400">crescente</span>
+        <span className="text-[10px] text-slate-400 dark:text-slate-500">calante</span>
+        <span className="text-[10px] text-slate-400 dark:text-slate-500">crescente</span>
       </div>
     </div>
   );
