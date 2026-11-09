@@ -253,13 +253,9 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     }
   };
 
-  const handleSpokenInput = (text: string, isFinal: boolean): boolean => {
+  const processSpokenNote = (spokenNote: string, isFinal: boolean): boolean => {
     if (noteAnsweredRef.current) return false;
     if (isTransitioning) return false;
-
-    const spokenNote = parseSpokenNote(text);
-    console.debug(`[speech] parsed="${spokenNote}" isFinal=${isFinal} expected="${(() => { try { return getItalianNoteName(tonic, notes[currentIndexRef.current]); } catch { return '?'; } })()}" lastSpoken="${lastSpokenTextRef.current}"`);
-    if (!spokenNote) return false;
 
     const idx = currentIndexRef.current;
     const currentNote = notes[idx];
@@ -327,6 +323,17 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
       console.error('Failed to check spoken note:', error);
     }
     return true;
+  };
+
+  const handleSpokenInput = (text: string, isFinal: boolean): boolean => {
+    const spokenNote = parseSpokenNote(text);
+    console.debug(`[speech] parsed="${spokenNote}" isFinal=${isFinal} expected="${(() => { try { return getItalianNoteName(tonic, notes[currentIndexRef.current]); } catch { return '?'; } })()}" lastSpoken="${lastSpokenTextRef.current}"`);
+    if (!spokenNote) return false;
+    return processSpokenNote(spokenNote, isFinal);
+  };
+
+  const handleButtonInput = (noteName: string): void => {
+    processSpokenNote(noteName, true);
   };
 
   const handleNoteInput = (playedNote: string, playedOctave: number) => {
@@ -868,7 +875,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
                   return (
                     <button
                       key={noteName}
-                      onClick={() => handleSpokenInput(noteName, true)}
+                      onClick={() => handleButtonInput(noteName)}
                       disabled={noteAnsweredRef.current}
                       className={`px-1.5 py-2.5 rounded-lg text-sm font-semibold border-2 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
                         isNatural
