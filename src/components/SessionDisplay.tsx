@@ -42,6 +42,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
   const [incorrectCount, setIncorrectCount] = useState<number>(0);
   const [currentNoteStatus, setCurrentNoteStatus] = useState<'waiting' | 'correct' | 'incorrect'>('waiting');
   const noteAnsweredRef = useRef<boolean>(false);
+  const [noteAnswered, setNoteAnswered] = useState<boolean>(false);
   const correctCountRef = useRef<number>(0);
   const currentNoteStatusRef = useRef<'waiting' | 'correct' | 'incorrect'>('waiting');
   const isMidiMode = audioManager?.getRenderer() instanceof MidiRenderer;
@@ -102,6 +103,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     setHadMissState(false);
     hasPlayedNoteRef.current = false;
     noteAnsweredRef.current = false;
+    setNoteAnswered(false);
     correctCountRef.current = 0;
     currentNoteStatusRef.current = 'waiting';
     hasCompletedRef.current = false;
@@ -158,6 +160,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     });
     hasPlayedNoteRef.current = false;
     noteAnsweredRef.current = false;
+    setNoteAnswered(false);
     hasAdvancedRef.current = false;
     lastSpokenTextRef.current = '';
     // Reset the speech recognizer's buffer so the new note starts fresh
@@ -208,6 +211,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
       if (noteTransitionDelay > 0) {
         setIsTransitioning(true);
         noteAnsweredRef.current = true;
+        setNoteAnswered(true);
         setTimeout(showNextNote, noteTransitionDelay);
       } else {
         showNextNote();
@@ -267,6 +271,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
         // Accept correct answers immediately, even from interim results —
         // there's no benefit to waiting for the final transcript.
         noteAnsweredRef.current = true;
+        setNoteAnswered(true);
         if (!hadMissForCurrentNoteRef.current) {
           if (noteReadyAtRef.current > 0) {
             hitReactionTimesRef.current.push(performance.now() - noteReadyAtRef.current);
@@ -353,6 +358,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
       if (ignoreStepDuration) {
         if (isCorrect) {
           noteAnsweredRef.current = true;
+          setNoteAnswered(true);
           let rt: number | null = null;
           if (!hadMissForCurrentNoteRef.current) {
             if (noteReadyAtRef.current > 0) {
@@ -417,6 +423,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
       } else {
         if (isCorrect) {
           noteAnsweredRef.current = true;
+          setNoteAnswered(true);
           lastPlayedNoteRef.current = `${playedNote}${playedOctave}`;
           if (!hadMissForCurrentNoteRef.current) {
             if (noteReadyAtRef.current > 0) {
@@ -876,7 +883,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
                     <button
                       key={noteName}
                       onClick={() => handleButtonInput(noteName)}
-                      disabled={noteAnsweredRef.current}
+                      disabled={noteAnswered}
                       className={`px-1.5 py-2.5 rounded-lg text-sm font-semibold border-2 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
                         isNatural
                           ? 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'
