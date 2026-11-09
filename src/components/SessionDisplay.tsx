@@ -773,7 +773,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
               : flashCorrect
                 ? 'rgb(220 252 231)'
                 : hadMissState
-                  ? 'rgb(255 237 213)'
+                  ? 'rgb(254 226 226)'
                   : 'transparent',
           }}
         >
