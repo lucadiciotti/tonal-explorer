@@ -3,7 +3,7 @@ import { Play, Pause, X, Check, AlertCircle, Mic, MicOff } from 'lucide-react';
 import { Note, SessionMode, SessionStats, ErrorLogEntry, NoteResult } from '../types';
 import { AudioManager } from '../lib/audio/AudioManager';
 import { convertScaleDegreeToNote } from '../utils/noteConverter';
-import { getItalianNoteName, parseSpokenNote, getSpokenForms, getItalianChromaticScale } from '../utils/italianNotes';
+import { getItalianNoteName, parseSpokenNote, getSpokenForms, getAllItalianNotes } from '../utils/italianNotes';
 import { MidiRenderer } from '../lib/audio/MidiRenderer';
 import { PitchDetector, PitchData } from '../lib/audio/PitchDetector';
 import { SpeechRecognizer } from '../lib/audio/SpeechRecognizer';
@@ -837,17 +837,27 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
           {isSpeakMode && !isDroneIntro && !isTransitioning && (
             <div className="max-w-md mx-auto mt-4">
               <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">Tocca una nota se il microfono non sente</p>
-              <div className="grid grid-cols-4 gap-2">
-                {getItalianChromaticScale(tonic).map((noteName) => (
-                  <button
-                    key={noteName}
-                    onClick={() => handleSpokenInput(noteName, true)}
-                    disabled={noteAnsweredRef.current}
-                    className="px-2 py-3 rounded-lg text-sm font-semibold border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    {noteName}
-                  </button>
-                ))}
+              <div className="grid grid-cols-3 gap-1.5">
+                {getAllItalianNotes().map((noteName) => {
+                  const isNatural = !noteName.includes('#') && !noteName.includes('b');
+                  const isSharp = noteName.includes('#');
+                  return (
+                    <button
+                      key={noteName}
+                      onClick={() => handleSpokenInput(noteName, true)}
+                      disabled={noteAnsweredRef.current}
+                      className={`px-1.5 py-2.5 rounded-lg text-sm font-semibold border-2 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                        isNatural
+                          ? 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'
+                          : isSharp
+                            ? 'border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-400 hover:border-sky-400 dark:hover:border-sky-600 hover:bg-sky-100 dark:hover:bg-sky-900/40'
+                            : 'border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-400 hover:border-orange-400 dark:hover:border-orange-600 hover:bg-orange-100 dark:hover:bg-orange-900/40'
+                      }`}
+                    >
+                      {noteName}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

@@ -10,6 +10,20 @@ export function getItalianChromaticScale(tonic: string): string[] {
   return ITALIAN_CHROMATIC_SCALES[tonic] ?? ITALIAN_CHROMATIC_SCALES['C'];
 }
 
+const ALL_ITALIAN_NOTES: string[] = [
+  'Do', 'Do#', 'Dob',
+  'Re', 'Re#', 'Reb',
+  'Mi', 'Mi#', 'Mib',
+  'Fa', 'Fa#', 'Fab',
+  'Sol', 'Sol#', 'Solb',
+  'La', 'La#', 'Lab',
+  'Si', 'Si#', 'Sib',
+];
+
+export function getAllItalianNotes(): string[] {
+  return ALL_ITALIAN_NOTES;
+}
+
 const ITALIAN_CHROMATIC_SCALES: Record<string, string[]> = {
   'C':  ['Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si'],
   'G':  ['Sol', 'Sol#', 'La', 'La#', 'Si', 'Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#'],
