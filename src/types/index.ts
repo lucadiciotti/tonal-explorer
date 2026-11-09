@@ -14,6 +14,7 @@ export interface SessionSettings {
   tonalRetention: boolean;
   tonalRetentionDuration: number;
   debugMode: boolean;
+  voiceAnnounceDegree: boolean;
 }
 
 export interface Session {

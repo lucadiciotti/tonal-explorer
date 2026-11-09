@@ -256,6 +256,7 @@ function App() {
               tonalRetention={currentSettings.tonalRetention}
               tonalRetentionDuration={currentSettings.tonalRetentionDuration}
               debugMode={currentSettings.debugMode}
+              voiceAnnounceDegree={currentSettings.voiceAnnounceDegree}
             />
           )}
 

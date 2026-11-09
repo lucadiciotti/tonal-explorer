@@ -7,6 +7,7 @@ import { getItalianNoteName, parseSpokenNote, getSpokenForms, getAllItalianNotes
 import { MidiRenderer } from '../lib/audio/MidiRenderer';
 import { PitchDetector, PitchData } from '../lib/audio/PitchDetector';
 import { SpeechRecognizer } from '../lib/audio/SpeechRecognizer';
+import { SpeechSynthesizer, degreeToSpokenText } from '../lib/audio/SpeechSynthesizer';
 import { PitchTuner } from './PitchTuner';
 import { areNotesEqual } from '../utils/noteComparison';
 import { ResultEntry, calculateStreaks } from '../utils/streakCalculator';
@@ -27,9 +28,10 @@ interface SessionDisplayProps {
   tonalRetention: boolean;
   tonalRetentionDuration: number;
   debugMode: boolean;
+  voiceAnnounceDegree: boolean;
 }
 
-export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onComplete, onCancel, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, tonalRetention, tonalRetentionDuration, debugMode }: SessionDisplayProps) {
+export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onComplete, onCancel, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, tonalRetention, tonalRetentionDuration, debugMode, voiceAnnounceDegree }: SessionDisplayProps) {
   const [isDroneIntro, setIsDroneIntro] = useState<boolean>(true);
   const [droneIntroTimeLeft, setDroneIntroTimeLeft] = useState<number>(tonalRetentionDuration);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -76,6 +78,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
   const lastSpokenTextRef = useRef<string>('');
   const [heardText, setHeardText] = useState<string | null>(null);
   const [speechListening, setSpeechListening] = useState(false);
+  const synthRef = useRef<SpeechSynthesizer | null>(null);
 
   const updateHoldBar = (progress: number) => {
     const el = singHoldBarRef.current;
@@ -565,6 +568,27 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
     setHeardText(null);
     speechRecognizerRef.current?.reset();
   }, [currentIndex, isSpeakMode, isDroneIntro]);
+
+  // Voice announcement of the degree when a new note appears
+  useEffect(() => {
+    if (!isSpeakMode || !voiceAnnounceDegree) return;
+    if (isDroneIntro || isTransitioning) return;
+    if (!SpeechSynthesizer.isSupported()) return;
+
+    if (!synthRef.current) {
+      synthRef.current = new SpeechSynthesizer();
+    }
+    const degree = notes[currentIndex];
+    synthRef.current.speak(degreeToSpokenText(degree));
+  }, [currentIndex, isSpeakMode, isDroneIntro, isTransitioning, voiceAnnounceDegree, notes]);
+
+  // Cleanup synthesizer on unmount
+  useEffect(() => {
+    return () => {
+      synthRef.current?.cleanup();
+      synthRef.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     if (!isPlaying) return;

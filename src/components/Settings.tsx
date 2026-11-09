@@ -49,6 +49,7 @@ interface StoredSettings {
   midiInputDeviceId: string;
   monotimbral: boolean;
   debugMode: boolean;
+  voiceAnnounceDegree: boolean;
 }
 
 function loadSettings(): Partial<StoredSettings> {
@@ -75,6 +76,7 @@ export function Settings({ onStart }: SettingsProps) {
   const [stepDuration, setStepDuration] = useState<number>(stored.stepDuration || 3);
   const [ignoreStepDuration, setIgnoreStepDuration] = useState<boolean>(stored.ignoreStepDuration ?? true);
   const [mode, setMode] = useState<SessionMode>(stored.mode || 'read-and-play');
+  const [voiceAnnounceDegree, setVoiceAnnounceDegree] = useState<boolean>(stored.voiceAnnounceDegree ?? false);
 
   const handleStart = () => {
     saveSettings({
@@ -94,11 +96,12 @@ export function Settings({ onStart }: SettingsProps) {
       midiInputDeviceId: stored.midiInputDeviceId || '',
       monotimbral: stored.monotimbral ?? false,
       debugMode: stored.debugMode ?? false,
+      voiceAnnounceDegree,
     });
 
     const audioMode = stored.audioMode || 'web-audio';
     onStart(
-      { tonic, numNotes, stepDuration, ignoreOctaves: stored.ignoreOctaves ?? true, ignoreStepDuration, mode, singHoldDuration: stored.singHoldDuration ?? 1500, noteTransitionDelay: stored.noteTransitionDelay ?? 500, tonalRetention: stored.tonalRetention ?? true, tonalRetentionDuration: stored.tonalRetentionDuration ?? 3, debugMode: stored.debugMode ?? false },
+      { tonic, numNotes, stepDuration, ignoreOctaves: stored.ignoreOctaves ?? true, ignoreStepDuration, mode, singHoldDuration: stored.singHoldDuration ?? 1500, noteTransitionDelay: stored.noteTransitionDelay ?? 500, tonalRetention: stored.tonalRetention ?? true, tonalRetentionDuration: stored.tonalRetentionDuration ?? 3, debugMode: stored.debugMode ?? false, voiceAnnounceDegree },
       audioMode,
       audioMode === 'midi' ? stored.midiProgram : undefined,
       audioMode === 'midi' ? stored.midiDroneProgram : undefined,
@@ -277,11 +280,25 @@ export function Settings({ onStart }: SettingsProps) {
         </div>
 
         {mode === 'read-and-speak' && (
+          <>
           <div className="text-sm text-slate-600 dark:text-slate-300 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 rounded-lg p-4 space-y-2">
             <p className="font-medium text-slate-700 dark:text-slate-200">Nota:</p>
             <p>Il riconoscimento vocale richiede un browser compatibile (Chrome o Edge) e il permesso del microfono. Le risposte vengono valutate usando la nomenclatura italiana con le alterazioni corrette per la tonalita' scelta.</p>
             <p>Esempio: in tonalita' di <strong>Do</strong>, il grado <strong>2</strong> corrisponde a <strong>Re</strong>. In tonalita' di <strong>Re bemolle</strong>, il grado <strong>2</strong> corrisponde a <strong>Mib</strong> (non Mi).</p>
           </div>
+          <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 has-[:checked]:border-slate-800 dark:has-[:checked]:border-sky-500 has-[:checked]:bg-slate-50 dark:has-[:checked]:bg-sky-950">
+            <input
+              type="checkbox"
+              checked={voiceAnnounceDegree}
+              onChange={(e) => setVoiceAnnounceDegree(e.target.checked)}
+              className="w-4 h-4 text-slate-800 dark:text-slate-100"
+            />
+            <div className="flex-1">
+              <div className="font-medium text-slate-800 dark:text-slate-100">Annuncio vocale del grado</div>
+              <div className="text-sm text-slate-500 dark:text-slate-400">Una voce dice il grado ad alta voce quando appare una nuova nota. Utile per fare gli esercizi senza guardare lo schermo, ad esempio mentre si guida. Si consiglia l'uso delle cuffie per evitare che il microfono senta la voce del telefono.</div>
+            </div>
+          </label>
+          </>
         )}
 
         {mode === 'read-and-sing' && (
