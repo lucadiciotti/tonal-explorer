@@ -819,9 +819,9 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
             </div>
           )}
           {hadMissState && !isTransitioning && (
-            <div className="absolute top-1/2 -translate-y-3/4 left-1/2 -translate-x-1/2 w-[90%] max-w-sm px-4 py-3 bg-orange-100/90 dark:bg-orange-950/80 border border-orange-200 dark:border-orange-800 rounded-lg text-left shadow-sm">
-              <p className="text-xs font-semibold text-orange-800 dark:text-orange-400 uppercase tracking-wide mb-1">Concentrati, non affrettarti</p>
-              <p className="text-xs text-orange-700 dark:text-orange-300 leading-relaxed">
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[90%] max-w-sm px-4 py-3 bg-slate-800/90 dark:bg-slate-900/90 border border-slate-700 dark:border-slate-700 rounded-lg text-left shadow-lg z-10">
+              <p className="text-xs font-semibold text-amber-300 uppercase tracking-wide mb-1">Concentrati, non affrettarti</p>
+              <p className="text-xs text-slate-300 leading-relaxed">
                 La nota ti verra' riproposta finche' non la indovini. Il tempo di reazione non viene registrato in questa fase: prenditi tutto il tempo che ti serve. Il cervello consolida l'apprendimento solo risolvendo correttamente il problema — premere a caso ostacola la memorizzazione invece di favorirla.
               </p>
             </div>
