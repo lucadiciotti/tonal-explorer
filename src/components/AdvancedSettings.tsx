@@ -29,6 +29,7 @@ interface StoredSettings {
   tonalRetention?: boolean;
   tonalRetentionDuration?: number;
   debugMode?: boolean;
+  voiceAnnounceDegree?: boolean;
 }
 
 function loadSettings(): Partial<StoredSettings> {
@@ -78,6 +79,7 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
   const [tonalRetention, setTonalRetention] = useState<boolean>(stored.tonalRetention ?? true);
   const [tonalRetentionDuration, setTonalRetentionDuration] = useState<number>(stored.tonalRetentionDuration ?? 3);
   const [debugMode, setDebugMode] = useState<boolean>(stored.debugMode ?? false);
+  const [voiceAnnounceDegree, setVoiceAnnounceDegree] = useState<boolean>(stored.voiceAnnounceDegree ?? false);
   const [theme, setTheme] = useState<ThemeMode>(getStoredTheme());
 
   const updateTheme = (value: ThemeMode) => {
@@ -230,6 +232,11 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
   const updateDebugMode = (value: boolean) => {
     setDebugMode(value);
     savePartial({ debugMode: value });
+  };
+
+  const updateVoiceAnnounceDegree = (value: boolean) => {
+    setVoiceAnnounceDegree(value);
+    savePartial({ voiceAnnounceDegree: value });
   };
 
   return (
@@ -650,6 +657,22 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
             <div>
               <div className="text-sm font-medium text-slate-800 dark:text-slate-100">Modalita' debug</div>
               <div className="text-xs text-slate-500 dark:text-slate-400">Mostra la risposta attesa sotto il grado da indovinare (in modalita' Leggi e Parla)</div>
+            </div>
+          </label>
+        </fieldset>
+
+        <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
+          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Annuncio vocale del grado</legend>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={voiceAnnounceDegree}
+              onChange={(e) => updateVoiceAnnounceDegree(e.target.checked)}
+              className="w-4 h-4 text-slate-800 dark:text-slate-100 rounded"
+            />
+            <div>
+              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">Annuncio vocale</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">Una voce dice il grado ad alta voce quando appare una nuova nota. Utile per fare gli esercizi senza guardare lo schermo, ad esempio mentre si guida. Si consiglia l'uso delle cuffie per evitare che il microfono senta la voce del telefono. (Solo modalita' Leggi e Parla)</div>
             </div>
           </label>
         </fieldset>
