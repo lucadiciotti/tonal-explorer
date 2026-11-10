@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Music, LogOut, BarChart3, SlidersHorizontal, Dumbbell } from 'lucide-react';
+import { Music, LogOut, BarChart3, SlidersHorizontal, Home } from 'lucide-react';
 import { Settings } from './components/Settings';
 import { SessionDisplay } from './components/SessionDisplay';
 import { StatsPage } from './components/StatsPage';
@@ -204,7 +204,7 @@ function App() {
               className="flex items-center gap-2 p-2 sm:hidden text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
               title="Sessioni"
             >
-              <Dumbbell className="w-5 h-5" />
+              <Home className="w-5 h-5" />
             </button>
             <button
               onClick={() => setAppState('advanced')}
