@@ -227,9 +227,9 @@ function App() {
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2">
               <Music className="w-7 h-7 sm:w-10 sm:h-10 text-slate-800 dark:text-slate-100" />
-              <h1 className="text-3xl sm:text-5xl font-bold text-slate-800 dark:text-slate-100">Tonal Explorer</h1>
+              <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-slate-800 dark:text-slate-100">TEx</h1>
             </div>
-            <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg">Music Training Assistant</p>
+            <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg">Tonal Explorer</p>
             <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">{user.email}</p>
             <p className="text-slate-300 dark:text-slate-600 text-xs mt-0.5">v{APP_VERSION}</p>
           </div>
