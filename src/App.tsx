@@ -31,6 +31,7 @@ function App() {
   const [sessionResults, setSessionResults] = useState<{ correct: number; total: number; stats: SessionStats; errorLog: ErrorLogEntry[]; noteResults: NoteResult[] } | null>(null);
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
   useEffect(() => {
     return () => {
@@ -39,6 +40,42 @@ function App() {
       }
     };
   }, [audioManager]);
+
+  useEffect(() => {
+    const acquireWakeLock = async () => {
+      if (!('wakeLock' in navigator)) return;
+      try {
+        wakeLockRef.current = await navigator.wakeLock.request('screen');
+      } catch {
+        // Wake lock request failed — ignore silently
+      }
+    };
+
+    const releaseWakeLock = async () => {
+      if (wakeLockRef.current) {
+        await wakeLockRef.current.release();
+        wakeLockRef.current = null;
+      }
+    };
+
+    if (appState === 'session') {
+      acquireWakeLock();
+    } else {
+      releaseWakeLock();
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && appState === 'session' && !wakeLockRef.current) {
+        acquireWakeLock();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      releaseWakeLock();
+    };
+  }, [appState]);
 
   if (loading) {
     return (
