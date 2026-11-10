@@ -42,8 +42,6 @@ const ITALIAN_CHROMATIC_SCALES: Record<string, string[]> = {
   'F':  ['Fa', 'Solb', 'Sol', 'Lab', 'La', 'Sib', 'Si', 'Do', 'Reb', 'Re', 'Mib', 'Mi'],
 };
 
-const SHARP_KEYS = new Set(['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#']);
-
 const DIATONIC_DEGREES: Record<string, string[]> = {
   'C':  ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'],
   'G':  ['Sol', 'La', 'Si', 'Do', 'Re', 'Mi', 'Fa#'],
@@ -98,14 +96,14 @@ export function getItalianNoteName(tonic: string, degree: Note): string {
     throw new Error(`Unknown scale degree: ${degreeString}`);
   }
 
-  if (degreeString.startsWith('b') && SHARP_KEYS.has(tonic)) {
+  if (degreeString.startsWith('b')) {
     const diatonic = DIATONIC_DEGREES[tonic];
     const naturalDegreeNum = degreeString.slice(1);
     const naturalNote = diatonic[parseInt(naturalDegreeNum) - 1];
     return lowerSemitone(naturalNote);
   }
 
-  if (degreeString.startsWith('#') && !SHARP_KEYS.has(tonic)) {
+  if (degreeString.startsWith('#')) {
     const diatonic = DIATONIC_DEGREES[tonic];
     const naturalDegreeNum = degreeString.slice(1);
     const naturalNote = diatonic[parseInt(naturalDegreeNum) - 1];
