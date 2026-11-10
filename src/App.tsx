@@ -198,37 +198,37 @@ function App() {
     >
       <div className="container mx-auto px-4 py-8">
         <header className="text-center mb-12 relative">
-          <div className="absolute right-0 top-0 flex items-center gap-1">
+          <div className="absolute right-0 top-0 flex items-center gap-0.5 sm:gap-1">
             <button
               onClick={() => setAppState('advanced')}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
+              className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
               title="Advanced"
             >
-              <SlidersHorizontal className="w-4 h-4" />
+              <SlidersHorizontal className="w-5 h-5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Advanced</span>
             </button>
             <button
               onClick={() => setAppState('stats')}
-              className="hidden sm:flex items-center gap-2 px-3 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
+              className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
               title="Statistiche"
             >
-              <BarChart3 className="w-4 h-4" />
+              <BarChart3 className="w-5 h-5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Statistiche</span>
             </button>
             <button
               onClick={signOut}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
+              className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
               title="Esci"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-5 h-5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Esci</span>
             </button>
           </div>
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <Music className="w-10 h-10 text-slate-800 dark:text-slate-100" />
-            <h1 className="text-5xl font-bold text-slate-800 dark:text-slate-100">Tonal Explorer</h1>
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2 mt-10 sm:mt-0">
+            <Music className="w-7 h-7 sm:w-10 sm:h-10 text-slate-800 dark:text-slate-100" />
+            <h1 className="text-3xl sm:text-5xl font-bold text-slate-800 dark:text-slate-100">Tonal Explorer</h1>
           </div>
-          <p className="text-slate-600 dark:text-slate-300 text-lg">Music Training Assistant</p>
+          <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg">Music Training Assistant</p>
           <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">{user.email}</p>
           <p className="text-slate-300 dark:text-slate-600 text-xs mt-0.5">v{APP_VERSION}</p>
         </header>
