@@ -72,14 +72,13 @@ function saveSettings(settings: StoredSettings): void {
 export function Settings({ onStart }: SettingsProps) {
   const stored = loadSettings();
   const [tonic, setTonic] = useState<Tonic>(stored.tonic || 'C');
-  const [numNotes, setNumNotes] = useState<number>(stored.numNotes || 10);
   const [stepDuration, setStepDuration] = useState<number>(stored.stepDuration || 3);
   const [ignoreStepDuration, setIgnoreStepDuration] = useState<boolean>(stored.ignoreStepDuration ?? true);
   const [mode, setMode] = useState<SessionMode>(stored.mode || 'read-and-play');
 
   const handleStart = () => {
     saveSettings({
-      tonic, numNotes, stepDuration,
+      tonic, numNotes: stored.numNotes || 10, stepDuration,
       audioMode: stored.audioMode || 'web-audio',
       midiProgram: stored.midiProgram || 0,
       selectedCategory: stored.selectedCategory || 'Piano',
@@ -100,7 +99,7 @@ export function Settings({ onStart }: SettingsProps) {
 
     const audioMode = stored.audioMode || 'web-audio';
     onStart(
-      { tonic, numNotes, stepDuration, ignoreOctaves: stored.ignoreOctaves ?? true, ignoreStepDuration, mode, singHoldDuration: stored.singHoldDuration ?? 1500, noteTransitionDelay: stored.noteTransitionDelay ?? 500, tonalRetention: stored.tonalRetention ?? true, tonalRetentionDuration: stored.tonalRetentionDuration ?? 3, debugMode: stored.debugMode ?? false, voiceAnnounceDegree: stored.voiceAnnounceDegree ?? false },
+      { tonic, numNotes: stored.numNotes || 10, stepDuration, ignoreOctaves: stored.ignoreOctaves ?? true, ignoreStepDuration, mode, singHoldDuration: stored.singHoldDuration ?? 1500, noteTransitionDelay: stored.noteTransitionDelay ?? 500, tonalRetention: stored.tonalRetention ?? true, tonalRetentionDuration: stored.tonalRetentionDuration ?? 3, debugMode: stored.debugMode ?? false, voiceAnnounceDegree: stored.voiceAnnounceDegree ?? false },
       audioMode,
       audioMode === 'midi' ? stored.midiProgram : undefined,
       audioMode === 'midi' ? stored.midiDroneProgram : undefined,
@@ -192,26 +191,6 @@ export function Settings({ onStart }: SettingsProps) {
         </button>
 
         <div>
-          <label htmlFor="numNotes" className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
-            Number of Notes (N): {numNotes}
-          </label>
-          <input
-            id="numNotes"
-            type="range"
-            min="5"
-            max="50"
-            step="5"
-            value={numNotes}
-            onChange={(e) => setNumNotes(Number(e.target.value))}
-            className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-slate-800 dark:accent-sky-500"
-          />
-          <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
-            <span>5</span>
-            <span>50</span>
-          </div>
-        </div>
-
-        <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-3">
             Session Mode
           </label>
@@ -283,13 +262,13 @@ export function Settings({ onStart }: SettingsProps) {
             <p className="font-medium text-slate-700 dark:text-slate-200">Nota:</p>
             <p>Il riconoscimento vocale richiede un browser compatibile (Chrome o Edge) e il permesso del microfono. Le risposte vengono valutate usando la nomenclatura italiana con le alterazioni corrette per la tonalita' scelta.</p>
             <p>Esempio: in tonalita' di <strong>Do</strong>, il grado <strong>2</strong> corrisponde a <strong>Re</strong>. In tonalita' di <strong>Re bemolle</strong>, il grado <strong>2</strong> corrisponde a <strong>Mib</strong> (non Mi).</p>
-            <p>L'annuncio vocale del grado e' configurabile nella sezione Advanced.</p>
+            <p>L'annuncio vocale del grado e' configurabile nella sezione Settings.</p>
           </div>
         )}
 
         {mode === 'read-and-sing' && (
           <p className="text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
-            La finestra di validazione della voce e' configurabile nella sezione Advanced.
+            La finestra di validazione della voce e' configurabile nella sezione Settings.
           </p>
         )}
 

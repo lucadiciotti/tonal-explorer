@@ -253,10 +253,10 @@ function App() {
             <button
               onClick={() => setAppState('advanced')}
               className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
-              title="Advanced"
+              title="Settings"
             >
               <SlidersHorizontal className="w-5 h-5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Advanced</span>
+              <span className="hidden sm:inline">Settings</span>
             </button>
             {isAdmin && (
               <button

@@ -9,6 +9,7 @@ import { ThemeMode, getStoredTheme, saveTheme, applyTheme } from '../utils/theme
 const STORAGE_KEY = 'mzt-settings';
 
 interface StoredSettings {
+  numNotes?: number;
   stepDuration?: number;
   ignoreStepDuration?: boolean;
   noteTransitionDelay?: number;
@@ -56,6 +57,7 @@ interface AdvancedSettingsProps {
 
 export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
   const stored = loadSettings();
+  const [numNotes, setNumNotes] = useState<number>(stored.numNotes ?? 10);
   const [stepDuration, setStepDuration] = useState<number>(stored.stepDuration ?? 3);
   const [ignoreStepDuration, setIgnoreStepDuration] = useState<boolean>(stored.ignoreStepDuration ?? true);
   const [noteTransitionDelay, setNoteTransitionDelay] = useState<number>(stored.noteTransitionDelay ?? 500);
@@ -113,6 +115,11 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
 
     return () => { unsubscribe?.(); };
   }, []);
+
+  const updateNumNotes = (value: number) => {
+    setNumNotes(value);
+    savePartial({ numNotes: value });
+  };
 
   const updateStepDuration = (value: number) => {
     setStepDuration(value);
@@ -249,10 +256,33 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <SlidersHorizontal className="w-6 h-6 text-slate-700 dark:text-slate-200" />
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Advanced</h2>
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Settings</h2>
       </div>
 
       <div className="space-y-6">
+        <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3">
+          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Number of Notes (N)</legend>
+          <div>
+            <label htmlFor="numNotes" className="block text-sm text-slate-600 dark:text-slate-300 mb-2">
+              N: {numNotes}
+            </label>
+            <input
+              id="numNotes"
+              type="range"
+              min="5"
+              max="50"
+              step="5"
+              value={numNotes}
+              onChange={(e) => updateNumNotes(Number(e.target.value))}
+              className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-slate-800 dark:accent-sky-500"
+            />
+            <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <span>5</span>
+              <span>50</span>
+            </div>
+          </div>
+        </fieldset>
+
         <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3">
           <legend className="text-sm font-medium text-slate-700 dark:text-slate-300 px-2">Tema</legend>
           <div className="grid grid-cols-3 gap-2">
