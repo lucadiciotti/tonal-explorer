@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Music, LogOut, BarChart3, SlidersHorizontal, Home } from 'lucide-react';
+import { Music, LogOut, BarChart3, SlidersHorizontal, Home, Users } from 'lucide-react';
 import { Settings } from './components/Settings';
 import { SessionDisplay } from './components/SessionDisplay';
 import { StatsPage } from './components/StatsPage';
@@ -9,6 +9,8 @@ import { OctaveErrorChart } from './components/OctaveErrorChart';
 import { ResponseTimeChart } from './components/ResponseTimeChart';
 import { AuthPage } from './components/AuthPage';
 import { AdvancedSettings } from './components/AdvancedSettings';
+import { AdminUsersPage } from './components/AdminUsersPage';
+import { AdminStatsPage } from './components/AdminStatsPage';
 import { useAuth } from './contexts/AuthContext';
 import { SessionSettings, Note, SessionStats, ErrorLogEntry, NoteResult } from './types';
 import { classifyError } from './utils/noteComparison';
@@ -19,16 +21,17 @@ import { AudioManager } from './lib/audio/AudioManager';
 import { MidiRenderer } from './lib/audio/MidiRenderer';
 import { SoundfontRenderer } from './lib/audio/SoundfontRenderer';
 
-type AppState = 'settings' | 'session' | 'completed' | 'stats' | 'advanced';
+type AppState = 'settings' | 'session' | 'completed' | 'stats' | 'advanced' | 'admin-users' | 'admin-stats' | 'admin-global-stats';
 
 function App() {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, signOut, isAdmin } = useAuth();
   const [appState, setAppState] = useState<AppState>('settings');
   const [currentSettings, setCurrentSettings] = useState<SessionSettings | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [audioManager, setAudioManager] = useState<AudioManager | null>(null);
   const [sessionResults, setSessionResults] = useState<{ correct: number; total: number; stats: SessionStats; errorLog: ErrorLogEntry[]; noteResults: NoteResult[] } | null>(null);
+  const [adminSelectedUser, setAdminSelectedUser] = useState<{ id: string; email: string } | null>(null);
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
@@ -213,6 +216,10 @@ function App() {
     setSessionResults(null);
   };
 
+  const completedWrong = sessionResults ? sessionResults.noteResults.filter(r => !r.isCorrect) : [];
+  const completedOctaveErrors = completedWrong.filter(r => r.playedNote && r.expectedNote && classifyError(r.playedNote, r.expectedNote) === 'octave').length;
+  const completedDegreeErrors = completedWrong.length - completedOctaveErrors;
+
   return (
     <div
       className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900"
@@ -251,14 +258,36 @@ function App() {
               <SlidersHorizontal className="w-5 h-5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Advanced</span>
             </button>
-            <button
-              onClick={() => setAppState('stats')}
-              className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
-              title="Statistiche"
-            >
-              <BarChart3 className="w-5 h-5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Statistiche</span>
-            </button>
+            {isAdmin && (
+              <button
+                onClick={() => setAppState('admin-users')}
+                className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
+                title="Utenti"
+              >
+                <Users className="w-5 h-5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Utenti</span>
+              </button>
+            )}
+            {isAdmin && (
+              <button
+                onClick={() => setAppState('admin-global-stats')}
+                className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
+                title="Statistiche Globali"
+              >
+                <BarChart3 className="w-5 h-5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Globali</span>
+              </button>
+            )}
+            {!isAdmin && (
+              <button
+                onClick={() => setAppState('stats')}
+                className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
+                title="Statistiche"
+              >
+                <BarChart3 className="w-5 h-5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Statistiche</span>
+              </button>
+            )}
             <button
               onClick={signOut}
               className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
@@ -282,9 +311,39 @@ function App() {
         <main>
           {appState === 'stats' && <StatsPage onBack={() => setAppState('settings')} />}
 
-          {appState === 'advanced' && <AdvancedSettings onBack={() => setAppState('settings')} />}
+          {appState === 'admin-users' && (
+            <AdminUsersPage
+              onBack={() => setAppState('settings')}
+              onSelectUserStats={(userId, email) => {
+                setAdminSelectedUser({ id: userId, email });
+                setAppState('admin-stats');
+              }}
+            />
+          )}
 
-          {appState === 'settings' && <Settings onStart={handleStartSession} />}
+          {appState === 'admin-stats' && adminSelectedUser && (
+            <AdminStatsPage
+              onBack={() => setAppState('admin-users')}
+              userId={adminSelectedUser.id}
+              userEmail={adminSelectedUser.email}
+            />
+          )}
+
+          {appState === 'admin-global-stats' && (
+            <AdminStatsPage
+              onBack={() => setAppState('settings')}
+              userId={null}
+              userEmail={null}
+            />
+          )}
+
+          {appState === 'advanced' && (
+            <AdvancedSettings onBack={() => setAppState('settings')} />
+          )}
+
+          {appState === 'settings' && (
+            <Settings onStart={handleStartSession} />
+          )}
 
           {appState === 'session' && currentSettings && (
             <SessionDisplay
@@ -316,11 +375,7 @@ function App() {
                 <p className="text-slate-600 dark:text-slate-300">Great job on completing your training session.</p>
               </div>
 
-              {sessionResults && sessionResults.total > 0 && (() => {
-                const wrong = sessionResults.noteResults.filter(r => !r.isCorrect);
-                const octaveErrors = wrong.filter(r => r.playedNote && r.expectedNote && classifyError(r.playedNote, r.expectedNote) === 'octave').length;
-                const degreeErrors = wrong.length - octaveErrors;
-                return (
+              {sessionResults && sessionResults.total > 0 && (
                 <>
                   <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-lg text-center mb-4">
                     <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">
@@ -329,19 +384,19 @@ function App() {
                     <p className="text-slate-600 dark:text-slate-300">
                       su {sessionResults.total} totali ({Math.round((sessionResults.correct / sessionResults.total) * 100)}%)
                     </p>
-                    {wrong.length > 0 && (
+                    {completedWrong.length > 0 && (
                       <div className="mt-3 flex items-center justify-center gap-4 text-sm">
-                        <span className="text-slate-400 dark:text-slate-500">{wrong.length} {wrong.length === 1 ? 'errore' : 'errori'}:</span>
-                        {degreeErrors > 0 && (
+                        <span className="text-slate-400 dark:text-slate-500">{completedWrong.length} {completedWrong.length === 1 ? 'errore' : 'errori'}:</span>
+                        {completedDegreeErrors > 0 && (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 border border-red-200 rounded-full text-red-700 font-medium">
                             <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
-                            {degreeErrors} grado sbagliato
+                            {completedDegreeErrors} grado sbagliato
                           </span>
                         )}
-                        {octaveErrors > 0 && (
+                        {completedOctaveErrors > 0 && (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 border border-orange-200 rounded-full text-orange-700 font-medium">
                             <span className="w-2 h-2 rounded-full bg-orange-400 flex-shrink-0" />
-                            {octaveErrors} ottava sbagliata
+                            {completedOctaveErrors} ottava sbagliata
                           </span>
                         )}
                       </div>
@@ -475,8 +530,7 @@ function App() {
                     </div>
                   )}
                 </>
-                );
-              })()}
+              )}
 
               <div className="text-center">
                 <button
