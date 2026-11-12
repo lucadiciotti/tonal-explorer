@@ -12,6 +12,7 @@ import { PitchTuner } from './PitchTuner';
 import { areNotesEqual } from '../utils/noteComparison';
 import { ResultEntry, calculateStreaks } from '../utils/streakCalculator';
 import { playBeep } from '../utils/beep';
+import { useI18n } from '../i18n/I18nContext';
 
 interface SessionDisplayProps {
   notes: Note[];
@@ -32,7 +33,7 @@ interface SessionDisplayProps {
 }
 
 export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onComplete, onCancel, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, tonalRetention, tonalRetentionDuration, debugMode, voiceAnnounceDegree }: SessionDisplayProps) {
-  const [isDroneIntro, setIsDroneIntro] = useState<boolean>(true);
+  const { t } = useI18n();
   const [droneIntroTimeLeft, setDroneIntroTimeLeft] = useState<number>(tonalRetentionDuration);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
@@ -742,9 +743,9 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
               {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
             </button>
             <div className="text-slate-700 dark:text-slate-200">
-              <div className="text-sm font-medium">Tonic: {tonic}</div>
+              <div className="text-sm font-medium">{t('sessionTonic')} {tonic}</div>
               <div className="text-sm text-slate-500 dark:text-slate-400">
-                Note {currentIndex + 1} of {notes.length}
+                {t('noteOf')} {currentIndex + 1} {t('of')} {notes.length}
               </div>
             </div>
           </div>
@@ -780,7 +781,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
           {isDroneIntro ? (
             <div className="flex flex-col items-center gap-6">
               <div className="text-6xl font-bold text-slate-800 dark:text-slate-100 font-mono">{tonic}</div>
-              <p className="text-slate-500 dark:text-slate-400 text-sm">Ascolta il drone — le note inizieranno tra</p>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">{t('listenDrone')}</p>
               <div className="text-5xl font-bold text-slate-400 dark:text-slate-500 font-mono">{droneIntroTimeLeft}s</div>
               <div className="w-48">
                 <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
@@ -820,9 +821,9 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
           )}
           {hadMissState && !isTransitioning && (
             <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[90%] max-w-sm px-4 py-3 bg-slate-800/90 dark:bg-slate-900/90 border border-slate-700 dark:border-slate-700 rounded-lg text-left shadow-lg z-10">
-              <p className="text-xs font-semibold text-amber-300 uppercase tracking-wide mb-1">Concentrati, non affrettarti</p>
+              <p className="text-xs font-semibold text-amber-300 uppercase tracking-wide mb-1">{t('focusDontRush')}</p>
               <p className="text-xs text-slate-300 leading-relaxed">
-                La nota ti verra' riproposta finche' non la indovini. Il tempo di reazione non viene registrato in questa fase: prenditi tutto il tempo che ti serve. Il cervello consolida l'apprendimento solo risolvendo correttamente il problema — premere a caso ostacola la memorizzazione invece di favorirla.
+                {t('focusDesc')}
               </p>
             </div>
           )}
@@ -833,9 +834,9 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
                 <span className="text-sm text-slate-500 dark:text-slate-400">
                   {micActive
                     ? detectedNoteName
-                      ? `Rilevato: ${detectedNoteName}`
-                      : 'Microfono attivo - canta una nota'
-                    : 'Microfono non disponibile'}
+                      ? `${t('detected')} ${detectedNoteName}`
+                      : t('micActive')
+                    : t('micUnavailable')}
                 </span>
               </div>
               {micActive && <PitchTuner pitchData={pitchData} />}
@@ -862,19 +863,19 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
                 )}
                 <span className="text-sm text-slate-500 dark:text-slate-400">
                   {!speechSupported
-                    ? 'Riconoscimento vocale non supportato in questo browser'
+                    ? t('speechNotSupported')
                     : speechListening
                       ? heardText
-                        ? `Ho sentito: "${heardText}"`
-                        : "In ascolto — di' il nome della nota"
-                      : 'Riavvio del microfono...'}
+                        ? `${t('heard')} "${heardText}"`
+                        : t('listening')
+                      : t('micRestarting')}
                 </span>
               </div>
             </>
           )}
           {isSpeakMode && !isDroneIntro && !isTransitioning && (
             <div className="max-w-md mx-auto mt-4">
-              <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">Tocca una nota se il microfono non sente</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">{t('tapNoteIfMicFails')}</p>
               <div className="grid grid-cols-3 gap-1.5">
                 {getAllItalianNotes().map((noteName) => {
                   const isNatural = !noteName.includes('#') && !noteName.includes('b');
@@ -900,7 +901,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
             </div>
           )}
           <div className="text-2xl text-slate-500 dark:text-slate-400">
-            {!isPlaying ? 'Paused' : ignoreStepDuration ? 'In attesa...' : `Next in ${timeLeft}s`}
+            {!isPlaying ? t('paused') : ignoreStepDuration ? t('waiting') : `${t('nextIn')} ${timeLeft}s`}
           </div>
           {isInteractiveMode && (
             <div className="mt-6 flex items-center justify-center gap-6 text-lg">
@@ -920,13 +921,13 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
       </div>
 
       <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">Notation Guide</h3>
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">{t('notationGuide')}</h3>
         <div className="grid grid-cols-2 gap-4 text-sm text-slate-600 dark:text-slate-300">
           <div>
-            <span className="font-mono font-semibold">1, 2, 3...</span> - Scale degrees
+            <span className="font-mono font-semibold">1, 2, 3...</span> - {t('scaleDegrees')}
           </div>
           <div>
-            <span className="font-mono font-semibold">b2, #4</span> - Flat, Sharp
+            <span className="font-mono font-semibold">b2, #4</span> - {t('flatSharp')}
           </div>
           <div className="flex items-center gap-2">
             <span className="font-mono font-semibold inline-flex flex-col items-center leading-none">
@@ -934,7 +935,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
               <span>3</span>
               <span className="h-0.5 w-4 rounded-full bg-slate-700 dark:bg-slate-300" />
             </span>
-            <span>- Lower octave</span>
+            <span>- {t('lowerOctave')}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="font-mono font-semibold inline-flex flex-col items-center leading-none">
@@ -942,7 +943,7 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
               <span>#4</span>
               <span className="h-0.5 w-4 bg-transparent" />
             </span>
-            <span>- Upper octave</span>
+            <span>- {t('upperOctave')}</span>
           </div>
         </div>
       </div>

@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Music, LogOut, BarChart3, SlidersHorizontal, Home, Users } from 'lucide-react';
+import { useI18n } from './i18n/I18nContext';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { Settings } from './components/Settings';
 import { SessionDisplay } from './components/SessionDisplay';
 import { StatsPage } from './components/StatsPage';
@@ -25,6 +27,7 @@ type AppState = 'settings' | 'session' | 'completed' | 'stats' | 'advanced' | 'a
 
 function App() {
   const { user, loading, signOut, isAdmin } = useAuth();
+  const { t } = useI18n();
   const [appState, setAppState] = useState<AppState>('settings');
   const [currentSettings, setCurrentSettings] = useState<SessionSettings | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
@@ -242,67 +245,70 @@ function App() {
     >
       <div className="container mx-auto px-4 py-8">
         <header className="mb-10">
-          <div className="flex items-center justify-end gap-0.5 sm:gap-1 mb-6">
-            <button
-              onClick={() => setAppState('settings')}
-              className="flex items-center gap-2 p-2 sm:hidden text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
-              title="Sessioni"
-            >
-              <Home className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setAppState('advanced')}
-              className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
-              title="Settings"
-            >
-              <SlidersHorizontal className="w-5 h-5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Settings</span>
-            </button>
-            {isAdmin && (
+          <div className="flex items-center justify-between gap-0.5 sm:gap-1 mb-6">
+            <LanguageSwitcher />
+            <div className="flex items-center gap-0.5 sm:gap-1">
               <button
-                onClick={() => setAppState('admin-users')}
-                className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
-                title="Utenti"
+                onClick={() => setAppState('settings')}
+                className="flex items-center gap-2 p-2 sm:hidden text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
+                title={t('home')}
               >
-                <Users className="w-5 h-5 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Utenti</span>
+                <Home className="w-5 h-5" />
               </button>
-            )}
-            {isAdmin && (
               <button
-                onClick={() => setAppState('admin-global-stats')}
+                onClick={() => setAppState('advanced')}
                 className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
-                title="Statistiche Globali"
+                title={t('settings')}
               >
-                <BarChart3 className="w-5 h-5 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Globali</span>
+                <SlidersHorizontal className="w-5 h-5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">{t('settings')}</span>
               </button>
-            )}
-            {!isAdmin && (
+              {isAdmin && (
+                <button
+                  onClick={() => setAppState('admin-users')}
+                  className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
+                  title={t('users')}
+                >
+                  <Users className="w-5 h-5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">{t('users')}</span>
+                </button>
+              )}
+              {isAdmin && (
+                <button
+                  onClick={() => setAppState('admin-global-stats')}
+                  className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
+                  title={t('adminGlobalStats')}
+                >
+                  <BarChart3 className="w-5 h-5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">{t('global')}</span>
+                </button>
+              )}
+              {!isAdmin && (
+                <button
+                  onClick={() => setAppState('stats')}
+                  className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
+                  title={t('statistics')}
+                >
+                  <BarChart3 className="w-5 h-5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">{t('stats')}</span>
+                </button>
+              )}
               <button
-                onClick={() => setAppState('stats')}
+                onClick={signOut}
                 className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
-                title="Statistiche"
+                title={t('logout')}
               >
-                <BarChart3 className="w-5 h-5 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Statistiche</span>
+                <LogOut className="w-5 h-5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">{t('logout')}</span>
               </button>
-            )}
-            <button
-              onClick={signOut}
-              className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
-              title="Esci"
-            >
-              <LogOut className="w-5 h-5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Esci</span>
-            </button>
+            </div>
           </div>
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2">
               <Music className="w-7 h-7 sm:w-10 sm:h-10 text-slate-800 dark:text-slate-100" />
               <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-slate-800 dark:text-slate-100">TEx</h1>
             </div>
-            <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg">Tonal Explorer</p>
+            <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg">{t('appTagline')}</p>
             <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">{user.email}</p>
             <p className="text-slate-300 dark:text-slate-600 text-xs mt-0.5">v{APP_VERSION}</p>
           </div>
@@ -371,32 +377,32 @@ function App() {
                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Music className="w-10 h-10 text-green-600" />
                 </div>
-                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-2">Session Completed!</h2>
-                <p className="text-slate-600 dark:text-slate-300">Great job on completing your training session.</p>
+                <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-2">{t('sessionCompleted')}</h2>
+                <p className="text-slate-600 dark:text-slate-300">{t('greatJob')}</p>
               </div>
 
               {sessionResults && sessionResults.total > 0 && (
                 <>
                   <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-lg text-center mb-4">
                     <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">
-                      Hai indovinato {sessionResults.correct} {sessionResults.correct === 1 ? 'nota' : 'note'}
+                      {t('youGotNotes')} {sessionResults.correct} {sessionResults.correct === 1 ? t('noteCorrect') : t('notesCorrect')}
                     </p>
                     <p className="text-slate-600 dark:text-slate-300">
-                      su {sessionResults.total} totali ({Math.round((sessionResults.correct / sessionResults.total) * 100)}%)
+                      {t('outOf')} {sessionResults.total} {t('total')} ({Math.round((sessionResults.correct / sessionResults.total) * 100)}%)
                     </p>
                     {completedWrong.length > 0 && (
                       <div className="mt-3 flex items-center justify-center gap-4 text-sm">
-                        <span className="text-slate-400 dark:text-slate-500">{completedWrong.length} {completedWrong.length === 1 ? 'errore' : 'errori'}:</span>
+                        <span className="text-slate-400 dark:text-slate-500">{completedWrong.length} {completedWrong.length === 1 ? t('error') : t('errors')}:</span>
                         {completedDegreeErrors > 0 && (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 border border-red-200 rounded-full text-red-700 font-medium">
                             <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
-                            {completedDegreeErrors} grado sbagliato
+                            {completedDegreeErrors} {t('wrongDegree')}
                           </span>
                         )}
                         {completedOctaveErrors > 0 && (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 border border-orange-200 rounded-full text-orange-700 font-medium">
                             <span className="w-2 h-2 rounded-full bg-orange-400 flex-shrink-0" />
-                            {completedOctaveErrors} ottava sbagliata
+                            {completedOctaveErrors} {t('wrongOctave')}
                           </span>
                         )}
                       </div>
@@ -405,27 +411,27 @@ function App() {
 
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     <div className="p-4 bg-green-50 dark:bg-green-950/40 rounded-lg border border-green-200 dark:border-green-800">
-                      <p className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide mb-2">Hit consecutivi</p>
+                      <p className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide mb-2">{t('hitStreaks')}</p>
                       <div className="flex items-baseline justify-between">
                         <div>
-                          <span className="text-sm text-slate-500 dark:text-slate-400">Max</span>
+                          <span className="text-sm text-slate-500 dark:text-slate-400">{t('max')}</span>
                           <span className="ml-2 text-2xl font-bold text-green-800 dark:text-green-400">{sessionResults.stats.maxHitStreak}</span>
                         </div>
                         <div>
-                          <span className="text-sm text-slate-500 dark:text-slate-400">Min</span>
+                          <span className="text-sm text-slate-500 dark:text-slate-400">{t('min')}</span>
                           <span className="ml-2 text-2xl font-bold text-green-800 dark:text-green-400">{sessionResults.stats.minHitStreak}</span>
                         </div>
                       </div>
                     </div>
                     <div className="p-4 bg-red-50 dark:bg-red-950/40 rounded-lg border border-red-200 dark:border-red-800">
-                      <p className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide mb-2">Miss consecutivi</p>
+                      <p className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide mb-2">{t('missStreaks')}</p>
                       <div className="flex items-baseline justify-between">
                         <div>
-                          <span className="text-sm text-slate-500 dark:text-slate-400">Max</span>
+                          <span className="text-sm text-slate-500 dark:text-slate-400">{t('max')}</span>
                           <span className="ml-2 text-2xl font-bold text-red-800 dark:text-red-400">{sessionResults.stats.maxMissStreak}</span>
                         </div>
                         <div>
-                          <span className="text-sm text-slate-500 dark:text-slate-400">Min</span>
+                          <span className="text-sm text-slate-500 dark:text-slate-400">{t('min')}</span>
                           <span className="ml-2 text-2xl font-bold text-red-800 dark:text-red-400">{sessionResults.stats.minMissStreak}</span>
                         </div>
                       </div>
@@ -434,31 +440,31 @@ function App() {
 
                   {sessionResults.stats.reactionTime.count > 0 && (
                     <div className="p-4 bg-sky-50 dark:bg-sky-950/40 rounded-lg border border-sky-200 dark:border-sky-800 mb-4">
-                      <p className="text-xs font-semibold text-sky-700 dark:text-sky-400 uppercase tracking-wide mb-3">Tempo di reazione (solo hit)</p>
+                      <p className="text-xs font-semibold text-sky-700 dark:text-sky-400 uppercase tracking-wide mb-3">{t('reactionTime')}</p>
                       <div className="grid grid-cols-4 gap-2">
                         <div className="text-center">
-                          <p className="text-sm text-slate-500 dark:text-slate-400">Media</p>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">{t('mean')}</p>
                           <p className="text-xl font-bold text-sky-800 dark:text-sky-400">{(sessionResults.stats.reactionTime.mean / 1000).toFixed(1)}s</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-sm text-slate-500 dark:text-slate-400">Moda</p>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">{t('statMode')}</p>
                           <p className="text-xl font-bold text-sky-800 dark:text-sky-400">{(sessionResults.stats.reactionTime.mode / 1000).toFixed(1)}s</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-sm text-slate-500 dark:text-slate-400">Min</p>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">{t('min')}</p>
                           <p className="text-xl font-bold text-sky-800 dark:text-sky-400">{(sessionResults.stats.reactionTime.min / 1000).toFixed(1)}s</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-sm text-slate-500 dark:text-slate-400">Max</p>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">{t('max')}</p>
                           <p className="text-xl font-bold text-sky-800 dark:text-sky-400">{(sessionResults.stats.reactionTime.max / 1000).toFixed(1)}s</p>
                         </div>
                       </div>
-                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">Su {sessionResults.stats.reactionTime.count} hit</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">{t('onHits')} {sessionResults.stats.reactionTime.count} {t('hits')}</p>
                     </div>
                   )}
 
                   <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 mb-4">
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">Confusion Matrix</p>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">{t('confusionMatrix')}</p>
                     <ConfusionMatrix
                       notes={sessionResults.noteResults}
                       tonic={currentSettings?.tonic ?? 'C'}
@@ -466,7 +472,7 @@ function App() {
                   </div>
 
                   <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 mb-4">
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">Errori nel Circolo delle Quinte</p>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">{t('fifthsErrors')}</p>
                     <FifthsErrorChart
                       notes={sessionResults.noteResults}
                       tonic={currentSettings?.tonic ?? 'C'}
@@ -474,7 +480,7 @@ function App() {
                   </div>
 
                   <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 mb-4">
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">Errori di Ottava per Grado</p>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">{t('octaveErrorsByDegree')}</p>
                     <OctaveErrorChart
                       notes={sessionResults.noteResults}
                       tonic={currentSettings?.tonic ?? 'C'}
@@ -482,7 +488,7 @@ function App() {
                   </div>
 
                   <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 mb-4">
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">Tempi di Risposta — Risposte Corrette</p>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">{t('responseTimeCorrect')}</p>
                     <ResponseTimeChart
                       notes={sessionResults.noteResults}
                       tonic={currentSettings?.tonic ?? 'C'}
@@ -491,7 +497,7 @@ function App() {
                   </div>
 
                   <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 mb-6">
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">Tempi di Risposta — Risposte Errate</p>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">{t('responseTimeWrong')}</p>
                     <ResponseTimeChart
                       notes={sessionResults.noteResults}
                       tonic={currentSettings?.tonic ?? 'C'}
@@ -502,16 +508,16 @@ function App() {
                   {/* legacy-error-table: showLegacyErrorTable */}
                   {localStorage.getItem('showLegacyErrorTable') === 'true' && sessionResults.errorLog.length > 0 && (
                     <div className="mb-6 text-left">
-                      <p className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide mb-3">Dettaglio errori</p>
+                      <p className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide mb-3">{t('errorDetail')}</p>
                       <div className="overflow-hidden rounded-lg border border-red-200 dark:border-red-800">
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-400">
                               <th className="px-3 py-2 text-left font-semibold">#</th>
-                              <th className="px-3 py-2 text-left font-semibold">Drone</th>
-                              <th className="px-3 py-2 text-left font-semibold">Grado</th>
-                              <th className="px-3 py-2 text-left font-semibold">Attesa</th>
-                              <th className="px-3 py-2 text-left font-semibold">Cantata</th>
+                              <th className="px-3 py-2 text-left font-semibold">{t('colDrone')}</th>
+                              <th className="px-3 py-2 text-left font-semibold">{t('colDegree')}</th>
+                              <th className="px-3 py-2 text-left font-semibold">{t('colExpected')}</th>
+                              <th className="px-3 py-2 text-left font-semibold">{t('colSung')}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -537,7 +543,7 @@ function App() {
                   onClick={handleNewSession}
                   className="bg-slate-800 dark:bg-sky-600 hover:bg-slate-900 dark:hover:bg-sky-500 text-white font-bold py-4 px-8 rounded-lg transition-colors shadow-md hover:shadow-lg"
                 >
-                  Start New Session
+                  {t('startNewSession')}
                 </button>
               </div>
             </div>

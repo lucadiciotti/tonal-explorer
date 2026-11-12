@@ -5,6 +5,7 @@ import { AudioRendererType } from '../lib/audio/AudioManager';
 import { getProgramsByCategory, MIDI_PROGRAM_CATEGORIES } from '../lib/audio/MidiPrograms';
 import { getSoundfontProgramsByCategory, SOUNDFONT_CATEGORIES } from '../lib/audio/SoundfontPrograms';
 import { ThemeMode, getStoredTheme, saveTheme, applyTheme } from '../utils/theme';
+import { useI18n } from '../i18n/I18nContext';
 
 const STORAGE_KEY = 'mzt-settings';
 
@@ -57,6 +58,7 @@ interface AdvancedSettingsProps {
 
 export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
   const stored = loadSettings();
+  const { t } = useI18n();
   const [numNotes, setNumNotes] = useState<number>(stored.numNotes ?? 10);
   const [stepDuration, setStepDuration] = useState<number>(stored.stepDuration ?? 3);
   const [ignoreStepDuration, setIgnoreStepDuration] = useState<boolean>(stored.ignoreStepDuration ?? true);
@@ -256,12 +258,12 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <SlidersHorizontal className="w-6 h-6 text-slate-700 dark:text-slate-200" />
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Settings</h2>
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t('settings')}</h2>
       </div>
 
       <div className="space-y-6">
         <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3">
-          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Number of Notes (N)</legend>
+          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">{t('numOfNotes')}</legend>
           <div>
             <label htmlFor="numNotes" className="block text-sm text-slate-600 dark:text-slate-300 mb-2">
               N: {numNotes}
@@ -289,29 +291,29 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
             <label className={`flex flex-col items-center gap-2 p-3 border-2 rounded-lg cursor-pointer transition-colors ${theme === 'light' ? 'border-slate-800 bg-slate-50 dark:border-sky-500 dark:bg-sky-950' : 'border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800'}`}>
               <input type="radio" name="theme" value="light" checked={theme === 'light'} onChange={() => updateTheme('light')} className="sr-only" />
               <Sun className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-              <span className="text-xs font-medium text-slate-700 dark:text-slate-300">Chiaro</span>
+              <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{t('themeLight')}</span>
             </label>
             <label className={`flex flex-col items-center gap-2 p-3 border-2 rounded-lg cursor-pointer transition-colors ${theme === 'dark' ? 'border-slate-800 bg-slate-50 dark:border-sky-500 dark:bg-sky-950' : 'border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800'}`}>
               <input type="radio" name="theme" value="dark" checked={theme === 'dark'} onChange={() => updateTheme('dark')} className="sr-only" />
               <Moon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-              <span className="text-xs font-medium text-slate-700 dark:text-slate-300">Scuro</span>
+              <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{t('themeDark')}</span>
             </label>
             <label className={`flex flex-col items-center gap-2 p-3 border-2 rounded-lg cursor-pointer transition-colors ${theme === 'auto' ? 'border-slate-800 bg-slate-50 dark:border-sky-500 dark:bg-sky-950' : 'border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800'}`}>
               <input type="radio" name="theme" value="auto" checked={theme === 'auto'} onChange={() => updateTheme('auto')} className="sr-only" />
               <Monitor className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-              <span className="text-xs font-medium text-slate-700 dark:text-slate-300">Auto</span>
+              <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{t('themeAuto')}</span>
             </label>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            Auto usa il tema scuro su cellulare e chiaro su computer.
+            {t('themeAutoDesc')}
           </p>
         </fieldset>
 
         <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
-          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Step Duration</legend>
+          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">{t('stepDuration')}</legend>
           <div>
             <label htmlFor="stepDuration" className="block text-sm text-slate-600 dark:text-slate-300 mb-2">
-              Duration (P): {stepDuration}s
+              {t('durationP')} {stepDuration}s
             </label>
             <input
               id="stepDuration"
@@ -337,17 +339,17 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
               className="w-4 h-4 text-slate-800 dark:text-slate-100 rounded"
             />
             <div>
-              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">Ignora Step Duration</div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">Nessun timeout, il sistema attende la nota</div>
+              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">{t('ignoreStepDuration')}</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">{t('ignoreStepDurationDesc')}</div>
             </div>
           </label>
         </fieldset>
 
         <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
-          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Pausa tra le note</legend>
+          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">{t('pauseBetweenNotes')}</legend>
           <div>
             <label htmlFor="noteTransitionDelay" className="block text-sm text-slate-600 dark:text-slate-300 mb-2">
-              Durata: {noteTransitionDelay}ms
+              {t('pauseDuration')} {noteTransitionDelay}ms
             </label>
             <input
               id="noteTransitionDelay"
@@ -365,15 +367,15 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
             </div>
           </div>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Tempo di attesa dopo una risposta corretta (o dopo lo scadere del timer) prima di presentare la nota successiva. Un valore piu' alto lascia piu' tempo per assimilare il feedback visivo; 0 rende la transizione istantanea.
+            {t('pauseDesc')}
           </p>
         </fieldset>
 
         <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
-          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Finestra di validazione della Voce</legend>
+          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">{t('voiceWindow')}</legend>
           <div>
             <label htmlFor="singHoldDuration" className="block text-sm text-slate-600 dark:text-slate-300 mb-2">
-              Durata: {singHoldDuration}ms
+              {t('pauseDuration')} {singHoldDuration}ms
             </label>
             <input
               id="singHoldDuration"
@@ -391,12 +393,12 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
             </div>
           </div>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Per evitare falsi positivi, la nota cantata viene accettata solo se mantenuta stabile per tutta la durata della finestra di validazione. Un valore piu' basso rende la risposta piu' reattiva ma aumenta il rischio di errori involontari; un valore piu' alto richiede maggiore costanza ma garantisce un riconoscimento piu' affidabile.
+            {t('voiceWindowDesc')}
           </p>
         </fieldset>
 
         <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
-          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Audio / MIDI</legend>
+          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">{t('audioMidi')}</legend>
           <div className="space-y-3">
             <label className="flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 has-[:checked]:border-slate-800 dark:has-[:checked]:border-sky-500 has-[:checked]:bg-slate-50 dark:has-[:checked]:bg-sky-950">
               <input
@@ -408,8 +410,8 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
                 className="w-4 h-4 text-slate-800 dark:text-slate-100"
               />
               <div className="flex-1">
-                <div className="font-medium text-slate-800 dark:text-slate-100">Web Audio</div>
-                <div className="text-xs text-slate-500 dark:text-slate-400">Built-in synthesizer</div>
+                <div className="font-medium text-slate-800 dark:text-slate-100">{t('webAudio')}</div>
+                <div className="text-xs text-slate-500 dark:text-slate-400">{t('webAudioDesc')}</div>
               </div>
             </label>
 
@@ -426,15 +428,15 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
               <Usb className="w-5 h-5 text-slate-600 dark:text-slate-300" />
               <div className="flex-1">
                 <div className="font-medium text-slate-800 dark:text-slate-100">
-                  MIDI Device
+                  {t('midiDevice')}
                   {hasMidi && midiDevices.length > 0 && (
-                    <span className="ml-2 text-xs text-green-600 font-normal">Connected</span>
+                    <span className="ml-2 text-xs text-green-600 font-normal">{t('midiConnected')}</span>
                   )}
                 </div>
                 <div className="text-xs text-slate-500 dark:text-slate-400">
                   {hasMidi && midiDevices.length > 0
                     ? midiDevices[0].name
-                    : 'No MIDI device detected'}
+                    : t('noMidiDevice')}
                 </div>
               </div>
             </label>
@@ -449,8 +451,8 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
               />
               <Volume2 className="w-5 h-5 text-slate-600 dark:text-slate-300" />
               <div className="flex-1">
-                <div className="font-medium text-slate-800 dark:text-slate-100">Soundfont</div>
-                <div className="text-xs text-slate-500 dark:text-slate-400">Strumenti realistici nel browser (richiede download campioni)</div>
+                <div className="font-medium text-slate-800 dark:text-slate-100">{t('soundfont')}</div>
+                <div className="text-xs text-slate-500 dark:text-slate-400">{t('soundfontDesc')}</div>
               </div>
             </label>
           </div>
@@ -458,7 +460,7 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
           {audioMode === 'soundfont' && (
             <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
               <div>
-                <label className="block text-sm text-slate-600 dark:text-slate-300 mb-2">Instrument</label>
+                <label className="block text-sm text-slate-600 dark:text-slate-300 mb-2">{t('instrument')}</label>
                 <div className="space-y-2">
                   <select
                     value={sfNoteCategory}
@@ -484,7 +486,7 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
               </div>
 
               <div>
-                <label className="block text-sm text-slate-600 dark:text-slate-300 mb-2">Drone</label>
+                <label className="block text-sm text-slate-600 dark:text-slate-300 mb-2">{t('drone')}</label>
                 <div className="space-y-2">
                   <select
                     value={sfDroneCategory}
@@ -514,14 +516,14 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
           {audioMode === 'midi' && hasMidi && (
             <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
               <div>
-                <label className="block text-sm text-slate-600 dark:text-slate-300 mb-2">Sintetizzatore MIDI (output)</label>
+                <label className="block text-sm text-slate-600 dark:text-slate-300 mb-2">{t('midiOutput')}</label>
                 <select
                   value={selectedDeviceId}
                   onChange={(e) => updateSelectedDeviceId(e.target.value)}
                   className="w-full px-3 py-2 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:border-slate-800 dark:focus:border-sky-500 focus:outline-none text-sm"
                 >
                   {midiDevices.filter(d => d.isOutput).length === 0 && (
-                    <option value="">Nessun dispositivo output</option>
+                    <option value="">{t('noOutputDevice')}</option>
                   )}
                   {midiDevices.filter(d => d.isOutput).map(device => (
                     <option key={device.id} value={device.id}>
@@ -529,24 +531,24 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Il dispositivo che produce il suono (drone e note di riferimento)</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t('midiOutputDesc')}</p>
               </div>
 
               <div>
-                <label className="block text-sm text-slate-600 dark:text-slate-300 mb-2">Tastiera MIDI (input)</label>
+                <label className="block text-sm text-slate-600 dark:text-slate-300 mb-2">{t('midiInput')}</label>
                 <select
                   value={selectedInputDeviceId}
                   onChange={(e) => updateSelectedInputDeviceId(e.target.value)}
                   className="w-full px-3 py-2 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:border-slate-800 dark:focus:border-sky-500 focus:outline-none text-sm"
                 >
-                  <option value="">Auto (stesso dispositivo output)</option>
+                  <option value="">{t('autoSameDevice')}</option>
                   {midiDevices.filter(d => d.isInput).map(device => (
                     <option key={device.id} value={device.id}>
                       {device.name}{device.manufacturer ? ` (${device.manufacturer})` : ''}
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">La tastiera che suoni per rispondere agli esercizi</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t('midiInputDesc')}</p>
               </div>
 
               <label className="flex items-center gap-3 cursor-pointer py-1">
@@ -557,13 +559,13 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
                   className="w-4 h-4 text-slate-800 dark:text-slate-100 rounded"
                 />
                 <div>
-                  <div className="text-sm font-medium text-slate-800 dark:text-slate-100">Dispositivo monotimbrale</div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">Usa un solo suono per drone e note (per tastiere con synth interno come AKAI MPK Mini Play)</div>
+                  <div className="text-sm font-medium text-slate-800 dark:text-slate-100">{t('monotimbral')}</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">{t('monotimbralDesc')}</div>
                 </div>
               </label>
 
               <div>
-                <label className="block text-sm text-slate-600 dark:text-slate-300 mb-2">{monotimbral ? 'Strumento (drone + note)' : 'Instrument'}</label>
+                <label className="block text-sm text-slate-600 dark:text-slate-300 mb-2">{monotimbral ? t('instrumentDroneNotes') : t('instrument')}</label>
                 <div className="space-y-2">
                   <select
                     value={selectedCategory}
@@ -590,7 +592,7 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
 
               {!monotimbral && (
               <div>
-                <label className="block text-sm text-slate-600 dark:text-slate-300 mb-2">Drone</label>
+                <label className="block text-sm text-slate-600 dark:text-slate-300 mb-2">{t('drone')}</label>
                 <div className="space-y-2">
                   <select
                     value={selectedDroneCategory}
@@ -620,9 +622,9 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
         </fieldset>
 
         <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3">
-          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Octaves</legend>
+          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">{t('octaves')}</legend>
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            Le note vengono generate su 3 ottave: ottava 3, 4 e 5.
+            {t('octavesDesc')}
           </p>
           <label className="flex items-center gap-3 cursor-pointer">
             <input
@@ -632,14 +634,14 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
               className="w-4 h-4 text-slate-800 dark:text-slate-100 rounded"
             />
             <div>
-              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">Ignora Ottave</div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">Accetta la nota corretta in qualsiasi ottava</div>
+              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">{t('ignoreOctaves')}</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">{t('ignoreOctavesDesc')}</div>
             </div>
           </label>
         </fieldset>
 
         <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
-          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Tonal Retention</legend>
+          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">{t('tonalRetention')}</legend>
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
@@ -648,14 +650,14 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
               className="w-4 h-4 text-slate-800 dark:text-slate-100 rounded"
             />
             <div>
-              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">Drone continuo</div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">Il drone suona per tutta la durata dell'esercizio; se disattivato, si ferma dopo i secondi impostati</div>
+              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">{t('continuousDrone')}</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">{t('continuousDroneDesc')}</div>
             </div>
           </label>
           {!tonalRetention && (
             <div>
               <label htmlFor="tonalRetentionDuration" className="block text-sm text-slate-600 dark:text-slate-300 mb-2">
-                Durata intro drone: {tonalRetentionDuration}s
+                {t('droneIntroDuration')} {tonalRetentionDuration}s
               </label>
               <input
                 id="tonalRetentionDuration"
@@ -676,7 +678,7 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
         </fieldset>
 
         <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4">
-          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Debug</legend>
+          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">{t('debug')}</legend>
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
@@ -685,14 +687,14 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
               className="w-4 h-4 text-slate-800 dark:text-slate-100 rounded"
             />
             <div>
-              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">Modalita' debug</div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">Mostra la risposta attesa sotto il grado da indovinare (in modalita' Leggi e Parla)</div>
+              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">{t('debugMode')}</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">{t('debugModeDesc')}</div>
             </div>
           </label>
         </fieldset>
 
         <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
-          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">Annuncio vocale del grado</legend>
+          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">{t('voiceAnnounce')}</legend>
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
@@ -701,8 +703,8 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
               className="w-4 h-4 text-slate-800 dark:text-slate-100 rounded"
             />
             <div>
-              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">Annuncio vocale</div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">Una voce dice il grado ad alta voce quando appare una nuova nota. Utile per fare gli esercizi senza guardare lo schermo, ad esempio mentre si guida. Si consiglia l'uso delle cuffie per evitare che il microfono senta la voce del telefono. (Solo modalita' Leggi e Parla)</div>
+              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">{t('voiceAnnounceEnabled')}</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">{t('voiceAnnounceDesc')}</div>
             </div>
           </label>
         </fieldset>

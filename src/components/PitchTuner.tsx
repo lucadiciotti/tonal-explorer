@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { PitchData } from '../lib/audio/PitchDetector';
+import { useI18n } from '../i18n/I18nContext';
 
 interface PitchTunerProps {
   pitchData: PitchData | null;
@@ -12,6 +13,7 @@ const DEAD_ZONE = 3;
 const NOTE_STABLE_FRAMES = 6;
 
 export function PitchTuner({ pitchData }: PitchTunerProps) {
+  const { t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const historyRef = useRef<(number | null)[]>([]);
   const [displayNote, setDisplayNote] = useState<string | null>(null);
@@ -236,7 +238,7 @@ export function PitchTuner({ pitchData }: PitchTunerProps) {
   return (
     <div className="w-full max-w-lg mx-auto mt-4">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-slate-400 dark:text-slate-500 font-medium tracking-wide uppercase">Intonazione</span>
+        <span className="text-xs text-slate-400 dark:text-slate-500 font-medium tracking-wide uppercase">{t('intonation')}</span>
         {displayNote && (
           <span className="text-sm font-semibold text-slate-600 dark:text-slate-300 font-mono">{displayNote}</span>
         )}
@@ -247,8 +249,8 @@ export function PitchTuner({ pitchData }: PitchTunerProps) {
         style={{ height: 80 }}
       />
       <div className="flex justify-between mt-1">
-        <span className="text-[10px] text-slate-400 dark:text-slate-500">calante</span>
-        <span className="text-[10px] text-slate-400 dark:text-slate-500">crescente</span>
+        <span className="text-[10px] text-slate-400 dark:text-slate-500">{t('pitchFlat')}</span>
+        <span className="text-[10px] text-slate-400 dark:text-slate-500">{t('pitchSharp')}</span>
       </div>
     </div>
   );
