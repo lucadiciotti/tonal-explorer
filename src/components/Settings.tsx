@@ -76,7 +76,8 @@ export function Settings({ onStart }: SettingsProps) {
   const [ignoreStepDuration, setIgnoreStepDuration] = useState<boolean>(stored.ignoreStepDuration ?? true);
   const [mode, setMode] = useState<SessionMode>(stored.mode || 'read-and-play');
 
-  const handleStart = () => {
+  const handleStart = (selectedMode: SessionMode) => {
+    setMode(selectedMode);
     saveSettings({
       tonic, numNotes: stored.numNotes || 10, stepDuration,
       audioMode: stored.audioMode || 'web-audio',
@@ -84,7 +85,7 @@ export function Settings({ onStart }: SettingsProps) {
       selectedCategory: stored.selectedCategory || 'Piano',
       midiDroneProgram: stored.midiDroneProgram ?? 48,
       selectedDroneCategory: stored.selectedDroneCategory || 'Strings',
-      ignoreOctaves: stored.ignoreOctaves ?? true, ignoreStepDuration, mode, singHoldDuration: stored.singHoldDuration ?? 1500, noteTransitionDelay: stored.noteTransitionDelay ?? 500,
+      ignoreOctaves: stored.ignoreOctaves ?? true, ignoreStepDuration, mode: selectedMode, singHoldDuration: stored.singHoldDuration ?? 1500, noteTransitionDelay: stored.noteTransitionDelay ?? 500,
       sfNoteInstrument: stored.sfNoteInstrument || 'acoustic_grand_piano',
       sfNoteCategory: stored.sfNoteCategory || 'Piano',
       sfDroneInstrument: stored.sfDroneInstrument || 'string_ensemble_1',
@@ -99,7 +100,7 @@ export function Settings({ onStart }: SettingsProps) {
 
     const audioMode = stored.audioMode || 'web-audio';
     onStart(
-      { tonic, numNotes: stored.numNotes || 10, stepDuration, ignoreOctaves: stored.ignoreOctaves ?? true, ignoreStepDuration, mode, singHoldDuration: stored.singHoldDuration ?? 1500, noteTransitionDelay: stored.noteTransitionDelay ?? 500, tonalRetention: stored.tonalRetention ?? true, tonalRetentionDuration: stored.tonalRetentionDuration ?? 3, debugMode: stored.debugMode ?? false, voiceAnnounceDegree: stored.voiceAnnounceDegree ?? false },
+      { tonic, numNotes: stored.numNotes || 10, stepDuration, ignoreOctaves: stored.ignoreOctaves ?? true, ignoreStepDuration, mode: selectedMode, singHoldDuration: stored.singHoldDuration ?? 1500, noteTransitionDelay: stored.noteTransitionDelay ?? 500, tonalRetention: stored.tonalRetention ?? true, tonalRetentionDuration: stored.tonalRetentionDuration ?? 3, debugMode: stored.debugMode ?? false, voiceAnnounceDegree: stored.voiceAnnounceDegree ?? false },
       audioMode,
       audioMode === 'midi' ? stored.midiProgram : undefined,
       audioMode === 'midi' ? stored.midiDroneProgram : undefined,
@@ -183,77 +184,58 @@ export function Settings({ onStart }: SettingsProps) {
           </div>
         </div>
 
-        <button
-          onClick={handleStart}
-          className="w-full bg-slate-800 dark:bg-sky-600 hover:bg-slate-900 dark:hover:bg-sky-500 text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-md hover:shadow-lg"
-        >
-          Start Session
-        </button>
-
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-3">
-            Session Mode
+            Modalita'
           </label>
-          <div className="space-y-3">
-            <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 has-[:checked]:border-slate-800 dark:has-[:checked]:border-sky-500 has-[:checked]:bg-slate-50 dark:has-[:checked]:bg-sky-950">
-              <input
-                type="radio"
-                name="mode"
-                value="read-and-play"
-                checked={mode === 'read-and-play'}
-                onChange={(e) => setMode(e.target.value as SessionMode)}
-                className="w-4 h-4 text-slate-800 dark:text-slate-100"
-              />
-              <div className="flex-1">
-                <div className="font-medium text-slate-800 dark:text-slate-100">Leggi e Suona</div>
-                <div className="text-sm text-slate-500 dark:text-slate-400">Il programma visualizza un grado, il tuo compito e' suonare la nota che corrisponde a quel grado nella tonalita' proposta</div>
-              </div>
-            </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              onClick={() => handleStart('read-and-play')}
+              className={`text-left p-4 border-2 rounded-lg transition-all hover:scale-[1.02] hover:shadow-md ${
+                mode === 'read-and-play'
+                  ? 'border-slate-800 dark:border-sky-500 bg-slate-50 dark:bg-sky-950'
+                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 bg-white dark:bg-slate-900'
+              }`}
+            >
+              <div className="font-bold text-slate-800 dark:text-slate-100">Leggi e Suona</div>
+              <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">Il programma visualizza un grado, il tuo compito e' suonare la nota che corrisponde a quel grado nella tonalita' proposta</div>
+            </button>
 
-            <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 has-[:checked]:border-slate-800 dark:has-[:checked]:border-sky-500 has-[:checked]:bg-slate-50 dark:has-[:checked]:bg-sky-950">
-              <input
-                type="radio"
-                name="mode"
-                value="read-and-speak"
-                checked={mode === 'read-and-speak'}
-                onChange={(e) => setMode(e.target.value as SessionMode)}
-                className="w-4 h-4 text-slate-800 dark:text-slate-100"
-              />
-              <div className="flex-1">
-                <div className="font-medium text-slate-800 dark:text-slate-100">Leggi e Parla</div>
-                <div className="text-sm text-slate-500 dark:text-slate-400">Il programma visualizza un grado, il tuo compito e' dire ad alta voce il nome italiano della nota che corrisponde a quel grado nella tonalita' proposta. Il riconoscimento vocale verifica la risposta tenendo conto delle giuste diteggiature enarmoniche (diesis o bemolle a seconda della tonalita').</div>
-              </div>
-            </label>
+            <button
+              onClick={() => handleStart('read-and-speak')}
+              className={`text-left p-4 border-2 rounded-lg transition-all hover:scale-[1.02] hover:shadow-md ${
+                mode === 'read-and-speak'
+                  ? 'border-slate-800 dark:border-sky-500 bg-slate-50 dark:bg-sky-950'
+                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 bg-white dark:bg-slate-900'
+              }`}
+            >
+              <div className="font-bold text-slate-800 dark:text-slate-100">Leggi e Parla</div>
+              <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">Il programma visualizza un grado, il tuo compito e' dire ad alta voce il nome italiano della nota che corrisponde a quel grado. Il riconoscimento vocale verifica la risposta tenendo conto delle giuste diteggiature enarmoniche.</div>
+            </button>
 
-            <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 has-[:checked]:border-slate-800 dark:has-[:checked]:border-sky-500 has-[:checked]:bg-slate-50 dark:has-[:checked]:bg-sky-950">
-              <input
-                type="radio"
-                name="mode"
-                value="read-and-sing"
-                checked={mode === 'read-and-sing'}
-                onChange={(e) => setMode(e.target.value as SessionMode)}
-                className="w-4 h-4 text-slate-800 dark:text-slate-100"
-              />
-              <div className="flex-1">
-                <div className="font-medium text-slate-800 dark:text-slate-100">Leggi e Canta</div>
-                <div className="text-sm text-slate-500 dark:text-slate-400">Come Leggi e Suona, ma invece di suonare uno strumento MIDI, canti la nota nel microfono. Il programma rileva la frequenza della tua voce e verifica se corrisponde alla nota attesa.</div>
-              </div>
-            </label>
+            <button
+              onClick={() => handleStart('read-and-sing')}
+              className={`text-left p-4 border-2 rounded-lg transition-all hover:scale-[1.02] hover:shadow-md ${
+                mode === 'read-and-sing'
+                  ? 'border-slate-800 dark:border-sky-500 bg-slate-50 dark:bg-sky-950'
+                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 bg-white dark:bg-slate-900'
+              }`}
+            >
+              <div className="font-bold text-slate-800 dark:text-slate-100">Leggi e Canta</div>
+              <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">Come Leggi e Suona, ma invece di suonare uno strumento MIDI, canti la nota nel microfono. Il programma rileva la frequenza della tua voce e verifica se corrisponde alla nota attesa.</div>
+            </button>
 
-            <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 has-[:checked]:border-slate-800 dark:has-[:checked]:border-sky-500 has-[:checked]:bg-slate-50 dark:has-[:checked]:bg-sky-950">
-              <input
-                type="radio"
-                name="mode"
-                value="listen-and-play"
-                checked={mode === 'listen-and-play'}
-                onChange={(e) => setMode(e.target.value as SessionMode)}
-                className="w-4 h-4 text-slate-800 dark:text-slate-100"
-              />
-              <div className="flex-1">
-                <div className="font-medium text-slate-800 dark:text-slate-100">Ascolta e Suona</div>
-                <div className="text-sm text-slate-500 dark:text-slate-400">Avanzato. Il programma suona un drone che corrisponde alla tonalita' del pezzo e una nota che corrisponde ad un certo grado della tonalita' proposta. Il tuo compito e' quello di capire il grado e risolvere tale grado nella tonalita' proposta suonando la nota giusta sullo strumento. Attenzione, il programma rilevera' anche se sbagli l'ottava quindi se questo ti risultasse ancora difficile seleziona il checkbox Ignora Ottave.</div>
-              </div>
-            </label>
+            <button
+              onClick={() => handleStart('listen-and-play')}
+              className={`text-left p-4 border-2 rounded-lg transition-all hover:scale-[1.02] hover:shadow-md ${
+                mode === 'listen-and-play'
+                  ? 'border-slate-800 dark:border-sky-500 bg-slate-50 dark:bg-sky-950'
+                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 bg-white dark:bg-slate-900'
+              }`}
+            >
+              <div className="font-bold text-slate-800 dark:text-slate-100">Ascolta e Suona</div>
+              <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">Avanzato. Il programma suona un drone e una nota che corrisponde ad un certo grado. Il tuo compito e' capire il grado e risolverlo nella tonalita' proposta suonando la nota giusta.</div>
+            </button>
           </div>
         </div>
 
