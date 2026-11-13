@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, Users, ChevronRight, Shield } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { useI18n } from '../i18n/I18nContext';
 
 interface UserProfile {
   id: string;
@@ -23,7 +22,6 @@ interface AdminUsersPageProps {
 }
 
 export function AdminUsersPage({ onBack, onSelectUserStats }: AdminUsersPageProps) {
-  const { t, locale } = useI18n();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [statsMap, setStatsMap] = useState<Record<string, UserStats>>({});
   const [loading, setLoading] = useState(true);
@@ -85,7 +83,7 @@ export function AdminUsersPage({ onBack, onSelectUserStats }: AdminUsersPageProp
   );
 
   const formatDate = (d: string) =>
-    new Date(d).toLocaleDateString(locale === 'en' ? 'en-US' : 'it-IT', { day: '2-digit', month: 'short', year: 'numeric' });
+    new Date(d).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' });
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -97,7 +95,7 @@ export function AdminUsersPage({ onBack, onSelectUserStats }: AdminUsersPageProp
           <ArrowLeft className="w-5 h-5" />
         </button>
         <Users className="w-6 h-6 text-slate-700 dark:text-slate-200" />
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t('adminUsers')}</h2>
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Utenti</h2>
       </div>
 
       <div className="mb-4">
@@ -105,7 +103,7 @@ export function AdminUsersPage({ onBack, onSelectUserStats }: AdminUsersPageProp
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder={t('searchByEmail')}
+          placeholder="Cerca per email..."
           className="w-full px-4 py-2.5 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:border-slate-800 dark:focus:border-sky-500 focus:outline-none text-sm bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100"
         />
       </div>
@@ -116,7 +114,7 @@ export function AdminUsersPage({ onBack, onSelectUserStats }: AdminUsersPageProp
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-12 text-center">
-          <p className="text-slate-500 dark:text-slate-400">{t('noUsersFound')}</p>
+          <p className="text-slate-500 dark:text-slate-400">Nessun utente trovato.</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -135,8 +133,8 @@ export function AdminUsersPage({ onBack, onSelectUserStats }: AdminUsersPageProp
                   <div className="min-w-0">
                     <p className="font-semibold text-slate-800 dark:text-slate-100 truncate">{u.email}</p>
                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                      {t('registeredOn')} {formatDate(u.created_at)}
-                      {u.role === 'admin' && <span className="ml-2 text-amber-600 dark:text-amber-400 font-medium">{t('admin')}</span>}
+                      Registrato il {formatDate(u.created_at)}
+                      {u.role === 'admin' && <span className="ml-2 text-amber-600 dark:text-amber-400 font-medium">Admin</span>}
                     </p>
                   </div>
                 </div>
@@ -144,13 +142,13 @@ export function AdminUsersPage({ onBack, onSelectUserStats }: AdminUsersPageProp
                   {stats && (
                     <div className="text-right">
                       <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{stats.sessionCount}</p>
-                      <p className="text-xs text-slate-400 dark:text-slate-500">{t('sessions')}</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500">sessioni</p>
                     </div>
                   )}
                   {stats && stats.totalNotes > 0 && (
                     <div className="text-right">
                       <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{stats.accuracy}%</p>
-                      <p className="text-xs text-slate-400 dark:text-slate-500">{t('accuracy')}</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500">accuratezza</p>
                     </div>
                   )}
                   <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600" />
@@ -162,7 +160,7 @@ export function AdminUsersPage({ onBack, onSelectUserStats }: AdminUsersPageProp
       )}
 
       <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-4">
-        {filtered.length} {filtered.length === 1 ? t('userCount') : t('usersCount')}
+        {filtered.length} {filtered.length === 1 ? 'utente' : 'utenti'}
       </p>
     </div>
   );

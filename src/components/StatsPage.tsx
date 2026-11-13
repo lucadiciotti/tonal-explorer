@@ -7,7 +7,6 @@ import { ConfusionMatrix, NoteRow } from './ConfusionMatrix';
 import { FifthsErrorChart } from './FifthsErrorChart';
 import { OctaveErrorChart } from './OctaveErrorChart';
 import { ResponseTimeChart } from './ResponseTimeChart';
-import { useI18n } from '../i18n/I18nContext';
 
 const TONICS: Tonic[] = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'Db', 'Ab', 'Eb', 'Bb', 'F'];
 
@@ -45,8 +44,8 @@ interface StatsPageProps {
   onBack: () => void;
 }
 
-function formatDate(d: Date, locale: string = 'it'): string {
-  return d.toLocaleDateString(locale === 'en' ? 'en-US' : 'it-IT', { day: '2-digit', month: 'short', year: 'numeric' });
+function formatDate(d: Date): string {
+  return d.toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 // Returns midnight UTC for a given date offset (0 = today, -1 = yesterday, etc.)
@@ -58,7 +57,6 @@ function dayStart(offsetFromToday: number): Date {
 }
 
 export function StatsPage({ onBack }: StatsPageProps) {
-  const { t, locale } = useI18n();
   const [activeMode, setActiveMode] = useState<SessionMode>('listen-and-play');
   const [tonic, setTonic] = useState<Tonic>('C');
   const [windowDays, setWindowDays] = useState<number>(30);
@@ -196,7 +194,7 @@ export function StatsPage({ onBack }: StatsPageProps) {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <BarChart3 className="w-6 h-6 text-slate-700 dark:text-slate-200" />
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t('statistics')}</h2>
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Statistiche</h2>
       </div>
 
       {/* Mode tabs */}
@@ -226,9 +224,9 @@ export function StatsPage({ onBack }: StatsPageProps) {
           <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
             <activeTab.icon className="w-8 h-8 text-slate-400 dark:text-slate-500" />
           </div>
-          <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-200 mb-2">{t('comingSoon')}</h3>
+          <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-200 mb-2">Prossimamente</h3>
           <p className="text-slate-500 dark:text-slate-400">
-            {t('comingSoonDesc', { mode: activeTab.label })}
+            Le statistiche per "{activeTab.label}" saranno disponibili in un prossimo aggiornamento.
           </p>
         </div>
       ) : (
@@ -239,7 +237,7 @@ export function StatsPage({ onBack }: StatsPageProps) {
               {/* Tonic */}
               <div>
                 <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
-                  {t('tonicLabel')}
+                  Tonalita'
                 </label>
                 <select
                   value={tonic}
@@ -255,7 +253,7 @@ export function StatsPage({ onBack }: StatsPageProps) {
               {/* Window size */}
               <div>
                 <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
-                  {t('windowSize')}
+                  Ampiezza finestra
                 </label>
                 <div className="flex gap-1">
                   {WINDOW_PRESETS.map(p => (
@@ -282,7 +280,7 @@ export function StatsPage({ onBack }: StatsPageProps) {
                   onClick={() => stepOffset(windowDays)}
                   disabled={!canGoBack}
                   className="p-1.5 rounded-lg transition-colors disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
-                  title={t('prevWindow')}
+                  title="Finestra precedente"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -304,7 +302,7 @@ export function StatsPage({ onBack }: StatsPageProps) {
                   onClick={() => stepOffset(-windowDays)}
                   disabled={!canGoForward}
                   className="p-1.5 rounded-lg transition-colors disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
-                  title={t('nextWindow')}
+                  title="Finestra successiva"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -314,11 +312,11 @@ export function StatsPage({ onBack }: StatsPageProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
                   <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                    {formatDate(windowStart, locale)}
+                    {formatDate(windowStart)}
                   </span>
                   <span className="text-slate-400 dark:text-slate-500 text-xs">—</span>
                   <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                    {formatDate(windowEnd, locale)}
+                    {formatDate(windowEnd)}
                   </span>
                 </div>
 
@@ -338,8 +336,8 @@ export function StatsPage({ onBack }: StatsPageProps) {
               {/* Timeline hint: show oldest and newest session dates */}
               {!loading && allSessions.length > 0 && maxOffset > 0 && (
                 <div className="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 mt-1 px-8">
-                  <span>{formatDate(new Date(allSessions[0].completed_at), locale)}</span>
-                  <span>{t('today')}</span>
+                  <span>{formatDate(new Date(allSessions[0].completed_at))}</span>
+                  <span>oggi</span>
                 </div>
               )}
             </div>
@@ -351,8 +349,8 @@ export function StatsPage({ onBack }: StatsPageProps) {
             </div>
           ) : windowSessions.length === 0 ? (
             <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-12 text-center">
-              <p className="text-slate-500 dark:text-slate-400">{t('noSessionsCompleted')}</p>
-              <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">{t('moveWindowOrWiden')}</p>
+              <p className="text-slate-500 dark:text-slate-400">Nessuna sessione completata in questo periodo.</p>
+              <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">Sposta la finestra o amplia l'intervallo.</p>
             </div>
           ) : (
             <>
@@ -361,30 +359,30 @@ export function StatsPage({ onBack }: StatsPageProps) {
                   <div className="grid grid-cols-3 gap-4 mb-3">
                     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-center shadow-sm">
                       <p className="text-3xl font-bold text-slate-800 dark:text-slate-100">{summaryStats.accuracy}%</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide">{t('accuracy')}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide">Accuratezza</p>
                     </div>
                     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-center shadow-sm">
                       <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-400">{summaryStats.correct}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide">{t('correct')}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide">Corrette</p>
                     </div>
                     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-center shadow-sm">
                       <p className="text-3xl font-bold text-slate-600 dark:text-slate-300">{summaryStats.total}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide">{t('totals')}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide">Totali</p>
                     </div>
                   </div>
                   {summaryStats.wrongTotal > 0 && (
                     <div className="flex items-center justify-center gap-4 mb-6 text-sm">
-                      <span className="text-slate-400 dark:text-slate-500">{summaryStats.wrongTotal} {summaryStats.wrongTotal === 1 ? t('error') : t('errors')}:</span>
+                      <span className="text-slate-400 dark:text-slate-500">{summaryStats.wrongTotal} {summaryStats.wrongTotal === 1 ? 'errore' : 'errori'}:</span>
                       {summaryStats.degreeErrors > 0 && (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-full text-red-700 dark:text-red-400 font-medium">
                           <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
-                          {summaryStats.degreeErrors} {t('wrongDegree')}
+                          {summaryStats.degreeErrors} grado sbagliato
                         </span>
                       )}
                       {summaryStats.octaveErrors > 0 && (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 rounded-full text-orange-700 dark:text-orange-400 font-medium">
                           <span className="w-2 h-2 rounded-full bg-orange-400 flex-shrink-0" />
-                          {summaryStats.octaveErrors} {t('wrongOctave')}
+                          {summaryStats.octaveErrors} ottava sbagliata
                         </span>
                       )}
                     </div>
@@ -394,35 +392,35 @@ export function StatsPage({ onBack }: StatsPageProps) {
 
               <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 mb-6">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wide mb-4">
-                  {t('confusionMatrix')}
+                  Confusion Matrix
                 </h3>
                 <ConfusionMatrix notes={noteRows} tonic={tonic} />
               </div>
 
               <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 mb-6">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wide mb-4">
-                  {t('fifthsErrors')}
+                  Errori nel Circolo delle Quinte
                 </h3>
                 <FifthsErrorChart notes={noteRows} tonic={tonic} />
               </div>
 
               <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 mb-6">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wide mb-4">
-                  {t('octaveErrorsByDegree')}
+                  Errori di Ottava per Grado
                 </h3>
                 <OctaveErrorChart notes={noteRows} tonic={tonic} />
               </div>
 
               <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 mb-6">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wide mb-4">
-                  {t('responseTimeCorrect')}
+                  Tempi di Risposta — Risposte Corrette
                 </h3>
                 <ResponseTimeChart notes={noteRows} tonic={tonic} correctOnly={true} />
               </div>
 
               <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wide mb-4">
-                  {t('responseTimeWrong')}
+                  Tempi di Risposta — Risposte Errate
                 </h3>
                 <ResponseTimeChart notes={noteRows} tonic={tonic} correctOnly={false} />
               </div>
