@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { X } from 'lucide-react';
+import { useLang } from '../contexts/LanguageContext';
 
 const DEGREES = ['#4', 'b2', 'b6', 'b3', 'b7', '4', '1', '5', '2', '6', '3', '7'] as const;
 type Degree = typeof DEGREES[number];
@@ -54,12 +55,6 @@ interface Selection {
   colIdx: number;
   band: Band;
 }
-
-const BAND_LABELS: Record<Band, string> = {
-  above: 'Ottava superiore',
-  same: 'Ottava corretta',
-  below: 'Ottava inferiore',
-};
 
 function parseNote(noteStr: string): { note: string; octave: number } | null {
   const match = noteStr.match(/^([A-Ga-g][#b]?)(\d)$/);
@@ -129,13 +124,6 @@ function reactionTimeColor(ms: number): string {
   }
 }
 
-const STAT_OPTIONS: { value: StatMode; label: string }[] = [
-  { value: 'mean', label: 'Media' },
-  { value: 'median', label: 'Mediana' },
-  { value: 'min', label: 'Minimo' },
-  { value: 'max', label: 'Massimo' },
-];
-
 function StatRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-800 last:border-0">
@@ -197,6 +185,13 @@ interface CellSvgProps {
 }
 
 function CellSvg({ cell, statMode, isDiagonal, isSelected, selectedBand, onBandClick }: CellSvgProps) {
+  const { t } = useLang();
+  const bandLabels: Record<Band, string> = {
+    above: t.confusion.upperOctave,
+    same: t.confusion.correctOctave,
+    below: t.confusion.lowerOctave,
+  };
+
   const colorFor = (times: (number | null)[]) => {
     if (times.length === 0) return null;
     const val = computeStat(times, statMode);
@@ -213,9 +208,9 @@ function CellSvg({ cell, statMode, isDiagonal, isSelected, selectedBand, onBandC
   const borderWidth = isDiagonal ? 2 : 1;
 
   const titleFor = (band: Band, times: (number | null)[]) => {
-    if (times.length === 0) return 'Nessun dato';
+    if (times.length === 0) return t.confusion.noDataForBand;
     const val = computeStat(times, statMode);
-    return `${BAND_LABELS[band]} — ${val !== null ? Math.round(val) + 'ms' : '?'} (n=${times.length})`;
+    return `${bandLabels[band]} — ${val !== null ? Math.round(val) + 'ms' : '?'} (n=${times.length})`;
   };
 
   return (
@@ -280,8 +275,22 @@ function CellSvg({ cell, statMode, isDiagonal, isSelected, selectedBand, onBandC
 }
 
 export function ConfusionMatrix({ notes, tonic }: ConfusionMatrixProps) {
+  const { t } = useLang();
   const [statMode, setStatMode] = useState<StatMode>('mean');
   const [selection, setSelection] = useState<Selection | null>(null);
+
+  const bandLabels: Record<Band, string> = {
+    above: t.confusion.upperOctave,
+    same: t.confusion.correctOctave,
+    below: t.confusion.lowerOctave,
+  };
+
+  const statOptions: { value: StatMode; label: string }[] = [
+    { value: 'mean', label: t.confusion.mean },
+    { value: 'median', label: t.confusion.median },
+    { value: 'min', label: t.confusion.min },
+    { value: 'max', label: t.confusion.max },
+  ];
 
   const { matrix, hasAnyData } = useMemo(() => {
     const m: CellData[][] = Array.from({ length: 12 }, () =>
@@ -329,7 +338,7 @@ export function ConfusionMatrix({ notes, tonic }: ConfusionMatrixProps) {
   if (!hasAnyData) {
     return (
       <div className="text-center py-12 text-slate-500 dark:text-slate-400">
-        Nessun dato disponibile per questa combinazione di filtri.
+        {t.confusion.noDataForFilters}
       </div>
     );
   }
@@ -346,9 +355,9 @@ export function ConfusionMatrix({ notes, tonic }: ConfusionMatrixProps) {
     <div>
       {/* Stat selector */}
       <div className="flex items-center gap-3 mb-5">
-        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Statistica:</span>
+        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{t.confusion.statistic}</span>
         <div className="flex gap-1">
-          {STAT_OPTIONS.map(opt => (
+          {statOptions.map(opt => (
             <button
               key={opt.value}
               onClick={() => setStatMode(opt.value)}
@@ -368,7 +377,7 @@ export function ConfusionMatrix({ notes, tonic }: ConfusionMatrixProps) {
         <div className="overflow-x-auto flex-shrink-0">
           <div className="inline-block min-w-fit">
             <div className="text-xs text-slate-500 dark:text-slate-400 text-center mb-2 font-medium tracking-wide uppercase">
-              Grado suonato dall'app (atteso)
+              {t.confusion.xLabel}
             </div>
             <div className="flex">
               {/* Y-axis label */}
@@ -377,7 +386,7 @@ export function ConfusionMatrix({ notes, tonic }: ConfusionMatrixProps) {
                   className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide uppercase"
                   style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', whiteSpace: 'nowrap' }}
                 >
-                  Grado suonato da te
+                  {t.confusion.yLabel}
                 </div>
               </div>
 
@@ -437,7 +446,7 @@ export function ConfusionMatrix({ notes, tonic }: ConfusionMatrixProps) {
                   }}
                 />
                 <span className="text-xs text-slate-500 dark:text-slate-400">4000 ms</span>
-                <span className="text-xs text-slate-400 dark:text-slate-500 ml-2">(grigio = nessun dato)</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500 ml-2">{t.confusion.noData}</span>
               </div>
               <div className="flex items-center gap-5 text-xs text-slate-500 dark:text-slate-400">
                 {/* Stripe legend */}
@@ -445,21 +454,21 @@ export function ConfusionMatrix({ notes, tonic }: ConfusionMatrixProps) {
                   <svg width={20} height={16} viewBox={`0 0 ${S} ${S}`}>
                     <polygon points={stripePoints} fill="#64748b" />
                   </svg>
-                  <span>Diagonale — ottava corretta</span>
+                  <span>{t.confusion.legendDiagonal}</span>
                 </div>
                 {/* Above legend */}
                 <div className="flex items-center gap-1.5">
                   <svg width={20} height={16} viewBox={`0 0 ${S} ${S}`}>
                     <polygon points={abovePoints} fill="#64748b" />
                   </svg>
-                  <span>Triangolo alto — ottava superiore</span>
+                  <span>{t.confusion.legendUpper}</span>
                 </div>
                 {/* Below legend */}
                 <div className="flex items-center gap-1.5">
                   <svg width={20} height={16} viewBox={`0 0 ${S} ${S}`}>
                     <polygon points={belowPoints} fill="#64748b" />
                   </svg>
-                  <span>Triangolo basso — ottava inferiore</span>
+                  <span>{t.confusion.legendLower}</span>
                 </div>
               </div>
             </div>
@@ -471,19 +480,19 @@ export function ConfusionMatrix({ notes, tonic }: ConfusionMatrixProps) {
           <div className="flex-shrink-0 w-64 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Dettaglio selezione</p>
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">{t.confusion.detail}</p>
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="inline-flex items-center gap-1 text-sm font-bold text-slate-800 dark:text-slate-100">
-                    <span className="text-slate-400 dark:text-slate-500 font-normal text-xs">atteso</span>
+                    <span className="text-slate-400 dark:text-slate-500 font-normal text-xs">{t.confusion.expected}</span>
                     {DEGREES[selection.colIdx]}
                   </span>
                   <span className="text-slate-300 dark:text-slate-600">→</span>
                   <span className="inline-flex items-center gap-1 text-sm font-bold text-slate-800 dark:text-slate-100">
-                    <span className="text-slate-400 dark:text-slate-500 font-normal text-xs">suonato</span>
+                    <span className="text-slate-400 dark:text-slate-500 font-normal text-xs">{t.confusion.played}</span>
                     {DEGREES[selection.rowIdx]}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{BAND_LABELS[selection.band]}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{bandLabels[selection.band]}</p>
               </div>
               <button
                 onClick={() => setSelection(null)}
@@ -512,24 +521,24 @@ export function ConfusionMatrix({ notes, tonic }: ConfusionMatrixProps) {
                     className="h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-sm"
                     style={{ backgroundColor: reactionTimeColor(selectedStats.mean) }}
                   >
-                    {fmt(selectedStats.mean)} media
+                    {fmt(selectedStats.mean)} {t.confusion.mean}
                   </div>
                 </div>
 
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                  <StatRow label="Occorrenze" value={`${selectedStats.total}`} />
-                  <StatRow label="Con tempo misurato" value={`${selectedStats.count}`} />
-                  <StatRow label="Media" value={fmt(selectedStats.mean)} />
-                  <StatRow label="Mediana" value={fmt(selectedStats.median)} />
-                  <StatRow label="Minimo" value={fmt(selectedStats.min)} />
-                  <StatRow label="Massimo" value={fmt(selectedStats.max)} />
-                  <StatRow label="Dev. standard" value={fmt(selectedStats.stddev)} />
+                  <StatRow label={t.confusion.occurrences} value={`${selectedStats.total}`} />
+                  <StatRow label={t.confusion.withTiming} value={`${selectedStats.count}`} />
+                  <StatRow label={t.confusion.mean} value={fmt(selectedStats.mean)} />
+                  <StatRow label={t.confusion.median} value={fmt(selectedStats.median)} />
+                  <StatRow label={t.confusion.min} value={fmt(selectedStats.min)} />
+                  <StatRow label={t.confusion.max} value={fmt(selectedStats.max)} />
+                  <StatRow label={t.confusion.stdDev} value={fmt(selectedStats.stddev)} />
                 </div>
 
                 {selection.rowIdx !== selection.colIdx && (
                   <div className="mt-3 px-3 py-2 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg">
                     <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
-                      Hai confuso <strong>{DEGREES[selection.colIdx]}</strong> con <strong>{DEGREES[selection.rowIdx]}</strong> in {selectedStats.total} {selectedStats.total === 1 ? 'occasione' : 'occasioni'}.
+                      {t.confusion.confused} <strong>{DEGREES[selection.colIdx]}</strong> {t.confusion.with} <strong>{DEGREES[selection.rowIdx]}</strong> {t.confusion.in} {selectedStats.total} {selectedStats.total === 1 ? t.confusion.occasion : t.confusion.occasions}.
                     </p>
                   </div>
                 )}
@@ -537,13 +546,13 @@ export function ConfusionMatrix({ notes, tonic }: ConfusionMatrixProps) {
                 {selection.rowIdx === selection.colIdx && (
                   <div className="mt-3 px-3 py-2 bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800 rounded-lg">
                     <p className="text-xs text-green-700 dark:text-green-400 font-medium">
-                      Risposta corretta per <strong>{DEGREES[selection.colIdx]}</strong> in {selectedStats.total} {selectedStats.total === 1 ? 'occasione' : 'occasioni'}.
+                      {t.confusion.correctFor} <strong>{DEGREES[selection.colIdx]}</strong> {t.confusion.in} {selectedStats.total} {selectedStats.total === 1 ? t.confusion.occasion : t.confusion.occasions}.
                     </p>
                   </div>
                 )}
               </>
             ) : (
-              <p className="text-xs text-slate-400 dark:text-slate-500 text-center py-4">Nessun dato per questa fascia.</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 text-center py-4">{t.confusion.noDataForBand}</p>
             )}
           </div>
         )}

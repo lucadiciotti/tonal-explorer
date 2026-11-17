@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { NoteRow } from './ConfusionMatrix';
+import { useLang } from '../contexts/LanguageContext';
 
 const DEGREE_ORDER = ['1', '2', '3', '4', '5', '6', '7', 'b7', 'b3', 'b6', 'b2', '#4'] as const;
 
@@ -73,6 +74,7 @@ function segmentColor(dist: number): string {
 }
 
 export function FifthsErrorChart({ notes, tonic }: FifthsErrorChartProps) {
+  const { t } = useLang();
   const data = useMemo<DegreeData[]>(() => {
     const tonicSemitones = NOTE_TO_SEMITONES[tonic];
     if (tonicSemitones === undefined) return DEGREE_ORDER.map(d => ({ degree: d, countByDist: {}, total: 0 }));
@@ -119,7 +121,7 @@ export function FifthsErrorChart({ notes, tonic }: FifthsErrorChartProps) {
   if (!hasAnyData) {
     return (
       <div className="text-center py-8 text-slate-400 dark:text-slate-500 text-sm">
-        Nessun dato da visualizzare in questa sessione.
+        {t.fifths.noData}
       </div>
     );
   }
@@ -147,7 +149,7 @@ export function FifthsErrorChart({ notes, tonic }: FifthsErrorChartProps) {
   return (
     <div className="overflow-x-auto">
       <div className="text-xs text-slate-500 dark:text-slate-400 text-center mb-3 font-medium uppercase tracking-wide">
-        Distribuzione nel circolo delle quinte per grado
+        {t.fifths.title}
       </div>
       <div className="flex gap-0 items-start">
         {/* Y-axis */}
@@ -224,7 +226,7 @@ export function FifthsErrorChart({ notes, tonic }: FifthsErrorChartProps) {
                           zIndex: dist === 0 ? 3 : 4,
                           opacity: dist === 0 ? 0.75 : 0.9,
                         }}
-                        title={`${col.degree}: distanza ${dist > 0 ? '+' + dist : dist} — ${count}/${col.total} (${Math.round(fraction * 100)}%)`}
+                        title={`${col.degree}: ${t.confusion.distance} ${dist > 0 ? '+' + dist : dist} — ${count}/${col.total} (${Math.round(fraction * 100)}%)`}
                       />
                     );
                   })
@@ -257,20 +259,19 @@ export function FifthsErrorChart({ notes, tonic }: FifthsErrorChartProps) {
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-500 dark:text-slate-400 justify-center">
           <div className="flex items-center gap-1.5">
             <div className="w-6 h-3 rounded-sm bg-green-500 opacity-75" />
-            <span>Risposta corretta (dist. 0)</span>
+            <span>{t.fifths.correct}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-6 h-2 rounded-sm bg-orange-600 opacity-90" />
-            <span>Troppo acuto (circolo in avanti)</span>
+            <span>{t.fifths.tooSharp}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-6 h-2 rounded-sm bg-sky-500 opacity-90" />
-            <span>Troppo bemolle (circolo indietro)</span>
+            <span>{t.fifths.tooFlat}</span>
           </div>
         </div>
         <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center mt-2 max-w-md mx-auto">
-          Lo spessore di ogni segmento è proporzionale alla percentuale di risposte in quella posizione.
-          Un grado perfetto mostra un unico blocco verde centrato su 0.
+          {t.fifths.help}
         </p>
       </div>
     </div>

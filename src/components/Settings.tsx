@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Settings as SettingsIcon } from 'lucide-react';
 import { SessionSettings, Tonic, SessionMode } from '../types';
 import { AudioRendererType } from '../lib/audio/AudioManager';
+import { useLang } from '../contexts/LanguageContext';
 
 interface SettingsProps {
   onStart: (settings: SessionSettings, rendererType: AudioRendererType, midiProgram?: number, midiDroneProgram?: number, soundfontNote?: string, soundfontDrone?: string, midiOutputDeviceId?: string, midiInputDeviceId?: string, monotimbral?: boolean) => void;
@@ -70,6 +71,7 @@ function saveSettings(settings: StoredSettings): void {
 }
 
 export function Settings({ onStart }: SettingsProps) {
+  const { t } = useLang();
   const stored = loadSettings();
   const [tonic, setTonic] = useState<Tonic>(stored.tonic || 'C');
   const [stepDuration, setStepDuration] = useState<number>(stored.stepDuration || 3);
@@ -116,13 +118,13 @@ export function Settings({ onStart }: SettingsProps) {
     <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
       <div className="flex items-center gap-3 mb-8">
         <SettingsIcon className="w-6 h-6 text-slate-700 dark:text-slate-200" />
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Session Settings</h2>
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t.settings.title}</h2>
       </div>
 
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
-            Tonic (T)
+            {t.settings.tonic}
           </label>
           <div className="relative w-72 h-72 sm:w-96 sm:h-96 mx-auto">
             {TONIC_GROUPS.map((group, index) => {
@@ -179,14 +181,14 @@ export function Settings({ onStart }: SettingsProps) {
               );
             })}
             <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm font-medium">
-              Circle of Fifths
+              {t.settings.circleOfFifths}
             </div>
           </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-3">
-            Modalita'
+            {t.settings.mode}
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
@@ -197,8 +199,8 @@ export function Settings({ onStart }: SettingsProps) {
                   : 'border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 bg-white dark:bg-slate-900'
               }`}
             >
-              <div className="font-bold text-slate-800 dark:text-slate-100">Leggi e Suona</div>
-              <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">Il programma visualizza un grado, il tuo compito e' suonare la nota che corrisponde a quel grado nella tonalita' proposta</div>
+              <div className="font-bold text-slate-800 dark:text-slate-100">{t.settings.modes.readAndPlay}</div>
+              <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t.settings.modes.readAndPlayDesc}</div>
             </button>
 
             <button
@@ -209,8 +211,8 @@ export function Settings({ onStart }: SettingsProps) {
                   : 'border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 bg-white dark:bg-slate-900'
               }`}
             >
-              <div className="font-bold text-slate-800 dark:text-slate-100">Leggi e Parla</div>
-              <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">Il programma visualizza un grado, il tuo compito e' dire ad alta voce il nome italiano della nota che corrisponde a quel grado. Il riconoscimento vocale verifica la risposta tenendo conto delle giuste diteggiature enarmoniche.</div>
+              <div className="font-bold text-slate-800 dark:text-slate-100">{t.settings.modes.readAndSpeak}</div>
+              <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t.settings.modes.readAndSpeakDesc}</div>
             </button>
 
             <button
@@ -221,8 +223,8 @@ export function Settings({ onStart }: SettingsProps) {
                   : 'border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 bg-white dark:bg-slate-900'
               }`}
             >
-              <div className="font-bold text-slate-800 dark:text-slate-100">Leggi e Canta</div>
-              <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">Come Leggi e Suona, ma invece di suonare uno strumento MIDI, canti la nota nel microfono. Il programma rileva la frequenza della tua voce e verifica se corrisponde alla nota attesa.</div>
+              <div className="font-bold text-slate-800 dark:text-slate-100">{t.settings.modes.readAndSing}</div>
+              <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t.settings.modes.readAndSingDesc}</div>
             </button>
 
             <button
@@ -233,24 +235,24 @@ export function Settings({ onStart }: SettingsProps) {
                   : 'border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 bg-white dark:bg-slate-900'
               }`}
             >
-              <div className="font-bold text-slate-800 dark:text-slate-100">Ascolta e Suona</div>
-              <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">Avanzato. Il programma suona un drone e una nota che corrisponde ad un certo grado. Il tuo compito e' capire il grado e risolverlo nella tonalita' proposta suonando la nota giusta.</div>
+              <div className="font-bold text-slate-800 dark:text-slate-100">{t.settings.modes.listenAndPlay}</div>
+              <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t.settings.modes.listenAndPlayDesc}</div>
             </button>
           </div>
         </div>
 
         {mode === 'read-and-speak' && (
           <div className="text-sm text-slate-600 dark:text-slate-300 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 rounded-lg p-4 space-y-2">
-            <p className="font-medium text-slate-700 dark:text-slate-200">Nota:</p>
-            <p>Il riconoscimento vocale richiede un browser compatibile (Chrome o Edge) e il permesso del microfono. Le risposte vengono valutate usando la nomenclatura italiana con le alterazioni corrette per la tonalita' scelta.</p>
-            <p>Esempio: in tonalita' di <strong>Do</strong>, il grado <strong>2</strong> corrisponde a <strong>Re</strong>. In tonalita' di <strong>Re bemolle</strong>, il grado <strong>2</strong> corrisponde a <strong>Mib</strong> (non Mi).</p>
-            <p>L'annuncio vocale del grado e' configurabile nella sezione Settings.</p>
+            <p className="font-medium text-slate-700 dark:text-slate-200">{t.settings.speakInfo.note}</p>
+            <p>{t.settings.speakInfo.body}</p>
+            <p>{t.settings.speakInfo.examplePrefix}<strong>{t.settings.speakInfo.exampleDo}</strong>{t.settings.speakInfo.exampleMiddle}<strong>2</strong>{t.settings.speakInfo.exampleSuffix}<strong>{t.settings.speakInfo.exampleDo === 'Do' ? 'Re' : 'D (Re)'}</strong>. {t.settings.speakInfo.examplePrefix}<strong>{t.settings.speakInfo.exampleReBemolle}</strong>{t.settings.speakInfo.exampleMiddle}<strong>2</strong>{t.settings.speakInfo.exampleSuffix}<strong>{t.settings.speakInfo.exampleMib}</strong>{t.settings.speakInfo.exampleNonMi}</p>
+            <p>{t.settings.speakInfo.voiceNote}</p>
           </div>
         )}
 
         {mode === 'read-and-sing' && (
           <p className="text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
-            La finestra di validazione della voce e' configurabile nella sezione Settings.
+            {t.settings.singInfo}
           </p>
         )}
 

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { NoteRow } from './ConfusionMatrix';
+import { useLang } from '../contexts/LanguageContext';
 
 const DEGREE_ORDER = ['1', '2', '3', '4', '5', '6', '7', 'b7', 'b3', 'b6', 'b2', '#4'] as const;
 
@@ -58,6 +59,7 @@ export interface ResponseTimeChartProps {
 }
 
 export function ResponseTimeChart({ notes, tonic, correctOnly }: ResponseTimeChartProps) {
+  const { t } = useLang();
   const data = useMemo<DegreeCandle[]>(() => {
     const tonicSemitones = NOTE_TO_SEMITONES[tonic];
     if (tonicSemitones === undefined) return DEGREE_ORDER.map(d => ({ degree: d, stats: null }));
@@ -109,7 +111,7 @@ export function ResponseTimeChart({ notes, tonic, correctOnly }: ResponseTimeCha
   if (!hasData) {
     return (
       <div className="text-center py-8 text-slate-400 dark:text-slate-500 text-sm">
-        Nessun dato{correctOnly ? ' corretto' : ' errato'} con tempo di risposta disponibile.
+        {correctOnly ? t.response.noDataCorrect : t.response.noDataWrong}
       </div>
     );
   }
@@ -132,7 +134,7 @@ export function ResponseTimeChart({ notes, tonic, correctOnly }: ResponseTimeCha
 
   // Y ticks every 500ms
   const yTicks: number[] = [];
-  for (let t = 0; t <= yMaxMs; t += 500) yTicks.push(t);
+  for (let tick = 0; tick <= yMaxMs; tick += 500) yTicks.push(tick);
 
   const color = correctOnly ? 'rgb(34, 197, 94)' : 'rgb(234, 88, 12)';
   const colorLight = correctOnly ? 'rgba(34, 197, 94, 0.2)' : 'rgba(234, 88, 12, 0.2)';
@@ -141,8 +143,8 @@ export function ResponseTimeChart({ notes, tonic, correctOnly }: ResponseTimeCha
   return (
     <div className="overflow-x-auto">
       <div className="text-xs text-slate-500 dark:text-slate-400 text-center mb-3 font-medium uppercase tracking-wide">
-        Tempi di risposta per grado —{' '}
-        <span style={{ color }}>{correctOnly ? 'risposte corrette' : 'risposte errate'}</span>
+        {t.response.title}{' '}
+        <span style={{ color }}>{correctOnly ? t.response.correct : t.response.wrong}</span>
       </div>
       <div className="flex gap-0 items-start">
         {/* Y-axis */}
@@ -150,13 +152,13 @@ export function ResponseTimeChart({ notes, tonic, correctOnly }: ResponseTimeCha
           className="flex-shrink-0 relative"
           style={{ width: yAxisWidth + 'px', height: chartHeight + 'px' }}
         >
-          {yTicks.map(t => (
+          {yTicks.map(tick => (
             <div
-              key={t}
+              key={tick}
               className="absolute right-2 text-[10px] text-slate-400 dark:text-slate-500 font-mono"
-              style={{ top: msToY(t) - 6 + 'px', lineHeight: '12px' }}
+              style={{ top: msToY(tick) - 6 + 'px', lineHeight: '12px' }}
             >
-              {t === 0 ? '0' : t >= 1000 ? `${t / 1000}s` : `${t}`}
+              {tick === 0 ? '0' : tick >= 1000 ? `${tick / 1000}s` : `${tick}`}
             </div>
           ))}
         </div>
@@ -167,14 +169,14 @@ export function ResponseTimeChart({ notes, tonic, correctOnly }: ResponseTimeCha
           style={{ width: chartWidth + 'px', height: chartHeight + 'px' }}
         >
           {/* Horizontal grid lines */}
-          {yTicks.map(t => (
+          {yTicks.map(tick => (
             <div
-              key={t}
+              key={tick}
               className="absolute left-0 right-0"
               style={{
-                top: msToY(t) + 'px',
+                top: msToY(tick) + 'px',
                 height: '1px',
-                backgroundColor: t === 0 ? 'rgb(100 116 139)' : 'rgb(226 232 240)',
+                backgroundColor: tick === 0 ? 'rgb(100 116 139)' : 'rgb(226 232 240)',
                 zIndex: 1,
               }}
             />
@@ -286,15 +288,15 @@ export function ResponseTimeChart({ notes, tonic, correctOnly }: ResponseTimeCha
       <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-slate-500 dark:text-slate-400 justify-center">
         <div className="flex items-center gap-1.5">
           <div className="w-0.5 h-4 rounded" style={{ backgroundColor: colorMid }} />
-          <span>Range min-max</span>
+          <span>{t.response.range}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-5 h-3 rounded-sm border" style={{ backgroundColor: colorLight, borderColor: colorMid }} />
-          <span>Q1–Q3 (50% centrale)</span>
+          <span>{t.response.q1q3}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-5 h-0.5 rounded" style={{ backgroundColor: color }} />
-          <span>Mediana</span>
+          <span>{t.response.median}</span>
         </div>
       </div>
     </div>

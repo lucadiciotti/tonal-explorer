@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Music, Mail, Lock, ArrowRight, UserPlus, LogIn } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLang } from '../contexts/LanguageContext';
 
 type AuthMode = 'login' | 'register';
 
 export function AuthPage() {
   const { signIn, signUp } = useAuth();
+  const { t } = useLang();
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,17 +35,17 @@ export function AuthPage() {
     setSuccess(null);
 
     if (!email.trim() || !password.trim()) {
-      setError('Inserisci email e password.');
+      setError(t.auth.errors.empty);
       return;
     }
 
     if (mode === 'register') {
       if (password.length < 6) {
-        setError('La password deve avere almeno 6 caratteri.');
+        setError(t.auth.errors.shortPassword);
         return;
       }
       if (password !== confirmPassword) {
-        setError('Le password non corrispondono.');
+        setError(t.auth.errors.passwordMismatch);
         return;
       }
     }
@@ -53,14 +55,14 @@ export function AuthPage() {
     if (mode === 'login') {
       const { error } = await signIn(email, password);
       if (error) {
-        setError(translateError(error));
+        setError(translateError(error, t));
       }
     } else {
       const { error } = await signUp(email, password);
       if (error) {
-        setError(translateError(error));
+        setError(translateError(error, t));
       } else {
-        setSuccess('Account creato! Ora puoi accedere.');
+        setSuccess(t.auth.errors.accountCreated);
         switchMode('login');
         setEmail(email);
       }
@@ -75,9 +77,9 @@ export function AuthPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-3">
             <Music className="w-10 h-10 text-slate-800 dark:text-slate-100" />
-            <h1 className="text-5xl font-bold text-slate-800 dark:text-slate-100">Tonal Explorer</h1>
+            <h1 className="text-5xl font-bold text-slate-800 dark:text-slate-100">{t.auth.title}</h1>
           </div>
-          <p className="text-slate-500 dark:text-slate-400 text-lg">Music Training Assistant</p>
+          <p className="text-slate-500 dark:text-slate-400 text-lg">{t.auth.subtitle}</p>
         </div>
 
         <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -91,7 +93,7 @@ export function AuthPage() {
               }`}
             >
               <LogIn className="w-4 h-4" />
-              Accedi
+              {t.auth.login}
             </button>
             <button
               onClick={() => switchMode('register')}
@@ -102,7 +104,7 @@ export function AuthPage() {
               }`}
             >
               <UserPlus className="w-4 h-4" />
-              Registrati
+              {t.auth.register}
             </button>
           </div>
 
@@ -121,7 +123,7 @@ export function AuthPage() {
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">
-                Email
+                {t.auth.email}
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
@@ -130,7 +132,7 @@ export function AuthPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="la-tua@email.com"
+                  placeholder={t.auth.emailPlaceholder}
                   autoComplete="email"
                   className="w-full pl-10 pr-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:border-slate-800 dark:focus:border-sky-500 focus:outline-none text-sm transition-colors"
                 />
@@ -139,7 +141,7 @@ export function AuthPage() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">
-                Password
+                {t.auth.password}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
@@ -148,7 +150,7 @@ export function AuthPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder={mode === 'register' ? 'Minimo 6 caratteri' : 'La tua password'}
+                  placeholder={mode === 'register' ? t.auth.passwordPlaceholderRegister : t.auth.passwordPlaceholderLogin}
                   autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                   className="w-full pl-10 pr-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:border-slate-800 dark:focus:border-sky-500 focus:outline-none text-sm transition-colors"
                 />
@@ -158,7 +160,7 @@ export function AuthPage() {
             {mode === 'register' && (
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">
-                  Conferma Password
+                  {t.auth.confirmPassword}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
@@ -167,7 +169,7 @@ export function AuthPage() {
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Ripeti la password"
+                    placeholder={t.auth.confirmPasswordPlaceholder}
                     autoComplete="new-password"
                     className="w-full pl-10 pr-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:border-slate-800 dark:focus:border-sky-500 focus:outline-none text-sm transition-colors"
                   />
@@ -184,7 +186,7 @@ export function AuthPage() {
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  {mode === 'login' ? 'Accedi' : 'Crea Account'}
+                  {mode === 'login' ? t.auth.loginButton : t.auth.registerButton}
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -193,25 +195,25 @@ export function AuthPage() {
         </div>
 
         <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-6">
-          I tuoi dati di allenamento saranno salvati in modo sicuro.
+          {t.auth.footerNote}
         </p>
       </div>
     </div>
   );
 }
 
-function translateError(error: string): string {
+function translateError(error: string, t: ReturnType<typeof useLang>['t']): string {
   if (error.includes('Invalid login credentials')) {
-    return 'Email o password non corretti.';
+    return t.auth.errors.invalidCredentials;
   }
   if (error.includes('User already registered')) {
-    return 'Questa email e\' gia\' registrata. Prova ad accedere.';
+    return t.auth.errors.alreadyRegistered;
   }
   if (error.includes('Password should be at least')) {
-    return 'La password deve avere almeno 6 caratteri.';
+    return t.auth.errors.shortPassword;
   }
   if (error.includes('Unable to validate email')) {
-    return 'Indirizzo email non valido.';
+    return t.auth.errors.invalidEmail;
   }
   return error;
 }

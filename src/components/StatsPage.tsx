@@ -7,27 +7,28 @@ import { ConfusionMatrix, NoteRow } from './ConfusionMatrix';
 import { FifthsErrorChart } from './FifthsErrorChart';
 import { OctaveErrorChart } from './OctaveErrorChart';
 import { ResponseTimeChart } from './ResponseTimeChart';
+import { useLang } from '../contexts/LanguageContext';
 
 const TONICS: Tonic[] = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'Db', 'Ab', 'Eb', 'Bb', 'F'];
 
 const WINDOW_PRESETS = [
-  { label: '7 gg', days: 7 },
-  { label: '14 gg', days: 14 },
-  { label: '30 gg', days: 30 },
-  { label: '90 gg', days: 90 },
+  { labelKey: 'days7', days: 7 },
+  { labelKey: 'days14', days: 14 },
+  { labelKey: 'days30', days: 30 },
+  { labelKey: 'days90', days: 90 },
 ];
 
 interface ModeTab {
   mode: SessionMode;
-  label: string;
+  labelKey: string;
   icon: typeof Eye;
   implemented: boolean;
 }
 
 const MODE_TABS: ModeTab[] = [
-  { mode: 'listen-and-play', label: 'Ascolta e Suona', icon: Headphones, implemented: true },
-  { mode: 'read-and-play', label: 'Leggi e Suona', icon: Eye, implemented: false },
-  { mode: 'read-and-sing', label: 'Leggi e Canta', icon: Mic, implemented: false },
+  { mode: 'listen-and-play', labelKey: 'listenAndPlay', icon: Headphones, implemented: true },
+  { mode: 'read-and-play', labelKey: 'readAndPlay', icon: Eye, implemented: false },
+  { mode: 'read-and-sing', labelKey: 'readAndSing', icon: Mic, implemented: false },
 ];
 
 interface SessionRow {
@@ -44,8 +45,8 @@ interface StatsPageProps {
   onBack: () => void;
 }
 
-function formatDate(d: Date): string {
-  return d.toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' });
+function formatDate(d: Date, locale: string): string {
+  return d.toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 // Returns midnight UTC for a given date offset (0 = today, -1 = yesterday, etc.)
@@ -57,6 +58,8 @@ function dayStart(offsetFromToday: number): Date {
 }
 
 export function StatsPage({ onBack }: StatsPageProps) {
+  const { t, lang } = useLang();
+  const locale = lang === 'it' ? 'it-IT' : 'en-US';
   const [activeMode, setActiveMode] = useState<SessionMode>('listen-and-play');
   const [tonic, setTonic] = useState<Tonic>('C');
   const [windowDays, setWindowDays] = useState<number>(30);
@@ -150,8 +153,8 @@ export function StatsPage({ onBack }: StatsPageProps) {
   // Sessions within window
   const windowSessions = useMemo(() => {
     return allSessions.filter(s => {
-      const t = new Date(s.completed_at).getTime();
-      return t >= windowStart.getTime() && t <= windowEnd.getTime();
+      const ts = new Date(s.completed_at).getTime();
+      return ts >= windowStart.getTime() && ts <= windowEnd.getTime();
     });
   }, [allSessions, windowStart, windowEnd]);
 
@@ -161,7 +164,8 @@ export function StatsPage({ onBack }: StatsPageProps) {
     return allNotes.filter(n => windowSessionIds.has(n.session_id));
   }, [allNotes, windowSessionIds]);
 
-  const activeTab = MODE_TABS.find(t => t.mode === activeMode)!;
+  const activeTab = MODE_TABS.find(tab => tab.mode === activeMode)!;
+  const activeTabLabel = t.stats[activeTab.labelKey as keyof typeof t.stats];
 
   const summaryStats = useMemo(() => {
     if (noteRows.length === 0) return null;
@@ -194,7 +198,7 @@ export function StatsPage({ onBack }: StatsPageProps) {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <BarChart3 className="w-6 h-6 text-slate-700 dark:text-slate-200" />
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Statistiche</h2>
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t.stats.title}</h2>
       </div>
 
       {/* Mode tabs */}
@@ -213,7 +217,7 @@ export function StatsPage({ onBack }: StatsPageProps) {
               }`}
             >
               <Icon className="w-4 h-4" />
-              {tab.label}
+              {t.stats[tab.labelKey as keyof typeof t.stats]}
             </button>
           );
         })}
@@ -224,9 +228,9 @@ export function StatsPage({ onBack }: StatsPageProps) {
           <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
             <activeTab.icon className="w-8 h-8 text-slate-400 dark:text-slate-500" />
           </div>
-          <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-200 mb-2">Prossimamente</h3>
+          <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-200 mb-2">{t.stats.comingSoon}</h3>
           <p className="text-slate-500 dark:text-slate-400">
-            Le statistiche per "{activeTab.label}" saranno disponibili in un prossimo aggiornamento.
+            {t.stats.comingSoonMsg.replace('{label}', activeTabLabel)}
           </p>
         </div>
       ) : (
@@ -237,15 +241,15 @@ export function StatsPage({ onBack }: StatsPageProps) {
               {/* Tonic */}
               <div>
                 <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
-                  Tonalita'
+                  {t.stats.tonic}
                 </label>
                 <select
                   value={tonic}
                   onChange={(e) => setTonic(e.target.value as Tonic)}
                   className="px-3 py-2 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:border-slate-800 dark:focus:border-sky-500 focus:outline-none text-sm font-semibold bg-white dark:bg-slate-900"
                 >
-                  {TONICS.map(t => (
-                    <option key={t} value={t}>{t}</option>
+                  {TONICS.map(tc => (
+                    <option key={tc} value={tc}>{tc}</option>
                   ))}
                 </select>
               </div>
@@ -253,7 +257,7 @@ export function StatsPage({ onBack }: StatsPageProps) {
               {/* Window size */}
               <div>
                 <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
-                  Ampiezza finestra
+                  {t.stats.windowSize}
                 </label>
                 <div className="flex gap-1">
                   {WINDOW_PRESETS.map(p => (
@@ -266,7 +270,7 @@ export function StatsPage({ onBack }: StatsPageProps) {
                           : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                       }`}
                     >
-                      {p.label}
+                      {t.stats[p.labelKey as keyof typeof t.stats]}
                     </button>
                   ))}
                 </div>
@@ -280,7 +284,7 @@ export function StatsPage({ onBack }: StatsPageProps) {
                   onClick={() => stepOffset(windowDays)}
                   disabled={!canGoBack}
                   className="p-1.5 rounded-lg transition-colors disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
-                  title="Finestra precedente"
+                  title={t.stats.prevWindow}
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -302,7 +306,7 @@ export function StatsPage({ onBack }: StatsPageProps) {
                   onClick={() => stepOffset(-windowDays)}
                   disabled={!canGoForward}
                   className="p-1.5 rounded-lg transition-colors disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
-                  title="Finestra successiva"
+                  title={t.stats.nextWindow}
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -312,11 +316,11 @@ export function StatsPage({ onBack }: StatsPageProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
                   <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                    {formatDate(windowStart)}
+                    {formatDate(windowStart, locale)}
                   </span>
                   <span className="text-slate-400 dark:text-slate-500 text-xs">—</span>
                   <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                    {formatDate(windowEnd)}
+                    {formatDate(windowEnd, locale)}
                   </span>
                 </div>
 
@@ -325,10 +329,10 @@ export function StatsPage({ onBack }: StatsPageProps) {
                 ) : (
                   <span className="text-sm text-slate-500 dark:text-slate-400">
                     {windowSessions.length === 0
-                      ? 'Nessuna sessione in questo periodo'
+                      ? t.stats.noSessions
                       : windowSessions.length === 1
-                        ? '1 sessione'
-                        : `${windowSessions.length} sessioni`}
+                        ? t.stats.oneSession
+                        : `${windowSessions.length} ${t.stats.sessions}`}
                   </span>
                 )}
               </div>
@@ -336,8 +340,8 @@ export function StatsPage({ onBack }: StatsPageProps) {
               {/* Timeline hint: show oldest and newest session dates */}
               {!loading && allSessions.length > 0 && maxOffset > 0 && (
                 <div className="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 mt-1 px-8">
-                  <span>{formatDate(new Date(allSessions[0].completed_at))}</span>
-                  <span>oggi</span>
+                  <span>{formatDate(new Date(allSessions[0].completed_at), locale)}</span>
+                  <span>{t.stats.today}</span>
                 </div>
               )}
             </div>
@@ -349,8 +353,8 @@ export function StatsPage({ onBack }: StatsPageProps) {
             </div>
           ) : windowSessions.length === 0 ? (
             <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-12 text-center">
-              <p className="text-slate-500 dark:text-slate-400">Nessuna sessione completata in questo periodo.</p>
-              <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">Sposta la finestra o amplia l'intervallo.</p>
+              <p className="text-slate-500 dark:text-slate-400">{t.stats.empty}</p>
+              <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">{t.stats.emptyHelp}</p>
             </div>
           ) : (
             <>
@@ -359,30 +363,30 @@ export function StatsPage({ onBack }: StatsPageProps) {
                   <div className="grid grid-cols-3 gap-4 mb-3">
                     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-center shadow-sm">
                       <p className="text-3xl font-bold text-slate-800 dark:text-slate-100">{summaryStats.accuracy}%</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide">Accuratezza</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide">{t.stats.accuracy}</p>
                     </div>
                     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-center shadow-sm">
                       <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-400">{summaryStats.correct}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide">Corrette</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide">{t.stats.correct}</p>
                     </div>
                     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-center shadow-sm">
                       <p className="text-3xl font-bold text-slate-600 dark:text-slate-300">{summaryStats.total}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide">Totali</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide">{t.stats.total}</p>
                     </div>
                   </div>
                   {summaryStats.wrongTotal > 0 && (
                     <div className="flex items-center justify-center gap-4 mb-6 text-sm">
-                      <span className="text-slate-400 dark:text-slate-500">{summaryStats.wrongTotal} {summaryStats.wrongTotal === 1 ? 'errore' : 'errori'}:</span>
+                      <span className="text-slate-400 dark:text-slate-500">{summaryStats.wrongTotal} {summaryStats.wrongTotal === 1 ? t.stats.error : t.stats.errorPlural}:</span>
                       {summaryStats.degreeErrors > 0 && (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-full text-red-700 dark:text-red-400 font-medium">
                           <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
-                          {summaryStats.degreeErrors} grado sbagliato
+                          {summaryStats.degreeErrors} {t.stats.degreeWrong}
                         </span>
                       )}
                       {summaryStats.octaveErrors > 0 && (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 rounded-full text-orange-700 dark:text-orange-400 font-medium">
                           <span className="w-2 h-2 rounded-full bg-orange-400 flex-shrink-0" />
-                          {summaryStats.octaveErrors} ottava sbagliata
+                          {summaryStats.octaveErrors} {t.stats.octaveWrong}
                         </span>
                       )}
                     </div>
@@ -392,35 +396,35 @@ export function StatsPage({ onBack }: StatsPageProps) {
 
               <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 mb-6">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wide mb-4">
-                  Confusion Matrix
+                  {t.stats.confusionMatrix}
                 </h3>
                 <ConfusionMatrix notes={noteRows} tonic={tonic} />
               </div>
 
               <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 mb-6">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wide mb-4">
-                  Errori nel Circolo delle Quinte
+                  {t.stats.fifthsErrors}
                 </h3>
                 <FifthsErrorChart notes={noteRows} tonic={tonic} />
               </div>
 
               <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 mb-6">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wide mb-4">
-                  Errori di Ottava per Grado
+                  {t.stats.octaveErrors}
                 </h3>
                 <OctaveErrorChart notes={noteRows} tonic={tonic} />
               </div>
 
               <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 mb-6">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wide mb-4">
-                  Tempi di Risposta — Risposte Corrette
+                  {t.stats.responseCorrect}
                 </h3>
                 <ResponseTimeChart notes={noteRows} tonic={tonic} correctOnly={true} />
               </div>
 
               <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wide mb-4">
-                  Tempi di Risposta — Risposte Errate
+                  {t.stats.responseWrong}
                 </h3>
                 <ResponseTimeChart notes={noteRows} tonic={tonic} correctOnly={false} />
               </div>

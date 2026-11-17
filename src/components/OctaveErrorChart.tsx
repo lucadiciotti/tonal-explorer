@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { NoteRow } from './ConfusionMatrix';
+import { useLang } from '../contexts/LanguageContext';
 
 const DEGREE_ORDER = ['1', '2', '3', '4', '5', '6', '7', 'b7', 'b3', 'b6', 'b2', '#4'] as const;
 
@@ -68,6 +69,7 @@ function segmentColor(offset: number): string {
 }
 
 export function OctaveErrorChart({ notes, tonic }: OctaveErrorChartProps) {
+  const { t } = useLang();
   const data = useMemo<DegreeData[]>(() => {
     const tonicSemitones = NOTE_TO_SEMITONES[tonic];
     if (tonicSemitones === undefined) return DEGREE_ORDER.map(d => ({ degree: d, countByOffset: {}, total: 0 }));
@@ -118,7 +120,7 @@ export function OctaveErrorChart({ notes, tonic }: OctaveErrorChartProps) {
   if (!hasAnyData) {
     return (
       <div className="text-center py-8 text-slate-400 dark:text-slate-500 text-sm">
-        Nessun dato di ottava da visualizzare in questa sessione.
+        {t.octave.noData}
       </div>
     );
   }
@@ -143,7 +145,7 @@ export function OctaveErrorChart({ notes, tonic }: OctaveErrorChartProps) {
   return (
     <div className="overflow-x-auto">
       <div className="text-xs text-slate-500 dark:text-slate-400 text-center mb-3 font-medium uppercase tracking-wide">
-        Errori di ottava per grado (solo risposte con grado corretto)
+        {t.octave.title}
       </div>
       <div className="flex gap-0 items-start">
         {/* Y-axis */}
@@ -233,7 +235,7 @@ export function OctaveErrorChart({ notes, tonic }: OctaveErrorChartProps) {
                         zIndex: offset === 0 ? 3 : 4,
                         opacity: offset === 0 ? 0.75 : 0.9,
                       }}
-                      title={`${col.degree}: ${offset === 0 ? 'ottava corretta' : offset > 0 ? 'ottava sopra' : 'ottava sotto'} — ${count}/${col.total} (${Math.round(fraction * 100)}%)`}
+                      title={`${col.degree}: ${offset === 0 ? t.octave.correctLabel : offset > 0 ? t.octave.aboveLabel : t.octave.belowLabel} — ${count}/${col.total} (${Math.round(fraction * 100)}%)`}
                     />
                   );
                 })}
@@ -265,19 +267,19 @@ export function OctaveErrorChart({ notes, tonic }: OctaveErrorChartProps) {
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-500 dark:text-slate-400 justify-center">
           <div className="flex items-center gap-1.5">
             <div className="w-6 h-3 rounded-sm bg-green-500 opacity-75" />
-            <span>Ottava corretta</span>
+            <span>{t.octave.correct}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-6 h-2 rounded-sm bg-orange-600 opacity-90" />
-            <span>Ottava sopra (+1)</span>
+            <span>{t.octave.above}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-6 h-2 rounded-sm bg-sky-500 opacity-90" />
-            <span>Ottava sotto (-1)</span>
+            <span>{t.octave.below}</span>
           </div>
         </div>
         <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center mt-2 max-w-md mx-auto">
-          Conteggiati solo i tentativi dove il grado era corretto ma l'ottava sbagliata. Le risposte con grado errato non appaiono qui.
+          {t.octave.help}
         </p>
       </div>
     </div>
