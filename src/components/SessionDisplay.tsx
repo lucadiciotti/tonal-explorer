@@ -13,6 +13,7 @@ import { areNotesEqual } from '../utils/noteComparison';
 import { ResultEntry, calculateStreaks } from '../utils/streakCalculator';
 import { playBeep } from '../utils/beep';
 import { useLang } from '../contexts/LanguageContext';
+import { convertDegreeDisplay, DegreeNotation } from '../utils/degreeNotation';
 
 interface SessionDisplayProps {
   notes: Note[];
@@ -30,9 +31,10 @@ interface SessionDisplayProps {
   tonalRetentionDuration: number;
   debugMode: boolean;
   voiceAnnounceDegree: boolean;
+  degreeNotation: DegreeNotation;
 }
 
-export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onComplete, onCancel, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, tonalRetention, tonalRetentionDuration, debugMode, voiceAnnounceDegree }: SessionDisplayProps) {
+export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onComplete, onCancel, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, tonalRetention, tonalRetentionDuration, debugMode, voiceAnnounceDegree, degreeNotation }: SessionDisplayProps) {
   const { t } = useLang();
   const [isDroneIntro, setIsDroneIntro] = useState<boolean>(true);
   const [droneIntroTimeLeft, setDroneIntroTimeLeft] = useState<number>(tonalRetentionDuration);
@@ -710,6 +712,13 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
       display = note.slice(1);
     }
 
+    if (degreeNotation === 'jazz' && modifier === 'upper') {
+      const converted = convertDegreeDisplay(note, 'jazz');
+      return (
+        <span>{converted}</span>
+      );
+    }
+
     return (
       <span className="inline-flex flex-col items-center">
         <span
@@ -939,12 +948,21 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
             <span>- {t.session.lowerOctave}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-mono font-semibold inline-flex flex-col items-center leading-none">
-              <span className="h-0.5 w-4 rounded-full bg-slate-700 dark:bg-slate-300" />
-              <span>#4</span>
-              <span className="h-0.5 w-4 bg-transparent" />
-            </span>
-            <span>- {t.session.upperOctave}</span>
+            {degreeNotation === 'jazz' ? (
+              <>
+                <span className="font-mono font-semibold">9, 11, 13</span>
+                <span>- {t.session.upperOctaveJazz}</span>
+              </>
+            ) : (
+              <>
+                <span className="font-mono font-semibold inline-flex flex-col items-center leading-none">
+                  <span className="h-0.5 w-4 rounded-full bg-slate-700 dark:bg-slate-300" />
+                  <span>#4</span>
+                  <span className="h-0.5 w-4 bg-transparent" />
+                </span>
+                <span>- {t.session.upperOctave}</span>
+              </>
+            )}
           </div>
         </div>
       </div>

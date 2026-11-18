@@ -15,6 +15,7 @@ export interface SessionSettings {
   tonalRetentionDuration: number;
   debugMode: boolean;
   voiceAnnounceDegree: boolean;
+  degreeNotation: 'classic' | 'jazz';
 }
 
 export interface Session {

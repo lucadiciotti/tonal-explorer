@@ -113,6 +113,11 @@ export const en = {
     voiceAnnounceEnable: 'Voice announcement',
     voiceAnnounceDesc: "A voice says the degree out loud when a new note appears. Useful for doing exercises without looking at the screen, e.g. while driving. Headphones are recommended to prevent the microphone from hearing the phone's voice. (Read & Speak mode only)",
     duration: 'Duration',
+    notation: 'Degree Notation',
+    notationClassic: 'Classic (1-7)',
+    notationClassicDesc: 'Use degrees 1-7 with over/underline for octave',
+    notationJazz: 'Jazz (9, 11, 13)',
+    notationJazzDesc: 'Use extensions 9-14 for upper-octave degrees',
   },
   session: {
     tonic: 'Tonic',
@@ -137,6 +142,7 @@ export const en = {
     flatSharp: 'Flat, Sharp',
     lowerOctave: 'Lower octave',
     upperOctave: 'Upper octave',
+    upperOctaveJazz: '9, 11, 13 (jazz extensions)',
   },
   completed: {
     title: 'Session Completed!',

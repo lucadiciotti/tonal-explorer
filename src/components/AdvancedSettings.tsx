@@ -32,6 +32,7 @@ interface StoredSettings {
   tonalRetentionDuration?: number;
   debugMode?: boolean;
   voiceAnnounceDegree?: boolean;
+  degreeNotation?: 'classic' | 'jazz';
 }
 
 function loadSettings(): Partial<StoredSettings> {
@@ -84,6 +85,7 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
   const [tonalRetentionDuration, setTonalRetentionDuration] = useState<number>(stored.tonalRetentionDuration ?? 3);
   const [debugMode, setDebugMode] = useState<boolean>(stored.debugMode ?? false);
   const [voiceAnnounceDegree, setVoiceAnnounceDegree] = useState<boolean>(stored.voiceAnnounceDegree ?? false);
+  const [degreeNotation, setDegreeNotation] = useState<'classic' | 'jazz'>(stored.degreeNotation ?? 'classic');
   const [theme, setTheme] = useState<ThemeMode>(getStoredTheme());
 
   const updateTheme = (value: ThemeMode) => {
@@ -246,6 +248,11 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
   const updateVoiceAnnounceDegree = (value: boolean) => {
     setVoiceAnnounceDegree(value);
     savePartial({ voiceAnnounceDegree: value });
+  };
+
+  const updateDegreeNotation = (value: 'classic' | 'jazz') => {
+    setDegreeNotation(value);
+    savePartial({ degreeNotation: value });
   };
 
   return (
@@ -707,6 +714,22 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
               <div className="text-xs text-slate-500 dark:text-slate-400">{t.advanced.voiceAnnounceDesc}</div>
             </div>
           </label>
+        </fieldset>
+
+        <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
+          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">{t.advanced.notation}</legend>
+          <div className="grid grid-cols-2 gap-2">
+            <label className={`flex flex-col items-center gap-2 p-3 border-2 rounded-lg cursor-pointer transition-colors ${degreeNotation === 'classic' ? 'border-slate-800 bg-slate-50 dark:border-sky-500 dark:bg-sky-950' : 'border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800'}`}>
+              <input type="radio" name="degreeNotation" value="classic" checked={degreeNotation === 'classic'} onChange={() => updateDegreeNotation('classic')} className="sr-only" />
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.advanced.notationClassic}</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 text-center">{t.advanced.notationClassicDesc}</span>
+            </label>
+            <label className={`flex flex-col items-center gap-2 p-3 border-2 rounded-lg cursor-pointer transition-colors ${degreeNotation === 'jazz' ? 'border-slate-800 bg-slate-50 dark:border-sky-500 dark:bg-sky-950' : 'border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800'}`}>
+              <input type="radio" name="degreeNotation" value="jazz" checked={degreeNotation === 'jazz'} onChange={() => updateDegreeNotation('jazz')} className="sr-only" />
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.advanced.notationJazz}</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 text-center">{t.advanced.notationJazzDesc}</span>
+            </label>
+          </div>
         </fieldset>
       </div>
     </div>

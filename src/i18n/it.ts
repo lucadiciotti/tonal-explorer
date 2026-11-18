@@ -113,6 +113,11 @@ export const it = {
     voiceAnnounceEnable: 'Annuncio vocale',
     voiceAnnounceDesc: "Una voce dice il grado ad alta voce quando appare una nuova nota. Utile per fare gli esercizi senza guardare lo schermo, ad esempio mentre si guida. Si consiglia l'uso delle cuffie per evitare che il microfono senta la voce del telefono. (Solo modalita' Leggi e Parla)",
     duration: 'Durata',
+    notation: 'Notazione Gradi',
+    notationClassic: 'Classica (1-7)',
+    notationClassicDesc: 'Usa gradi 1-7 con trattino sopra/sotto per l\'ottava',
+    notationJazz: 'Jazz (9, 11, 13)',
+    notationJazzDesc: 'Usa estensioni 9-14 per i gradi all\'ottava superiore',
   },
   session: {
     tonic: 'Tonic',
@@ -137,6 +142,7 @@ export const it = {
     flatSharp: 'Flat, Sharp',
     lowerOctave: 'Lower octave',
     upperOctave: 'Upper octave',
+    upperOctaveJazz: '9, 11, 13 (jazz extensions)',
   },
   completed: {
     title: 'Session Completed!',
