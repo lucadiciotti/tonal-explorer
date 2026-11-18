@@ -714,9 +714,11 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
 
     if (degreeNotation === 'jazz' && modifier === 'upper') {
       const converted = convertDegreeDisplay(note, 'jazz');
-      return (
-        <span>{converted}</span>
-      );
+      if (converted !== note) {
+        return (
+          <span>{converted}</span>
+        );
+      }
     }
 
     return (
