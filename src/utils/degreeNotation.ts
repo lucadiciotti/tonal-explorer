@@ -1,19 +1,12 @@
 export type DegreeNotation = 'classic' | 'jazz';
 
 const DEGREE_TO_EXTENSION: Record<string, string> = {
-  '1': '8',
   'b2': 'b9',
   '2': '9',
-  'b3': 'b10',
-  '3': '10',
   '4': '11',
   '#4': '#11',
-  'b5': 'b12',
-  '5': '12',
   'b6': 'b13',
   '6': '13',
-  'b7': 'b14',
-  '7': '14',
 };
 
 export function convertDegreeDisplay(degree: string, notation: DegreeNotation): string {
