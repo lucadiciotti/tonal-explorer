@@ -146,15 +146,15 @@ export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWh
     return { x: radius * Math.cos(rad), y: radius * Math.sin(rad) };
   };
 
-  const radius = 120;
-  const noteRadius = 24;
+  const radius = 140;
+  const noteRadius = 26;
 
   return (
     <div className="flex flex-col items-center gap-3 select-none">
       <svg
         ref={svgRef}
-        viewBox="-160 -160 320 320"
-        className="w-64 h-64 sm:w-72 sm:h-72 touch-none cursor-grab active:cursor-grabbing"
+        viewBox="-185 -185 370 370"
+        className="w-72 h-72 sm:w-80 sm:h-80 touch-none cursor-grab active:cursor-grabbing"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -193,7 +193,7 @@ export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWh
         {/* Top indicator marker */}
         <g>
           <path
-            d="M 0 -158 L -8 -148 L 8 -148 Z"
+            d="M 0 -178 L -9 -167 L 9 -167 Z"
             fill="currentColor"
             className="text-amber-500 dark:text-amber-400"
           />
@@ -259,11 +259,12 @@ export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWh
           );
         })}
 
-        {/* Center label */}
+        {/* Center: label + selected tonic */}
         {label && (
           <text
             textAnchor="middle"
             dominantBaseline="central"
+            y={-8}
             fontSize={11}
             fill="currentColor"
             className="text-slate-400 dark:text-slate-500"
@@ -271,6 +272,17 @@ export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWh
             {label}
           </text>
         )}
+        <text
+          textAnchor="middle"
+          dominantBaseline="central"
+          y={14}
+          fontSize={22}
+          fontWeight={700}
+          fill="currentColor"
+          className="text-slate-800 dark:text-slate-100"
+        >
+          {tonic}
+        </text>
       </svg>
 
       {/* Enharmonic toggle */}
