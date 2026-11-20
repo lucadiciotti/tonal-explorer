@@ -97,7 +97,7 @@ function App() {
   }
 
   const handleStartSession = async (settings: SessionSettings, rendererType: 'web-audio' | 'midi' | 'soundfont', midiProgram?: number, midiDroneProgram?: number, soundfontNote?: string, soundfontDrone?: string, midiOutputDeviceId?: string, midiInputDeviceId?: string, monotimbral?: boolean) => {
-    const generatedNotes = generateNoteSequence(settings.numNotes);
+    const generatedNotes = generateNoteSequence(settings.numNotes, settings.degreeSet);
     setNotes(generatedNotes);
     setCurrentSettings(settings);
 
@@ -384,6 +384,7 @@ function App() {
               debugMode={currentSettings.debugMode}
               voiceAnnounceDegree={currentSettings.voiceAnnounceDegree}
               degreeNotation={currentSettings.degreeNotation}
+              degreeSet={currentSettings.degreeSet}
             />
           )}
 

@@ -3,16 +3,16 @@ import { Note } from '../types';
 // Maps scale degrees to semitones from tonic
 const SCALE_DEGREE_TO_SEMITONES: Record<string, number> = {
   '1': 0,
-  'b2': 1,
+  'b2': 1, '#1': 1,
   '2': 2,
-  'b3': 3,
-  '3': 4,
-  '4': 5,
-  '#4': 6,
+  'b3': 3, '#2': 3,
+  '3': 4, 'b4': 4,
+  '4': 5, '#3': 5,
+  '#4': 6, 'b5': 6,
   '5': 7,
-  'b6': 8,
+  'b6': 8, '#5': 8,
   '6': 9,
-  'b7': 10,
+  'b7': 10, '#6': 10,
   '7': 11,
 };
 

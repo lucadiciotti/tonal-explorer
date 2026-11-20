@@ -2,8 +2,9 @@ import { Note } from '../types';
 import { phoneticMatchNote } from './phoneticMatcher';
 
 const SCALE_DEGREE_TO_SEMITONES: Record<string, number> = {
-  '1': 0, 'b2': 1, '2': 2, 'b3': 3, '3': 4, '4': 5,
-  '#4': 6, '5': 7, 'b6': 8, '6': 9, 'b7': 10, '7': 11,
+  '1': 0, '#1': 1, 'b2': 1, '2': 2, '#2': 3, 'b3': 3, '3': 4, 'b4': 4,
+  '4': 5, '#3': 5, '#4': 6, 'b5': 6, '5': 7, '#5': 8, 'b6': 8, '6': 9,
+  '#6': 10, 'b7': 10, '7': 11,
 };
 
 export function getItalianChromaticScale(tonic: string): string[] {

@@ -52,6 +52,7 @@ interface StoredSettings {
   debugMode: boolean;
   voiceAnnounceDegree: boolean;
   degreeNotation: 'classic' | 'jazz';
+  degreeSet: 'normal' | 'advanced';
 }
 
 function loadSettings(): Partial<StoredSettings> {
@@ -100,11 +101,12 @@ export function Settings({ onStart }: SettingsProps) {
       debugMode: stored.debugMode ?? false,
       voiceAnnounceDegree: stored.voiceAnnounceDegree ?? false,
       degreeNotation: stored.degreeNotation ?? 'classic',
+      degreeSet: stored.degreeSet ?? 'normal',
     });
 
     const audioMode = stored.audioMode || 'web-audio';
     onStart(
-      { tonic, numNotes: stored.numNotes || 10, stepDuration, ignoreOctaves: stored.ignoreOctaves ?? true, ignoreStepDuration, mode: selectedMode, singHoldDuration: stored.singHoldDuration ?? 1500, noteTransitionDelay: stored.noteTransitionDelay ?? 500, tonalRetention: stored.tonalRetention ?? true, tonalRetentionDuration: stored.tonalRetentionDuration ?? 3, debugMode: stored.debugMode ?? false, voiceAnnounceDegree: stored.voiceAnnounceDegree ?? false, degreeNotation: stored.degreeNotation ?? 'classic' },
+      { tonic, numNotes: stored.numNotes || 10, stepDuration, ignoreOctaves: stored.ignoreOctaves ?? true, ignoreStepDuration, mode: selectedMode, singHoldDuration: stored.singHoldDuration ?? 1500, noteTransitionDelay: stored.noteTransitionDelay ?? 500, tonalRetention: stored.tonalRetention ?? true, tonalRetentionDuration: stored.tonalRetentionDuration ?? 3, debugMode: stored.debugMode ?? false, voiceAnnounceDegree: stored.voiceAnnounceDegree ?? false, degreeNotation: stored.degreeNotation ?? 'classic', degreeSet: stored.degreeSet ?? 'normal' },
       audioMode,
       audioMode === 'midi' ? stored.midiProgram : undefined,
       audioMode === 'midi' ? stored.midiDroneProgram : undefined,

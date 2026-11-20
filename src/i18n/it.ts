@@ -119,6 +119,11 @@ export const it = {
     notationClassicDesc: 'Usa gradi 1-7 con trattino sopra/sotto per l\'ottava',
     notationJazz: 'Jazz (9, 11, 13)',
     notationJazzDesc: 'Usa estensioni 9-14 per i gradi all\'ottava superiore',
+    degreeSet: 'Set di Gradi',
+    degreeSetNormal: 'Normale (12 gradi)',
+    degreeSetNormalDesc: 'Una grafia per semitono: 1, b2, 2, b3, 3, 4, #4, 5, b6, 6, b7, 7',
+    degreeSetAdvanced: 'Avanzato (19 gradi)',
+    degreeSetAdvancedDesc: 'Include le varianti enarmoniche: #1, #2, b4, #3, b5, #5, #6',
   },
   session: {
     tonic: 'Tonic',

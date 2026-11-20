@@ -33,6 +33,7 @@ interface StoredSettings {
   debugMode?: boolean;
   voiceAnnounceDegree?: boolean;
   degreeNotation?: 'classic' | 'jazz';
+  degreeSet?: 'normal' | 'advanced';
 }
 
 function loadSettings(): Partial<StoredSettings> {
@@ -86,6 +87,7 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
   const [debugMode, setDebugMode] = useState<boolean>(stored.debugMode ?? false);
   const [voiceAnnounceDegree, setVoiceAnnounceDegree] = useState<boolean>(stored.voiceAnnounceDegree ?? false);
   const [degreeNotation, setDegreeNotation] = useState<'classic' | 'jazz'>(stored.degreeNotation ?? 'classic');
+  const [degreeSet, setDegreeSet] = useState<'normal' | 'advanced'>(stored.degreeSet ?? 'normal');
   const [theme, setTheme] = useState<ThemeMode>(getStoredTheme());
 
   const updateTheme = (value: ThemeMode) => {
@@ -253,6 +255,11 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
   const updateDegreeNotation = (value: 'classic' | 'jazz') => {
     setDegreeNotation(value);
     savePartial({ degreeNotation: value });
+  };
+
+  const updateDegreeSet = (value: 'normal' | 'advanced') => {
+    setDegreeSet(value);
+    savePartial({ degreeSet: value });
   };
 
   return (
@@ -728,6 +735,22 @@ export function AdvancedSettings({ onBack }: AdvancedSettingsProps) {
               <input type="radio" name="degreeNotation" value="jazz" checked={degreeNotation === 'jazz'} onChange={() => updateDegreeNotation('jazz')} className="sr-only" />
               <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.advanced.notationJazz}</span>
               <span className="text-xs text-slate-500 dark:text-slate-400 text-center">{t.advanced.notationJazzDesc}</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset className="border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-4">
+          <legend className="text-sm font-medium text-slate-700 dark:text-slate-200 px-2">{t.advanced.degreeSet}</legend>
+          <div className="grid grid-cols-2 gap-2">
+            <label className={`flex flex-col items-center gap-2 p-3 border-2 rounded-lg cursor-pointer transition-colors ${degreeSet === 'normal' ? 'border-slate-800 bg-slate-50 dark:border-sky-500 dark:bg-sky-950' : 'border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800'}`}>
+              <input type="radio" name="degreeSet" value="normal" checked={degreeSet === 'normal'} onChange={() => updateDegreeSet('normal')} className="sr-only" />
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.advanced.degreeSetNormal}</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 text-center">{t.advanced.degreeSetNormalDesc}</span>
+            </label>
+            <label className={`flex flex-col items-center gap-2 p-3 border-2 rounded-lg cursor-pointer transition-colors ${degreeSet === 'advanced' ? 'border-slate-800 bg-slate-50 dark:border-sky-500 dark:bg-sky-950' : 'border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800'}`}>
+              <input type="radio" name="degreeSet" value="advanced" checked={degreeSet === 'advanced'} onChange={() => updateDegreeSet('advanced')} className="sr-only" />
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.advanced.degreeSetAdvanced}</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 text-center">{t.advanced.degreeSetAdvancedDesc}</span>
             </label>
           </div>
         </fieldset>

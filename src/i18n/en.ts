@@ -119,6 +119,11 @@ export const en = {
     notationClassicDesc: 'Use degrees 1-7 with over/underline for octave',
     notationJazz: 'Jazz (9, 11, 13)',
     notationJazzDesc: 'Use extensions 9-14 for upper-octave degrees',
+    degreeSet: 'Degree Set',
+    degreeSetNormal: 'Normal (12 degrees)',
+    degreeSetNormalDesc: 'One spelling per semitone: 1, b2, 2, b3, 3, 4, #4, 5, b6, 6, b7, 7',
+    degreeSetAdvanced: 'Advanced (19 degrees)',
+    degreeSetAdvancedDesc: 'Includes enharmonic alternatives: #1, #2, b4, #3, b5, #5, #6',
   },
   session: {
     tonic: 'Tonic',

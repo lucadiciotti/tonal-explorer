@@ -4,12 +4,12 @@ import { getItalianChromaticScale, getItalianNoteName } from '../utils/italianNo
 
 const ALL_TONICS = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Cb'] as const;
 
-const ALL_DEGREES = ['1', 'b2', '2', 'b3', '3', '4', '#4', '5', 'b6', '6', 'b7', '7'] as const;
+const ALL_DEGREES = ['1', '#1', 'b2', '2', '#2', 'b3', '3', 'b4', '4', '#3', '#4', 'b5', '5', '#5', 'b6', '6', '#6', 'b7', '7'] as const;
 
 const DEGREE_LABELS: Record<string, string> = {
-  '1': '1', 'b2': 'b2', '2': '2', 'b3': 'b3', '3': '3',
-  '4': '4', '#4': '#4', '5': '5', 'b6': 'b6', '6': '6',
-  'b7': 'b7', '7': '7',
+  '1': '1', '#1': '#1', 'b2': 'b2', '2': '2', '#2': '#2', 'b3': 'b3', '3': '3',
+  'b4': 'b4', '4': '4', '#3': '#3', '#4': '#4', 'b5': 'b5', '5': '5',
+  '#5': '#5', 'b6': 'b6', '6': '6', '#6': '#6', 'b7': 'b7', '7': '7',
 };
 
 interface DebugPageProps {

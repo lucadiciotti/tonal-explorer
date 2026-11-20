@@ -16,6 +16,7 @@ export interface SessionSettings {
   debugMode: boolean;
   voiceAnnounceDegree: boolean;
   degreeNotation: 'classic' | 'jazz';
+  degreeSet: 'normal' | 'advanced';
 }
 
 export interface Session {

@@ -32,9 +32,10 @@ interface SessionDisplayProps {
   debugMode: boolean;
   voiceAnnounceDegree: boolean;
   degreeNotation: DegreeNotation;
+  degreeSet: 'normal' | 'advanced';
 }
 
-export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onComplete, onCancel, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, tonalRetention, tonalRetentionDuration, debugMode, voiceAnnounceDegree, degreeNotation }: SessionDisplayProps) {
+export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onComplete, onCancel, ignoreOctaves, ignoreStepDuration, mode, singHoldDuration, noteTransitionDelay, tonalRetention, tonalRetentionDuration, debugMode, voiceAnnounceDegree, degreeNotation, degreeSet }: SessionDisplayProps) {
   const { t } = useLang();
   const [isDroneIntro, setIsDroneIntro] = useState<boolean>(true);
   const [droneIntroTimeLeft, setDroneIntroTimeLeft] = useState<number>(tonalRetentionDuration);
