@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Settings as SettingsIcon } from 'lucide-react';
 import { SessionSettings, Tonic, SessionMode } from '../types';
 import { AudioRendererType } from '../lib/audio/AudioManager';
 import { useLang } from '../contexts/LanguageContext';
@@ -120,16 +119,8 @@ export function Settings({ onStart }: SettingsProps) {
 
   return (
     <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
-      <div className="flex items-center gap-3 mb-8">
-        <SettingsIcon className="w-6 h-6 text-slate-700 dark:text-slate-200" />
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t.settings.title}</h2>
-      </div>
-
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
-            {t.settings.tonic}
-          </label>
           <div className="relative w-72 h-72 sm:w-96 sm:h-96 mx-auto">
             {TONIC_GROUPS.map((group, index) => {
               const angle = (index * 360) / TONIC_GROUPS.length - 90;
