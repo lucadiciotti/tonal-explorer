@@ -281,11 +281,8 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
           if (noteReadyAtRef.current > 0) {
             hitReactionTimesRef.current.push(performance.now() - noteReadyAtRef.current);
           }
-          setCorrectCount(c => {
-            const newCount = c + 1;
-            correctCountRef.current = newCount;
-            return newCount;
-          });
+          correctCountRef.current += 1;
+          setCorrectCount(correctCountRef.current);
           setFlashCorrect(true);
           setTimeout(() => setFlashCorrect(false), 500);
         }
@@ -372,11 +369,8 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
               hitReactionTimesRef.current.push(adjusted);
               rt = adjusted;
             }
-            setCorrectCount(c => {
-              const newCount = c + 1;
-              correctCountRef.current = newCount;
-              return newCount;
-            });
+            correctCountRef.current += 1;
+            setCorrectCount(correctCountRef.current);
             setFlashCorrect(true);
             setTimeout(() => setFlashCorrect(false), 500);
           }
@@ -437,11 +431,8 @@ export function SessionDisplay({ notes, stepDuration, tonic, audioManager, onCom
               hitReactionTimesRef.current.push(adjusted);
               lastReactionTimeRef.current = adjusted;
             }
-            setCorrectCount(c => {
-              const newCount = c + 1;
-              correctCountRef.current = newCount;
-              return newCount;
-            });
+            correctCountRef.current += 1;
+            setCorrectCount(correctCountRef.current);
             setFlashCorrect(true);
             setTimeout(() => setFlashCorrect(false), 500);
           }
