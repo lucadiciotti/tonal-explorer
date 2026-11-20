@@ -2,26 +2,11 @@ import { useState } from 'react';
 import { SessionSettings, Tonic, SessionMode } from '../types';
 import { AudioRendererType } from '../lib/audio/AudioManager';
 import { useLang } from '../contexts/LanguageContext';
+import { CircleOfFifthsWheel } from './CircleOfFifthsWheel';
 
 interface SettingsProps {
   onStart: (settings: SessionSettings, rendererType: AudioRendererType, midiProgram?: number, midiDroneProgram?: number, soundfontNote?: string, soundfontDrone?: string, midiOutputDeviceId?: string, midiInputDeviceId?: string, monotimbral?: boolean) => void;
 }
-
-// Organized in circle of fifths order starting from C at top, with enharmonic pairs grouped
-const TONIC_GROUPS: Tonic[][] = [
-  ['C'],
-  ['G'],
-  ['D'],
-  ['A'],
-  ['E'],
-  ['B', 'Cb'],
-  ['F#', 'Gb'],
-  ['C#', 'Db'],
-  ['Ab'],
-  ['Eb'],
-  ['Bb'],
-  ['F']
-];
 
 const STORAGE_KEY = 'mzt-settings';
 
@@ -121,64 +106,11 @@ export function Settings({ onStart }: SettingsProps) {
     <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
       <div className="space-y-6">
         <div>
-          <div className="relative w-72 h-72 sm:w-96 sm:h-96 mx-auto">
-            {TONIC_GROUPS.map((group, index) => {
-              const angle = (index * 360) / TONIC_GROUPS.length - 90;
-              const radius = 108;
-              const x = radius * Math.cos((angle * Math.PI) / 180);
-              const y = radius * Math.sin((angle * Math.PI) / 180);
-
-              if (group.length === 1) {
-                return (
-                  <button
-                    key={group[0]}
-                    onClick={() => setTonic(group[0])}
-                    className={`absolute px-4 py-2 rounded-lg font-semibold transition-all transform -translate-x-1/2 -translate-y-1/2 ${
-                      tonic === group[0]
-                        ? 'bg-slate-800 dark:bg-sky-600 text-white shadow-lg scale-110'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 hover:scale-105'
-                    }`}
-                    style={{
-                      left: `calc(50% + ${x}px)`,
-                      top: `calc(50% + ${y}px)`,
-                    }}
-                  >
-                    {group[0]}
-                  </button>
-                );
-              }
-
-              return (
-                <div
-                  key={group.join('-')}
-                  className="absolute transform -translate-x-1/2 -translate-y-1/2"
-                  style={{
-                    left: `calc(50% + ${x}px)`,
-                    top: `calc(50% + ${y}px)`,
-                  }}
-                >
-                  <div className="flex flex-col gap-1">
-                    {group.map((t) => (
-                      <button
-                        key={t}
-                        onClick={() => setTonic(t)}
-                        className={`px-3 py-1 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ${
-                          tonic === t
-                            ? 'bg-slate-800 dark:bg-sky-600 text-white shadow-lg scale-110'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 hover:scale-105'
-                        }`}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm font-medium">
-              {t.settings.circleOfFifths}
-            </div>
-          </div>
+          <CircleOfFifthsWheel
+            tonic={tonic}
+            onChange={setTonic}
+            label={t.settings.circleOfFifths}
+          />
         </div>
 
         <div>
