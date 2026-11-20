@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Music, LogOut, BarChart3, SlidersHorizontal, Home, Users } from 'lucide-react';
+import { Music, LogOut, BarChart3, SlidersHorizontal, Home, Users, Bug } from 'lucide-react';
 import { Settings } from './components/Settings';
 import { SessionDisplay } from './components/SessionDisplay';
 import { StatsPage } from './components/StatsPage';
@@ -11,6 +11,7 @@ import { AuthPage } from './components/AuthPage';
 import { AdvancedSettings } from './components/AdvancedSettings';
 import { AdminUsersPage } from './components/AdminUsersPage';
 import { AdminStatsPage } from './components/AdminStatsPage';
+import { DebugPage } from './components/DebugPage';
 import { LanguageSelector } from './components/LanguageSelector';
 import { useAuth } from './contexts/AuthContext';
 import { useLang } from './contexts/LanguageContext';
@@ -23,7 +24,7 @@ import { AudioManager } from './lib/audio/AudioManager';
 import { MidiRenderer } from './lib/audio/MidiRenderer';
 import { SoundfontRenderer } from './lib/audio/SoundfontRenderer';
 
-type AppState = 'settings' | 'session' | 'completed' | 'stats' | 'advanced' | 'admin-users' | 'admin-stats' | 'admin-global-stats';
+type AppState = 'settings' | 'session' | 'completed' | 'stats' | 'advanced' | 'admin-users' | 'admin-stats' | 'admin-global-stats' | 'debug';
 
 function App() {
   const { user, loading, signOut, isAdmin } = useAuth();
@@ -283,6 +284,16 @@ function App() {
                   <span className="hidden sm:inline">{t.nav.global}</span>
                 </button>
               )}
+              {isAdmin && (
+                <button
+                  onClick={() => setAppState('debug')}
+                  className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/80 dark:hover:bg-slate-800/80 rounded-lg transition-colors"
+                  title={t.nav.debug}
+                >
+                  <Bug className="w-5 h-5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">{t.nav.debug}</span>
+                </button>
+              )}
               {!isAdmin && (
                 <button
                   onClick={() => setAppState('stats')}
@@ -341,6 +352,10 @@ function App() {
               userId={null}
               userEmail={null}
             />
+          )}
+
+          {appState === 'debug' && (
+            <DebugPage onBack={() => setAppState('settings')} />
           )}
 
           {appState === 'advanced' && (

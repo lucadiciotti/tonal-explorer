@@ -9,6 +9,7 @@ export const it = {
     users: 'Utenti',
     global: 'Globali',
     stats: 'Statistiche',
+    debug: 'Debug',
     logout: 'Esci',
   },
   auth: {
@@ -282,5 +283,13 @@ export const it = {
     range: 'Range min-max',
     q1q3: 'Q1–Q3 (50% centrale)',
     median: 'Mediana',
+  },
+  debug: {
+    title: 'Debug',
+    chromaticScaleIntro: 'Scale cromatiche per tutte le 15 tonalita\' con i relativi gradi. Ogni tonalita\' deve dare alle 12 note nomi di lettera distinti, usando doppio diesis/bemolle quando necessario. Controlla i nomi delle note qui sotto e segnalami quelli che non vanno.',
+    tonic: 'Tonica',
+    degree: 'Grado',
+    italianName: 'Nome italiano',
+    chromaticIdx: 'Cromatica',
   },
 };

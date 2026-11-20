@@ -9,6 +9,7 @@ export const en = {
     users: 'Users',
     global: 'Global',
     stats: 'Stats',
+    debug: 'Debug',
     logout: 'Logout',
   },
   auth: {
@@ -282,5 +283,13 @@ export const en = {
     range: 'Min-max range',
     q1q3: 'Q1–Q3 (central 50%)',
     median: 'Median',
+  },
+  debug: {
+    title: 'Debug',
+    chromaticScaleIntro: 'Chromatic scales for all 15 keys. Each key must spell its 12 notes with distinct letter names, using double sharps/flats when necessary. Review the note names below and flag any that look wrong.',
+    tonic: 'Tonic',
+    degree: 'Degree',
+    italianName: 'Italian name',
+    chromaticIdx: 'Chromatic',
   },
 };
