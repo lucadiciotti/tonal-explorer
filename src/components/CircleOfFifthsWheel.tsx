@@ -8,19 +8,19 @@ interface CircleOfFifthsWheelProps {
 }
 
 // 12 positions clockwise from C at top (circle of fifths order)
-const WHEEL_POSITIONS: { default: Tonic; alt?: Tonic }[] = [
-  { default: 'C' },
-  { default: 'G' },
-  { default: 'D' },
-  { default: 'A' },
-  { default: 'E' },
-  { default: 'B', alt: 'Cb' },
-  { default: 'F#', alt: 'Gb' },
-  { default: 'C#', alt: 'Db' },
-  { default: 'Ab' },
-  { default: 'Eb' },
-  { default: 'Bb' },
-  { default: 'F' },
+const WHEEL_POSITIONS: { default: Tonic; alt?: Tonic; color: string }[] = [
+  { default: 'C', color: '#e69d4d' },
+  { default: 'G', color: '#d89964' },
+  { default: 'D', color: '#ea9c4b' },
+  { default: 'A', color: '#ee9d46' },
+  { default: 'E', color: '#df9652' },
+  { default: 'B', alt: 'Cb', color: '#c28d6c' },
+  { default: 'F#', alt: 'Gb', color: '#9f8394' },
+  { default: 'C#', alt: 'Db', color: '#797db6' },
+  { default: 'Ab', color: '#5a84d6' },
+  { default: 'Eb', color: '#4c8ce4' },
+  { default: 'Bb', color: '#5d8ad5' },
+  { default: 'F', color: '#878eb4' },
 ];
 
 const ANGLE_PER_STEP = 30;
@@ -32,24 +32,29 @@ function tonicToRotation(tonic: Tonic): number {
   return idx >= 0 ? -idx * ANGLE_PER_STEP : 0;
 }
 
-function rotationToTonic(rotation: number): { default: Tonic; alt?: Tonic } {
+function rotationToTonic(rotation: number): { default: Tonic; alt?: Tonic; color: string } {
   const step = Math.round(rotation / ANGLE_PER_STEP);
   const idx = ((-step % 12) + 12) % 12;
   return WHEEL_POSITIONS[idx];
+}
+
+function normAngle(deg: number): number {
+  return ((deg % 360) + 360) % 360;
 }
 
 export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWheelProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [rotation, setRotation] = useState(tonicToRotation(tonic));
   const [isDragging, setIsDragging] = useState(false);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const dragState = useRef({
     startPointerAngle: 0,
     startRotation: 0,
     totalMove: 0,
+    active: false,
   });
   const animFrame = useRef<number | null>(null);
 
-  // Sync rotation when tonic changes externally
   useEffect(() => {
     if (!isDragging) {
       setRotation(tonicToRotation(tonic));
@@ -77,12 +82,13 @@ export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWh
       startPointerAngle: getPointerAngle(e.clientX, e.clientY),
       startRotation: rotation,
       totalMove: 0,
+      active: true,
     };
     (e.target as Element).setPointerCapture(e.pointerId);
   }, [rotation, getPointerAngle]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (dragState.current.startPointerAngle === undefined) return;
+    if (!dragState.current.active) return;
     const currentAngle = getPointerAngle(e.clientX, e.clientY);
     let delta = ((currentAngle - dragState.current.startPointerAngle + 540) % 360) - 180;
     dragState.current.totalMove += Math.abs(delta);
@@ -92,7 +98,6 @@ export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWh
       const newRotation = dragState.current.startRotation + delta;
       setRotation(newRotation);
 
-      // Update tonic live as we cross snap points
       const pos = rotationToTonic(newRotation);
       if (pos.default !== tonic && pos.alt !== tonic) {
         onChange(pos.default);
@@ -127,8 +132,8 @@ export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWh
   }, [rotation, onChange]);
 
   const handlePointerUp = useCallback(() => {
-    if (dragState.current.startPointerAngle === undefined) return;
-    dragState.current.startPointerAngle = undefined as unknown as number;
+    if (!dragState.current.active) return;
+    dragState.current.active = false;
 
     if (isDragging) {
       const snapped = Math.round(rotation / ANGLE_PER_STEP) * ANGLE_PER_STEP;
@@ -136,10 +141,10 @@ export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWh
     }
   }, [isDragging, rotation, animateToSnap]);
 
-  // Enharmonic switch buttons for positions with alt spelling
   const currentPos = rotationToTonic(rotation);
   const hasAlt = currentPos.alt !== undefined;
   const usingAlt = hasAlt && tonic === currentPos.alt;
+  const topIdx = ((Math.round(-rotation / ANGLE_PER_STEP) % 12) + 12) % 12;
 
   const polarToCartesian = (angleDeg: number, radius: number) => {
     const rad = ((angleDeg - 90) * Math.PI) / 180;
@@ -149,163 +154,237 @@ export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWh
   const radius = 140;
   const noteRadius = 26;
 
+  // Unique gradient IDs for SVG defs
+  const gradientId = (i: number) => `wheel-grad-${i}`;
+
   return (
     <div className="flex flex-col items-center gap-3 select-none">
-      <svg
-        ref={svgRef}
-        viewBox="-185 -185 370 370"
-        className="w-72 h-72 sm:w-80 sm:h-80 touch-none cursor-grab active:cursor-grabbing"
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-      >
-        {/* Outer track circle */}
-        <circle
-          r={radius + 18}
-          fill="none"
-          stroke="currentColor"
-          className="text-slate-200 dark:text-slate-700"
-          strokeWidth={1.5}
-          strokeDasharray="3 6"
+      <div className="relative">
+        {/* Radial glow background */}
+        <div
+          className="absolute inset-0 rounded-full opacity-60 dark:opacity-80 pointer-events-none"
+          style={{
+            background: 'radial-gradient(circle at 50% 45%, rgba(230,157,77,0.12) 0%, transparent 55%)',
+          }}
         />
+        <svg
+          ref={svgRef}
+          viewBox="-190 -190 380 380"
+          className="relative w-72 h-72 sm:w-80 sm:h-80 touch-none cursor-grab active:cursor-grabbing"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+        >
+          <defs>
+            {WHEEL_POSITIONS.map((pos, i) => {
+              const next = WHEEL_POSITIONS[(i + 1) % 12];
+              const a1 = i * ANGLE_PER_STEP;
+              const a2 = (i + 1) * ANGLE_PER_STEP;
+              const p1 = polarToCartesian(a1, radius);
+              const p2 = polarToCartesian(a2, radius);
+              return (
+                <linearGradient
+                  key={i}
+                  id={gradientId(i)}
+                  gradientUnits="userSpaceOnUse"
+                  x1={p1.x}
+                  y1={p1.y}
+                  x2={p2.x}
+                  y2={p2.y}
+                >
+                  <stop offset="0%" stopColor={pos.color} />
+                  <stop offset="100%" stopColor={next.color} />
+                </linearGradient>
+              );
+            })}
+            <filter id="wheel-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="6" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
 
-        {/* Arc segments between positions */}
-        {WHEEL_POSITIONS.map((_, i) => {
-          const a1 = i * ANGLE_PER_STEP;
-          const a2 = (i + 1) * ANGLE_PER_STEP;
-          const p1 = polarToCartesian(a1 + rotation, radius);
-          const p2 = polarToCartesian(a2 + rotation, radius);
-          const isSharpSide = i < 7;
-          return (
-            <path
-              key={i}
-              d={`M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} A ${radius} ${radius} 0 0 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`}
-              fill="none"
-              stroke={isSharpSide ? 'rgb(168 162 158)' : 'rgb(148 163 184)'}
-              strokeWidth={2}
-              opacity={0.4}
-              className="transition-opacity"
-            />
-          );
-        })}
-
-        {/* Top indicator marker */}
-        <g>
-          <path
-            d="M 0 -178 L -9 -167 L 9 -167 Z"
-            fill="currentColor"
-            className="text-amber-500 dark:text-amber-400"
+          {/* Outer dashed track */}
+          <circle
+            r={radius + 22}
+            fill="none"
+            stroke="rgba(148, 163, 184, 0.15)"
+            strokeWidth={1}
+            strokeDasharray="3 7"
           />
-        </g>
 
-        {/* Note labels */}
-        {WHEEL_POSITIONS.map((pos, i) => {
-          const angle = i * ANGLE_PER_STEP + rotation;
-          const pt = polarToCartesian(angle, radius);
-          const isTop = i === Math.round(-rotation / ANGLE_PER_STEP) % 12;
-          const topIdx = ((Math.round(-rotation / ANGLE_PER_STEP) % 12) + 12) % 12;
-          const isActive = i === topIdx;
-          const displayNote = pos.alt && tonic === pos.alt ? pos.alt : pos.default;
+          {/* Glow arcs */}
+          <g opacity={0.35}>
+            {WHEEL_POSITIONS.map((_, i) => {
+              const a1 = i * ANGLE_PER_STEP + rotation;
+              const a2 = (i + 1) * ANGLE_PER_STEP + rotation;
+              const p1 = polarToCartesian(a1, radius);
+              const p2 = polarToCartesian(a2, radius);
+              return (
+                <path
+                  key={`glow-${i}`}
+                  d={`M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} A ${radius} ${radius} 0 0 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`}
+                  fill="none"
+                  stroke={`url(#${gradientId(i)})`}
+                  strokeWidth={10}
+                  strokeLinecap="round"
+                  filter="url(#wheel-glow)"
+                />
+              );
+            })}
+          </g>
 
-          return (
-            <g
-              key={i}
-              transform={`translate(${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`}
-            >
-              <circle
-                r={isActive ? noteRadius + 3 : noteRadius}
-                fill={isActive ? 'currentColor' : 'transparent'}
-                className={
-                  isActive
-                    ? 'text-slate-800 dark:text-sky-600'
-                    : 'text-slate-100 dark:text-slate-800'
-                }
-                stroke="currentColor"
-                strokeWidth={isActive ? 0 : 1.5}
-              />
-              <circle
-                r={isActive ? noteRadius + 3 : noteRadius}
+          {/* Main arcs */}
+          {WHEEL_POSITIONS.map((_, i) => {
+            const a1 = i * ANGLE_PER_STEP + rotation;
+            const a2 = (i + 1) * ANGLE_PER_STEP + rotation;
+            const p1 = polarToCartesian(a1, radius);
+            const p2 = polarToCartesian(a2, radius);
+            return (
+              <path
+                key={`arc-${i}`}
+                d={`M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} A ${radius} ${radius} 0 0 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`}
                 fill="none"
-                stroke={isActive ? 'currentColor' : 'transparent'}
-                className={isActive ? 'text-amber-500 dark:text-amber-400' : ''}
-                strokeWidth={isActive ? 2.5 : 0}
+                stroke={`url(#${gradientId(i)})`}
+                strokeWidth={4}
+                strokeLinecap="round"
               />
-              <text
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontSize={isActive ? 15 : 13}
-                fontWeight={isActive ? 700 : 600}
-                fill={isActive ? 'white' : 'currentColor'}
-                className={isActive ? '' : 'text-slate-600 dark:text-slate-300'}
+            );
+          })}
+
+          {/* Top indicator: elegant gold chevron + glow ring */}
+          <g filter="url(#wheel-glow)">
+            <path
+              d="M 0 -182 L -10 -170 L 10 -170 Z"
+              fill="#e69d4d"
+            />
+          </g>
+          <circle cx={0} cy={-radius} r={noteRadius + 6} fill="none" stroke="rgba(230,157,77,0.25)" strokeWidth={1} strokeDasharray="2 4" />
+
+          {/* Note nodes */}
+          {WHEEL_POSITIONS.map((pos, i) => {
+            const angle = i * ANGLE_PER_STEP + rotation;
+            const pt = polarToCartesian(angle, radius);
+            const isActive = i === topIdx;
+            const isHovered = hoveredIdx === i;
+            const displayNote = pos.alt && tonic === pos.alt ? pos.alt : pos.default;
+            const r = isActive ? noteRadius + 4 : isHovered ? noteRadius + 2 : noteRadius;
+
+            return (
+              <g
+                key={i}
+                transform={`translate(${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`}
+                onPointerEnter={() => setHoveredIdx(i)}
+                onPointerLeave={() => setHoveredIdx(null)}
+                style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
               >
-                {displayNote}
-              </text>
-              {pos.alt && (
+                {/* Background mask to hide arc behind node */}
+                <circle r={r + 2} fill="rgb(11 21 36)" />
+
+                {/* Outer ring */}
+                <circle
+                  r={r}
+                  fill={isActive ? pos.color : 'rgba(15, 29, 48, 0.9)'}
+                  stroke={isActive ? '#e69d4d' : pos.color}
+                  strokeWidth={isActive ? 3 : isHovered ? 2.5 : 1.8}
+                  style={isActive || isHovered ? { filter: `drop-shadow(0 0 8px ${pos.color}88)` } : undefined}
+                />
+
+                {/* Note text */}
                 <text
                   textAnchor="middle"
                   dominantBaseline="central"
-                  y={noteRadius + 12}
-                  fontSize={9}
-                  fontWeight={500}
-                  fill="currentColor"
-                  className="text-slate-400 dark:text-slate-500"
-                  opacity={isActive ? 0.8 : 0.5}
+                  fontSize={isActive ? 15 : isHovered ? 14 : 13}
+                  fontWeight={isActive ? 800 : 700}
+                  fill={isActive ? '#0b1524' : pos.color}
+                  style={{ pointerEvents: 'none', userSelect: 'none' }}
                 >
-                  {pos.alt}
+                  {displayNote}
                 </text>
-              )}
-            </g>
-          );
-        })}
 
-        {/* Center: label + selected tonic */}
-        {label && (
+                {/* Alt spelling below */}
+                {pos.alt && (
+                  <text
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    y={noteRadius + 13}
+                    fontSize={9}
+                    fontWeight={600}
+                    fill="rgba(148, 163, 184, 0.6)"
+                    style={{ pointerEvents: 'none' }}
+                  >
+                    {pos.alt}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+
+          {/* Center hub */}
+          <circle r={62} fill="rgba(11, 21, 36, 0.6)" stroke="rgba(255,255,255,0.06)" strokeWidth={1} />
+          <circle r={62} fill="none" stroke="rgba(230,157,77,0.12)" strokeWidth={1} strokeDasharray="2 5" />
+
+          {label && (
+            <text
+              textAnchor="middle"
+              dominantBaseline="central"
+              y={-12}
+              fontSize={10}
+              fontWeight={700}
+              fill="rgba(148, 163, 184, 0.7)"
+              style={{ pointerEvents: 'none', textTransform: 'uppercase', letterSpacing: '0.14em' }}
+            >
+              {label}
+            </text>
+          )}
           <text
             textAnchor="middle"
             dominantBaseline="central"
-            y={-8}
-            fontSize={11}
-            fill="currentColor"
-            className="text-slate-400 dark:text-slate-500"
+            y={14}
+            fontSize={26}
+            fontWeight={800}
+            fill="#e69d4d"
+            style={{ pointerEvents: 'none', letterSpacing: '0.02em' }}
           >
-            {label}
+            {tonic}
           </text>
-        )}
-        <text
-          textAnchor="middle"
-          dominantBaseline="central"
-          y={14}
-          fontSize={22}
-          fontWeight={700}
-          fill="currentColor"
-          className="text-slate-800 dark:text-slate-100"
-        >
-          {tonic}
-        </text>
-      </svg>
+        </svg>
+      </div>
 
       {/* Enharmonic toggle */}
       {hasAlt && (
         <div className="flex items-center gap-2">
           <button
             onClick={() => onChange(currentPos.default!)}
-            className={`px-3 py-1 rounded-lg text-sm font-semibold transition-all ${
+            className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${
               !usingAlt
-                ? 'bg-slate-800 dark:bg-sky-600 text-white shadow-md scale-105'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:scale-105'
+                ? 'text-white shadow-lg scale-105'
+                : 'text-slate-500 dark:text-slate-400 hover:scale-105'
             }`}
+            style={
+              !usingAlt
+                ? { background: 'linear-gradient(135deg, rgba(230,157,77,0.35), rgba(230,157,77,0.15))', border: '1px solid rgba(230,157,77,0.55)' }
+                : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }
+            }
           >
             {currentPos.default}
           </button>
-          <span className="text-slate-400 text-xs">≡</span>
+          <span className="text-slate-400 text-xs font-bold">≡</span>
           <button
             onClick={() => onChange(currentPos.alt!)}
-            className={`px-3 py-1 rounded-lg text-sm font-semibold transition-all ${
+            className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${
               usingAlt
-                ? 'bg-slate-800 dark:bg-sky-600 text-white shadow-md scale-105'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:scale-105'
+                ? 'text-white shadow-lg scale-105'
+                : 'text-slate-500 dark:text-slate-400 hover:scale-105'
             }`}
+            style={
+              usingAlt
+                ? { background: 'linear-gradient(135deg, rgba(230,157,77,0.35), rgba(230,157,77,0.15))', border: '1px solid rgba(230,157,77,0.55)' }
+                : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }
+            }
           >
             {currentPos.alt}
           </button>
