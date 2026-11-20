@@ -33,9 +33,9 @@ export function getNoteByFifths(q: number): FifthsNote {
   let accEn = '';
   if (sharpShift === 1) { acc = '#'; accEn = '#'; }
   else if (sharpShift === -1) { acc = 'b'; accEn = 'b'; }
-  else if (sharpShift === 2) { acc = 'x'; accEn = '##'; }
+  else if (sharpShift === 2) { acc = '##'; accEn = '##'; }
   else if (sharpShift === -2) { acc = 'bb'; accEn = 'bb'; }
-  else if (sharpShift >= 3) { acc = '#' .repeat(sharpShift); accEn = '#'.repeat(sharpShift); }
+  else if (sharpShift >= 3) { acc = '#'.repeat(sharpShift); accEn = '#'.repeat(sharpShift); }
   else if (sharpShift <= -3) { acc = 'b'.repeat(-sharpShift); accEn = 'b'.repeat(-sharpShift); }
 
   return {

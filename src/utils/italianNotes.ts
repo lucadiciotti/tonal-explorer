@@ -1,137 +1,70 @@
 import { Note } from '../types';
 import { phoneticMatchNote } from './phoneticMatcher';
-
-const SCALE_DEGREE_TO_SEMITONES: Record<string, number> = {
-  '1': 0, '#1': 1, 'b2': 1, '2': 2, '#2': 3, 'b3': 3, '3': 4, 'b4': 4,
-  '4': 5, '#3': 5, '#4': 6, 'b5': 6, '5': 7, '#5': 8, 'b6': 8, '6': 9,
-  '#6': 10, 'b7': 10, '7': 11,
-};
+import {
+  getChromaticScaleItalian,
+  getNoteNameByFifths,
+  TONIC_TO_FIFTHS,
+  DEGREE_TO_DELTA_Q,
+} from './lineOfFifths';
 
 export function getItalianChromaticScale(tonic: string): string[] {
-  return ITALIAN_CHROMATIC_SCALES[tonic] ?? ITALIAN_CHROMATIC_SCALES['C'];
+  try {
+    return getChromaticScaleItalian(tonic);
+  } catch {
+    return getChromaticScaleItalian('C');
+  }
 }
 
 const ALL_ITALIAN_NOTES: string[] = [
-  'Do', 'Do#', 'Dob',
-  'Re', 'Re#', 'Reb',
-  'Mi', 'Mi#', 'Mib',
-  'Fa', 'Fa#', 'Fab',
-  'Sol', 'Sol#', 'Solb',
-  'La', 'La#', 'Lab',
-  'Si', 'Si#', 'Sib',
+  'Do', 'Do#', 'Do##', 'Dob', 'Dobb',
+  'Re', 'Re#', 'Re##', 'Reb', 'Rebb',
+  'Mi', 'Mi#', 'Mi##', 'Mib', 'Mibb',
+  'Fa', 'Fa#', 'Fa##', 'Fab', 'Fabb',
+  'Sol', 'Sol#', 'Sol##', 'Solb', 'Solbb',
+  'La', 'La#', 'La##', 'Lab', 'Labb',
+  'Si', 'Si#', 'Si##', 'Sib', 'Sibb',
 ];
 
 export function getAllItalianNotes(): string[] {
   return ALL_ITALIAN_NOTES;
 }
 
-const ITALIAN_CHROMATIC_SCALES: Record<string, string[]> = {
-  'C':  ['Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si'],
-  'G':  ['Sol', 'Sol#', 'La', 'La#', 'Si', 'Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#'],
-  'D':  ['Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si', 'Do', 'Do#'],
-  'A':  ['La', 'La#', 'Si', 'Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#'],
-  'E':  ['Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si', 'Do', 'Do#', 'Re', 'Re#'],
-  'B':  ['Si', 'Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#'],
-  'Cb': ['Dob', 'Do', 'Reb', 'Re', 'Mib', 'Fab', 'Fa', 'Solb', 'Sol', 'Lab', 'La', 'Sib'],
-  'F#': ['Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si', 'Do', 'Do#', 'Re', 'Re#', 'Mi', 'Mi#'],
-  'Gb': ['Solb', 'Sol', 'Lab', 'La', 'Sib', 'Dob', 'Do', 'Reb', 'Re', 'Mib', 'Mi', 'Fa'],
-  'C#': ['Do#', 'Re', 'Re#', 'Mi', 'Mi#', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si', 'Si#'],
-  'Db': ['Reb', 'Re', 'Mib', 'Mi', 'Fa', 'Solb', 'Sol', 'Lab', 'La', 'Sib', 'Si', 'Do'],
-  'Ab': ['Lab', 'La', 'Sib', 'Si', 'Do', 'Reb', 'Re', 'Mib', 'Mi', 'Fa', 'Solb', 'Sol'],
-  'Eb': ['Mib', 'Mi', 'Fa', 'Solb', 'Sol', 'Lab', 'La', 'Sib', 'Si', 'Do', 'Reb', 'Re'],
-  'Bb': ['Sib', 'Si', 'Do', 'Reb', 'Re', 'Mib', 'Mi', 'Fa', 'Solb', 'Sol', 'Lab', 'La'],
-  'F':  ['Fa', 'Solb', 'Sol', 'Lab', 'La', 'Sib', 'Si', 'Do', 'Reb', 'Re', 'Mib', 'Mi'],
-};
-
-const DIATONIC_DEGREES: Record<string, string[]> = {
-  'C':  ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'],
-  'G':  ['Sol', 'La', 'Si', 'Do', 'Re', 'Mi', 'Fa#'],
-  'D':  ['Re', 'Mi', 'Fa#', 'Sol', 'La', 'Si', 'Do#'],
-  'A':  ['La', 'Si', 'Do#', 'Re', 'Mi', 'Fa#', 'Sol#'],
-  'E':  ['Mi', 'Fa#', 'Sol#', 'La', 'Si', 'Do#', 'Re#'],
-  'B':  ['Si', 'Do#', 'Re#', 'Mi', 'Fa#', 'Sol#', 'La#'],
-  'F#': ['Fa#', 'Sol#', 'La#', 'Si', 'Do#', 'Re#', 'Mi#'],
-  'C#': ['Do#', 'Re#', 'Mi#', 'Fa#', 'Sol#', 'La#', 'Si#'],
-  'F':  ['Fa', 'Sol', 'La', 'Sib', 'Do', 'Re', 'Mi'],
-  'Bb': ['Sib', 'Do', 'Re', 'Mib', 'Fa', 'Sol', 'La'],
-  'Eb': ['Mib', 'Fa', 'Sol', 'Lab', 'Sib', 'Do', 'Re'],
-  'Ab': ['Lab', 'Sib', 'Do', 'Reb', 'Mib', 'Fa', 'Sol'],
-  'Db': ['Reb', 'Mib', 'Fa', 'Solb', 'Lab', 'Sib', 'Do'],
-  'Gb': ['Solb', 'Lab', 'Sib', 'Dob', 'Reb', 'Mib', 'Fa'],
-  'Cb': ['Dob', 'Reb', 'Mib', 'Fab', 'Solb', 'Lab', 'Sib'],
-};
-
-function lowerSemitone(note: string): string {
-  if (note.endsWith('#')) return note.slice(0, -1);
-  return note + 'b';
-}
-
-function raiseSemitone(note: string): string {
-  if (note.endsWith('b')) return note.slice(0, -1);
-  return note + '#';
+export function getItalianNoteName(tonic: string, degree: Note): string {
+  try {
+    return getNoteNameByFifths(tonic, degree);
+  } catch {
+    return '?';
+  }
 }
 
 const ITALIAN_TO_ENGLISH: Record<string, string> = {
-  'Do': 'C', 'Do#': 'C#', 'Dob': 'Cb',
-  'Re': 'D', 'Re#': 'D#', 'Reb': 'Db',
-  'Mi': 'E', 'Mi#': 'E#', 'Mib': 'Eb',
-  'Fa': 'F', 'Fa#': 'F#', 'Fab': 'Fb',
-  'Sol': 'G', 'Sol#': 'G#', 'Solb': 'Gb',
-  'La': 'A', 'La#': 'A#', 'Lab': 'Ab',
-  'Si': 'B', 'Si#': 'B#', 'Sib': 'Bb',
+  'Do': 'C', 'Do#': 'C#', 'Do##': 'C##', 'Dob': 'Cb', 'Dobb': 'Cbb',
+  'Re': 'D', 'Re#': 'D#', 'Re##': 'D##', 'Reb': 'Db', 'Rebb': 'Dbb',
+  'Mi': 'E', 'Mi#': 'E#', 'Mi##': 'E##', 'Mib': 'Eb', 'Mibb': 'Ebb',
+  'Fa': 'F', 'Fa#': 'F#', 'Fa##': 'F##', 'Fab': 'Fb', 'Fabb': 'Fbb',
+  'Sol': 'G', 'Sol#': 'G#', 'Sol##': 'G##', 'Solb': 'Gb', 'Solbb': 'Gbb',
+  'La': 'A', 'La#': 'A#', 'La##': 'A##', 'Lab': 'Ab', 'Labb': 'Abb',
+  'Si': 'B', 'Si#': 'B#', 'Si##': 'B##', 'Sib': 'Bb', 'Sibb': 'Bbb',
 };
 
-export function getItalianNoteName(tonic: string, degree: Note): string {
-  let degreeString = degree;
-  if (degree.startsWith('_') || degree.startsWith('^')) {
-    degreeString = degree.slice(1);
-  }
-
-  const scale = ITALIAN_CHROMATIC_SCALES[tonic];
-  if (!scale) {
-    throw new Error(`Unknown tonic: ${tonic}`);
-  }
-
-  const semitones = SCALE_DEGREE_TO_SEMITONES[degreeString];
-  if (semitones === undefined) {
-    throw new Error(`Unknown scale degree: ${degreeString}`);
-  }
-
-  if (degreeString.startsWith('b')) {
-    const diatonic = DIATONIC_DEGREES[tonic];
-    const naturalDegreeNum = degreeString.slice(1);
-    const naturalNote = diatonic[parseInt(naturalDegreeNum) - 1];
-    return lowerSemitone(naturalNote);
-  }
-
-  if (degreeString.startsWith('#')) {
-    const diatonic = DIATONIC_DEGREES[tonic];
-    const naturalDegreeNum = degreeString.slice(1);
-    const naturalNote = diatonic[parseInt(naturalDegreeNum) - 1];
-    return raiseSemitone(naturalNote);
-  }
-
-  return scale[semitones];
-}
-
 const ITALIAN_TO_COMPACT: Record<string, string> = {
-  'Do#': 'Du', 'Dob': 'Di',
-  'Re#': 'Ri', 'Reb': 'Ra',
-  'Mi#': 'Mo', 'Mib': 'Me',
-  'Fa#': 'Fe', 'Fab': 'Fu',
-  'Sol#': 'Sul', 'Solb': 'Sil',
-  'La#': 'Le', 'Lab': 'Lu',
-  'Si#': 'So', 'Sib': 'Se',
+  'Do#': 'Du', 'Do##': 'Du2', 'Dob': 'Di', 'Dobb': 'Di2',
+  'Re#': 'Ri', 'Re##': 'Ri2', 'Reb': 'Ra', 'Rebb': 'Ra2',
+  'Mi#': 'Mo', 'Mi##': 'Mo2', 'Mib': 'Me', 'Mibb': 'Me2',
+  'Fa#': 'Fe', 'Fa##': 'Fe2', 'Fab': 'Fu', 'Fabb': 'Fu2',
+  'Sol#': 'Sul', 'Sol##': 'Sul2', 'Solb': 'Sil', 'Solbb': 'Sil2',
+  'La#': 'Le', 'La##': 'Le2', 'Lab': 'Lu', 'Labb': 'Lu2',
+  'Si#': 'So', 'Si##': 'So2', 'Sib': 'Se', 'Sibb': 'Se2',
 };
 
 const ITALIAN_TO_SPOKEN: Record<string, string> = {
-  'Do#': 'Do diesis', 'Dob': 'Do bemolle',
-  'Re#': 'Re diesis', 'Reb': 'Re bemolle',
-  'Mi#': 'Mi diesis', 'Mib': 'Mi bemolle',
-  'Fa#': 'Fa diesis', 'Fab': 'Fa bemolle',
-  'Sol#': 'Sol diesis', 'Solb': 'Sol bemolle',
-  'La#': 'La diesis', 'Lab': 'La bemolle',
-  'Si#': 'Si diesis', 'Sib': 'Si bemolle',
+  'Do#': 'Do diesis', 'Do##': 'Do doppio diesis', 'Dob': 'Do bemolle', 'Dobb': 'Do doppio bemolle',
+  'Re#': 'Re diesis', 'Re##': 'Re doppio diesis', 'Reb': 'Re bemolle', 'Rebb': 'Re doppio bemolle',
+  'Mi#': 'Mi diesis', 'Mi##': 'Mi doppio diesis', 'Mib': 'Mi bemolle', 'Mibb': 'Mi doppio bemolle',
+  'Fa#': 'Fa diesis', 'Fa##': 'Fa doppio diesis', 'Fab': 'Fa bemolle', 'Fabb': 'Fa doppio bemolle',
+  'Sol#': 'Sol diesis', 'Sol##': 'Sol doppio diesis', 'Solb': 'Sol bemolle', 'Solbb': 'Sol doppio bemolle',
+  'La#': 'La diesis', 'La##': 'La doppio diesis', 'Lab': 'La bemolle', 'Labb': 'La doppio bemolle',
+  'Si#': 'Si diesis', 'Si##': 'Si doppio diesis', 'Sib': 'Si bemolle', 'Sibb': 'Si doppio bemolle',
 };
 
 export function getSpokenForms(note: string): string {
@@ -149,18 +82,32 @@ export function parseSpokenNote(text: string): string | null {
   const lower = text.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   const altered: [RegExp, string][] = [
+    [/do\s*doppio\s*diesis|\bdu2\b/, 'Do##'],
+    [/do\s*doppio\s*bemolle|\bdi2\b/, 'Dobb'],
     [/do\s*diesis|\bdu\b|\bdù\b|\bdhu\b|\bdoo\b/, 'Do#'],
     [/do\s*bemolle|\bdi\b|\bdì\b/, 'Dob'],
+    [/re\s*doppio\s*diesis|\bri2\b/, 'Re##'],
+    [/re\s*doppio\s*bemolle|\bra2\b/, 'Rebb'],
     [/re\s*diesis|\bri\b|\brì\b|\bree\b|\brye\b/, 'Re#'],
     [/re\s*bemolle|\bra\b|\brah\b/, 'Reb'],
+    [/mi\s*doppio\s*diesis|\bmo2\b/, 'Mi##'],
+    [/mi\s*doppio\s*bemolle|\bme2\b/, 'Mibb'],
     [/mi\s*diesis|\bmo\b|\bmò\b/, 'Mi#'],
     [/mi\s*bemolle|\bme\b|\bmeh\b/, 'Mib'],
+    [/fa\s*doppio\s*diesis|\bfe2\b/, 'Fa##'],
+    [/fa\s*doppio\s*bemolle|\bfu2\b/, 'Fabb'],
     [/fa\s*diesis|\bfe\b|\bfè\b|\bfay\b/, 'Fa#'],
     [/fa\s*bemolle|\bfu\b|\bfù\b|\bfoo\b/, 'Fab'],
+    [/sol\s*doppio\s*diesis|\bsul2\b/, 'Sol##'],
+    [/sol\s*doppio\s*bemolle|\bsil2\b/, 'Solbb'],
     [/sol\s*diesis|\bsul\b|\bsùl\b|\bsool\b|\bsoul\b/, 'Sol#'],
     [/sol\s*bemolle|\bsil\b|\bseal\b|\bsyll\b|\bsill\b/, 'Solb'],
+    [/la\s*doppio\s*diesis|\ble2\b/, 'La##'],
+    [/la\s*doppio\s*bemolle|\blu2\b/, 'Labb'],
     [/la\s*diesis|\ble\b|\blè\b|\blay\b/, 'La#'],
     [/la\s*bemolle|\blu\b|\blo\b|\blou\b|\blù\b|\bloo\b/, 'Lab'],
+    [/si\s*doppio\s*diesis|\bso2\b/, 'Si##'],
+    [/si\s*doppio\s*bemolle|\bse2\b/, 'Sibb'],
     [/si\s*diesis|\bso\b|\bsò\b/, 'Si#'],
     [/si\s*bemolle|\bse\b|\bseh\b|\bsay\b/, 'Sib'],
   ];
@@ -175,9 +122,6 @@ export function parseSpokenNote(text: string): string | null {
     [/\bsi\b|\bsee\b|\bsea\b/, 'Si'],
   ];
 
-  // Search from the end of the text so that if the delta contains
-  // filler words before the note name (e.g. "ehm... la"), we match
-  // the last — and most likely intended — note name.
   for (let i = altered.length - 1; i >= 0; i--) {
     const [regex, note] = altered[i];
     if (regex.test(lower)) return note;
@@ -187,9 +131,5 @@ export function parseSpokenNote(text: string): string | null {
     if (regex.test(lower)) return note;
   }
 
-  // Regex match failed — try phonetic fallback. The speech engine
-  // often mishears short syllables as real Italian words that the
-  // regex doesn't cover. Phonetic matching finds the closest valid
-  // syllable by edit distance, catching e.g. "no"→Do, "te"→Re.
   return phoneticMatchNote(lower);
 }

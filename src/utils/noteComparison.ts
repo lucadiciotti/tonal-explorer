@@ -1,25 +1,29 @@
-const ENHARMONIC_EQUIVALENTS: Record<string, string[]> = {
-  'C': ['C', 'B#', 'Dbb'],
-  'C#': ['C#', 'Db', 'B##'],
-  'D': ['D', 'C##', 'Ebb'],
-  'D#': ['D#', 'Eb', 'Fbb'],
-  'E': ['E', 'D##', 'Fb'],
-  'F': ['F', 'E#', 'Gbb'],
-  'F#': ['F#', 'Gb', 'E##'],
-  'G': ['G', 'F##', 'Abb'],
-  'G#': ['G#', 'Ab'],
-  'A': ['A', 'G##', 'Bbb'],
-  'A#': ['A#', 'Bb', 'Cbb'],
-  'B': ['B', 'A##', 'Cb'],
+const LETTER_TO_SEMITONE: Record<string, number> = {
+  'C': 0, 'D': 2, 'E': 4, 'F': 5, 'G': 7, 'A': 9, 'B': 11,
 };
 
-export function normalizeNote(note: string): string {
-  for (const [key, equivalents] of Object.entries(ENHARMONIC_EQUIVALENTS)) {
-    if (equivalents.includes(note)) {
-      return key;
-    }
+function noteToSemitones(note: string): number | null {
+  const match = note.match(/^([A-G])(#{0,4}|b{0,4})$/i);
+  if (!match) return null;
+  const letter = match[1].toUpperCase();
+  const acc = match[2];
+  let semitones = LETTER_TO_SEMITONE[letter];
+  if (semitones === undefined) return null;
+  for (const c of acc) {
+    if (c === '#') semitones += 1;
+    else if (c === 'b') semitones -= 1;
   }
-  return note;
+  return ((semitones % 12) + 12) % 12;
+}
+
+const SEMITONE_TO_NORMALIZED = [
+  'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B',
+];
+
+export function normalizeNote(note: string): string {
+  const semitones = noteToSemitones(note);
+  if (semitones === null) return note;
+  return SEMITONE_TO_NORMALIZED[semitones];
 }
 
 export function areNotesEqual(note1: string, note2: string, ignoreOctave: boolean = true): boolean {
@@ -37,12 +41,9 @@ export function areNotesEqualWithOctave(
   return areNotesEqual(note1, note2) && octave1 === octave2;
 }
 
-// Given a wrong answer, determine if it's a pure octave error (right pitch class, wrong octave)
-// or a degree error (wrong pitch class).
-// noteWithOctave format: "C4", "F#5", "Bb3", etc.
 export function classifyError(playedNoteWithOctave: string, expectedNoteWithOctave: string): 'octave' | 'degree' | null {
-  const pm = playedNoteWithOctave.match(/^([A-Ga-g][#b]?)(\d+)$/);
-  const em = expectedNoteWithOctave.match(/^([A-Ga-g][#b]?)(\d+)$/);
+  const pm = playedNoteWithOctave.match(/^([A-G](?:#{1,4}|b{1,4})?)(\d+)$/i);
+  const em = expectedNoteWithOctave.match(/^([A-G](?:#{1,4}|b{1,4})?)(\d+)$/i);
   if (!pm || !em) return null;
   return areNotesEqual(pm[1], em[1]) ? 'octave' : 'degree';
 }
