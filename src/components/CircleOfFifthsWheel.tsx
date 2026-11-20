@@ -7,8 +7,8 @@ interface CircleOfFifthsWheelProps {
   label?: string;
 }
 
-// 12 positions clockwise from C at top (circle of fifths order)
-const WHEEL_POSITIONS: { default: Tonic; alt?: Tonic; color: string }[] = [
+// 12 notes in circle-of-fifths order (C at top, clockwise)
+const WHEEL_NOTES: { default: Tonic; alt?: Tonic; color: string }[] = [
   { default: 'C', color: '#e69d4d' },
   { default: 'G', color: '#d89964' },
   { default: 'D', color: '#ea9c4b' },
@@ -23,30 +23,42 @@ const WHEEL_POSITIONS: { default: Tonic; alt?: Tonic; color: string }[] = [
   { default: 'F', color: '#878eb4' },
 ];
 
+// 12 fixed degree slots — these do NOT rotate
+// Ordered clockwise from top: 1, 5, 2, 6, 3, 7, #4/b5, b2, b6, b3, b7, 4
+const FIXED_DEGREES: { label: string; diatonic: boolean; color: string }[] = [
+  { label: '1', diatonic: true, color: '#e69d4d' },
+  { label: '5', diatonic: true, color: '#d89964' },
+  { label: '2', diatonic: true, color: '#ea9c4b' },
+  { label: '6', diatonic: true, color: '#ee9d46' },
+  { label: '3', diatonic: true, color: '#df9652' },
+  { label: '7', diatonic: true, color: '#c28d6c' },
+  { label: '#4', diatonic: false, color: '#9f8394' },
+  { label: 'b2', diatonic: false, color: '#797db6' },
+  { label: 'b6', diatonic: false, color: '#5a84d6' },
+  { label: 'b3', diatonic: false, color: '#4c8ce4' },
+  { label: 'b7', diatonic: false, color: '#5d8ad5' },
+  { label: '4', diatonic: true, color: '#878eb4' },
+];
+
 const ANGLE_PER_STEP = 30;
 
 function tonicToRotation(tonic: Tonic): number {
-  const idx = WHEEL_POSITIONS.findIndex(
+  const idx = WHEEL_NOTES.findIndex(
     (p) => p.default === tonic || p.alt === tonic
   );
   return idx >= 0 ? -idx * ANGLE_PER_STEP : 0;
 }
 
-function rotationToTonic(rotation: number): { default: Tonic; alt?: Tonic; color: string } {
+function rotationToTonicIndex(rotation: number): number {
   const step = Math.round(rotation / ANGLE_PER_STEP);
-  const idx = ((-step % 12) + 12) % 12;
-  return WHEEL_POSITIONS[idx];
-}
-
-function normAngle(deg: number): number {
-  return ((deg % 360) + 360) % 360;
+  return ((-step % 12) + 12) % 12;
 }
 
 export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWheelProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [rotation, setRotation] = useState(tonicToRotation(tonic));
   const [isDragging, setIsDragging] = useState(false);
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [hoveredNoteIdx, setHoveredNoteIdx] = useState<number | null>(null);
   const dragState = useRef({
     startPointerAngle: 0,
     startRotation: 0,
@@ -98,7 +110,8 @@ export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWh
       const newRotation = dragState.current.startRotation + delta;
       setRotation(newRotation);
 
-      const pos = rotationToTonic(newRotation);
+      const idx = rotationToTonicIndex(newRotation);
+      const pos = WHEEL_NOTES[idx];
       if (pos.default !== tonic && pos.alt !== tonic) {
         onChange(pos.default);
       }
@@ -122,8 +135,8 @@ export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWh
       } else {
         const snapped = Math.round(finalRotation / ANGLE_PER_STEP) * ANGLE_PER_STEP;
         setRotation(snapped);
-        const pos = rotationToTonic(snapped);
-        onChange(pos.default);
+        const idx = rotationToTonicIndex(snapped);
+        onChange(WHEEL_NOTES[idx].default);
         animFrame.current = null;
         setIsDragging(false);
       }
@@ -141,65 +154,44 @@ export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWh
     }
   }, [isDragging, rotation, animateToSnap]);
 
-  const currentPos = rotationToTonic(rotation);
+  const topNoteIdx = rotationToTonicIndex(rotation);
+  const currentPos = WHEEL_NOTES[topNoteIdx];
   const hasAlt = currentPos.alt !== undefined;
   const usingAlt = hasAlt && tonic === currentPos.alt;
-  const topIdx = ((Math.round(-rotation / ANGLE_PER_STEP) % 12) + 12) % 12;
 
   const polarToCartesian = (angleDeg: number, radius: number) => {
     const rad = ((angleDeg - 90) * Math.PI) / 180;
     return { x: radius * Math.cos(rad), y: radius * Math.sin(rad) };
   };
 
-  const radius = 140;
-  const noteRadius = 26;
-
-  // Unique gradient IDs for SVG defs
-  const gradientId = (i: number) => `wheel-grad-${i}`;
+  // Geometry
+  const degreeRadius = 100;   // inner circle: degree nodes
+  const degreeNodeR = 20;     // degree node radius
+  const noteRadius = 155;     // outer: note labels
+  const svgHalf = 210;
 
   return (
     <div className="flex flex-col items-center gap-3 select-none">
       <div className="relative">
         {/* Radial glow background */}
         <div
-          className="absolute inset-0 rounded-full opacity-60 dark:opacity-80 pointer-events-none"
+          className="absolute inset-0 rounded-full opacity-50 pointer-events-none"
           style={{
-            background: 'radial-gradient(circle at 50% 45%, rgba(230,157,77,0.12) 0%, transparent 55%)',
+            background: 'radial-gradient(circle at 50% 45%, rgba(230,157,77,0.12) 0%, transparent 60%)',
           }}
         />
         <svg
           ref={svgRef}
-          viewBox="-190 -190 380 380"
-          className="relative w-72 h-72 sm:w-80 sm:h-80 touch-none cursor-grab active:cursor-grabbing"
+          viewBox={`-${svgHalf} -${svgHalf} ${svgHalf * 2} ${svgHalf * 2}`}
+          className="relative w-80 h-80 sm:w-96 sm:h-96 touch-none cursor-grab active:cursor-grabbing"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
         >
           <defs>
-            {WHEEL_POSITIONS.map((pos, i) => {
-              const next = WHEEL_POSITIONS[(i + 1) % 12];
-              const a1 = i * ANGLE_PER_STEP;
-              const a2 = (i + 1) * ANGLE_PER_STEP;
-              const p1 = polarToCartesian(a1, radius);
-              const p2 = polarToCartesian(a2, radius);
-              return (
-                <linearGradient
-                  key={i}
-                  id={gradientId(i)}
-                  gradientUnits="userSpaceOnUse"
-                  x1={p1.x}
-                  y1={p1.y}
-                  x2={p2.x}
-                  y2={p2.y}
-                >
-                  <stop offset="0%" stopColor={pos.color} />
-                  <stop offset="100%" stopColor={next.color} />
-                </linearGradient>
-              );
-            })}
-            <filter id="wheel-glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="6" result="blur" />
+            <filter id="deg-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
@@ -207,113 +199,124 @@ export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWh
             </filter>
           </defs>
 
-          {/* Outer dashed track */}
+          {/* Outer dashed track for note labels */}
           <circle
-            r={radius + 22}
+            r={noteRadius + 16}
             fill="none"
-            stroke="rgba(148, 163, 184, 0.15)"
+            stroke="rgba(148, 163, 184, 0.12)"
             strokeWidth={1}
-            strokeDasharray="3 7"
+            strokeDasharray="2 6"
           />
 
-          {/* Glow arcs */}
-          <g opacity={0.35}>
-            {WHEEL_POSITIONS.map((_, i) => {
-              const a1 = i * ANGLE_PER_STEP + rotation;
-              const a2 = (i + 1) * ANGLE_PER_STEP + rotation;
-              const p1 = polarToCartesian(a1, radius);
-              const p2 = polarToCartesian(a2, radius);
-              return (
-                <path
-                  key={`glow-${i}`}
-                  d={`M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} A ${radius} ${radius} 0 0 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`}
-                  fill="none"
-                  stroke={`url(#${gradientId(i)})`}
-                  strokeWidth={10}
-                  strokeLinecap="round"
-                  filter="url(#wheel-glow)"
-                />
-              );
-            })}
-          </g>
+          {/* Inner ring (diatonic arc highlight) */}
+          <circle
+            r={degreeRadius}
+            fill="none"
+            stroke="rgba(230, 157, 77, 0.2)"
+            strokeWidth={2}
+            strokeDasharray="5 4"
+          />
 
-          {/* Main arcs */}
-          {WHEEL_POSITIONS.map((_, i) => {
-            const a1 = i * ANGLE_PER_STEP + rotation;
-            const a2 = (i + 1) * ANGLE_PER_STEP + rotation;
-            const p1 = polarToCartesian(a1, radius);
-            const p2 = polarToCartesian(a2, radius);
-            return (
-              <path
-                key={`arc-${i}`}
-                d={`M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} A ${radius} ${radius} 0 0 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`}
-                fill="none"
-                stroke={`url(#${gradientId(i)})`}
-                strokeWidth={4}
-                strokeLinecap="round"
-              />
-            );
-          })}
-
-          {/* Top indicator: elegant gold chevron + glow ring */}
-          <g filter="url(#wheel-glow)">
+          {/* Top indicator: gold chevron */}
+          <g filter="url(#deg-glow)">
             <path
-              d="M 0 -182 L -10 -170 L 10 -170 Z"
+              d={`M 0 -${svgHalf - 8} L -10 -${svgHalf - 20} L 10 -${svgHalf - 20} Z`}
               fill="#e69d4d"
             />
           </g>
-          <circle cx={0} cy={-radius} r={noteRadius + 6} fill="none" stroke="rgba(230,157,77,0.25)" strokeWidth={1} strokeDasharray="2 4" />
 
-          {/* Note nodes */}
-          {WHEEL_POSITIONS.map((pos, i) => {
-            const angle = i * ANGLE_PER_STEP + rotation;
-            const pt = polarToCartesian(angle, radius);
-            const isActive = i === topIdx;
-            const isHovered = hoveredIdx === i;
-            const displayNote = pos.alt && tonic === pos.alt ? pos.alt : pos.default;
-            const r = isActive ? noteRadius + 4 : isHovered ? noteRadius + 2 : noteRadius;
+          {/* === FIXED DEGREE NODES (inner circle, do not rotate) === */}
+          {FIXED_DEGREES.map((deg, i) => {
+            const angle = i * ANGLE_PER_STEP;
+            const pt = polarToCartesian(angle, degreeRadius);
+            const isTonic = i === 0;
+            const r = isTonic ? degreeNodeR + 3 : degreeNodeR;
 
             return (
-              <g
-                key={i}
-                transform={`translate(${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`}
-                onPointerEnter={() => setHoveredIdx(i)}
-                onPointerLeave={() => setHoveredIdx(null)}
-                style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
-              >
-                {/* Background mask to hide arc behind node */}
-                <circle r={r + 2} fill="rgb(11 21 36)" />
+              <g key={`deg-${i}`} transform={`translate(${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`}>
+                {/* Background mask */}
+                <circle r={r + 1.5} fill="rgb(11 21 36)" />
 
                 {/* Outer ring */}
                 <circle
                   r={r}
-                  fill={isActive ? pos.color : 'rgba(15, 29, 48, 0.9)'}
-                  stroke={isActive ? '#e69d4d' : pos.color}
-                  strokeWidth={isActive ? 3 : isHovered ? 2.5 : 1.8}
-                  style={isActive || isHovered ? { filter: `drop-shadow(0 0 8px ${pos.color}88)` } : undefined}
+                  fill={isTonic ? deg.color : 'rgba(15, 29, 48, 0.92)'}
+                  stroke={isTonic ? '#e69d4d' : deg.color}
+                  strokeWidth={isTonic ? 3 : deg.diatonic ? 2.2 : 1.8}
+                  strokeDasharray={deg.diatonic ? undefined : '4 2.5'}
+                  style={isTonic ? { filter: `drop-shadow(0 0 8px ${deg.color}88)` } : undefined}
                 />
+
+                {/* Degree label */}
+                <text
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fontSize={isTonic ? 16 : deg.label.length > 2 ? 11 : 13}
+                  fontWeight={800}
+                  fill={isTonic ? '#0b1524' : deg.diatonic ? '#0b1524' : deg.color}
+                  style={{ pointerEvents: 'none', userSelect: 'none' }}
+                >
+                  {deg.label}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* === ROTATING NOTE LABELS (outer, rotate with wheel) === */}
+          {WHEEL_NOTES.map((pos, i) => {
+            const angle = i * ANGLE_PER_STEP + rotation;
+            const pt = polarToCartesian(angle, noteRadius);
+            const isActive = i === topNoteIdx;
+            const isHovered = hoveredNoteIdx === i;
+            const displayNote = pos.alt && tonic === pos.alt ? pos.alt : pos.default;
+
+            return (
+              <g
+                key={`note-${i}`}
+                transform={`translate(${pt.x.toFixed(2)}, ${pt.y.toFixed(2)})`}
+                onPointerEnter={() => setHoveredNoteIdx(i)}
+                onPointerLeave={() => setHoveredNoteIdx(null)}
+              >
+                {/* Active note: glowing background pill */}
+                {isActive && (
+                  <rect
+                    x={-28}
+                    y={-16}
+                    width={56}
+                    height={32}
+                    rx={10}
+                    fill={pos.color}
+                    opacity={0.15}
+                    filter="url(#deg-glow)"
+                  />
+                )}
 
                 {/* Note text */}
                 <text
                   textAnchor="middle"
                   dominantBaseline="central"
-                  fontSize={isActive ? 15 : isHovered ? 14 : 13}
+                  fontSize={isActive ? 18 : isHovered ? 16 : 15}
                   fontWeight={isActive ? 800 : 700}
-                  fill={isActive ? '#0b1524' : pos.color}
-                  style={{ pointerEvents: 'none', userSelect: 'none' }}
+                  fill={isActive ? pos.color : isHovered ? pos.color : 'rgba(148, 163, 184, 0.85)'}
+                  style={{
+                    pointerEvents: 'none',
+                    userSelect: 'none',
+                    filter: isActive ? `drop-shadow(0 0 6px ${pos.color}66)` : undefined,
+                    transition: 'font-size 0.15s ease, fill 0.15s ease',
+                  }}
                 >
                   {displayNote}
                 </text>
 
-                {/* Alt spelling below */}
+                {/* Alt spelling (small, below) */}
                 {pos.alt && (
                   <text
                     textAnchor="middle"
                     dominantBaseline="central"
-                    y={noteRadius + 13}
+                    y={16}
                     fontSize={9}
                     fontWeight={600}
-                    fill="rgba(148, 163, 184, 0.6)"
+                    fill={isActive ? 'rgba(230, 157, 77, 0.7)' : 'rgba(148, 163, 184, 0.4)'}
                     style={{ pointerEvents: 'none' }}
                   >
                     {pos.alt}
@@ -323,33 +326,45 @@ export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWh
             );
           })}
 
-          {/* Center hub */}
-          <circle r={62} fill="rgba(11, 21, 36, 0.6)" stroke="rgba(255,255,255,0.06)" strokeWidth={1} />
-          <circle r={62} fill="none" stroke="rgba(230,157,77,0.12)" strokeWidth={1} strokeDasharray="2 5" />
+          {/* === CENTER HUD === */}
+          <circle r={68} fill="rgba(11, 21, 36, 0.7)" stroke="rgba(255,255,255,0.06)" strokeWidth={1} />
+          <circle r={68} fill="none" stroke="rgba(230,157,77,0.1)" strokeWidth={1} strokeDasharray="2 5" />
 
           {label && (
             <text
               textAnchor="middle"
               dominantBaseline="central"
-              y={-12}
-              fontSize={10}
+              y={-14}
+              fontSize={9}
               fontWeight={700}
-              fill="rgba(148, 163, 184, 0.7)"
-              style={{ pointerEvents: 'none', textTransform: 'uppercase', letterSpacing: '0.14em' }}
+              fill="rgba(148, 163, 184, 0.65)"
+              style={{ pointerEvents: 'none', letterSpacing: '0.14em' }}
             >
-              {label}
+              {label.toUpperCase()}
             </text>
           )}
           <text
             textAnchor="middle"
             dominantBaseline="central"
-            y={14}
-            fontSize={26}
+            y={8}
+            fontSize={28}
             fontWeight={800}
             fill="#e69d4d"
             style={{ pointerEvents: 'none', letterSpacing: '0.02em' }}
           >
             {tonic}
+          </text>
+          {/* Degree 1 indicator in center */}
+          <text
+            textAnchor="middle"
+            dominantBaseline="central"
+            y={28}
+            fontSize={10}
+            fontWeight={600}
+            fill="rgba(148, 163, 184, 0.5)"
+            style={{ pointerEvents: 'none' }}
+          >
+            1°
           </text>
         </svg>
       </div>
