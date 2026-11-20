@@ -240,7 +240,7 @@ export function CircleOfFifthsWheel({ tonic, onChange, label }: CircleOfFifthsWh
                 {/* Outer ring */}
                 <circle
                   r={r}
-                  fill={isTonic ? deg.color : 'rgba(15, 29, 48, 0.92)'}
+                  fill={deg.diatonic ? deg.color : 'rgba(15, 29, 48, 0.92)'}
                   stroke={isTonic ? '#e69d4d' : deg.color}
                   strokeWidth={isTonic ? 3 : deg.diatonic ? 2.2 : 1.8}
                   strokeDasharray={deg.diatonic ? undefined : '4 2.5'}
