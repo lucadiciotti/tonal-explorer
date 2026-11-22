@@ -426,6 +426,15 @@ function App() {
                     )}
                   </div>
 
+                  <div className="text-center mb-4">
+                    <button
+                      onClick={handleNewSession}
+                      className="bg-slate-800 dark:bg-sky-600 hover:bg-slate-900 dark:hover:bg-sky-500 text-white font-bold py-4 px-8 rounded-lg transition-colors shadow-md hover:shadow-lg"
+                    >
+                      {t.completed.newSession}
+                    </button>
+                  </div>
+
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     <div className="p-4 bg-green-50 dark:bg-green-950/40 rounded-lg border border-green-200 dark:border-green-800">
                       <p className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide mb-2">{t.completed.hitStreaks}</p>
@@ -554,15 +563,6 @@ function App() {
                   )}
                 </>
               )}
-
-              <div className="text-center">
-                <button
-                  onClick={handleNewSession}
-                  className="bg-slate-800 dark:bg-sky-600 hover:bg-slate-900 dark:hover:bg-sky-500 text-white font-bold py-4 px-8 rounded-lg transition-colors shadow-md hover:shadow-lg"
-                >
-                  {t.completed.newSession}
-                </button>
-              </div>
             </div>
           )}
         </main>
